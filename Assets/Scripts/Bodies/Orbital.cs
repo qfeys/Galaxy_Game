@@ -23,7 +23,7 @@ namespace Assets.Scripts.Bodies
                 Parent.Childeren.Add(this);
         }
 
-        public abstract void Generate(ulong mass, Random rand);
+        public abstract void Generate(double mass, Random rand);
     }
 
     /// <summary>
