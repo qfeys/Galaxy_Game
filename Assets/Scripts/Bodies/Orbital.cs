@@ -9,12 +9,12 @@ namespace Assets.Scripts.Bodies
     {
         Orbital Parent;
         List<Orbital> Childeren;
-        public ulong Mass { get; private set; }
+        public double Mass { get; private set; }
         OrbitalElements Elements;
         ulong id;
         static ulong idCounter = 0;
 
-        public Orbital(Orbital parent, ulong mass, OrbitalElements elements)
+        public Orbital(Orbital parent, double mass, OrbitalElements elements)
         {
             Parent = parent; Mass = mass; Elements = elements;
             id = idCounter;
@@ -80,7 +80,7 @@ namespace Assets.Scripts.Bodies
         /// <param name="r">Radius</param>
         /// <param name="u">Angle on the ecliptica [0, 2xPi] [rad]</param>
         /// <param name="v">Angle away from the ecliptica [-Pi/2, Pi/2] [rad]</param>
-        public VectorS(long r, double u, double v)
+        public VectorS(ulong r, double u, double v)
         {
             this.r = r;
             this.u = u % (2 * Math.PI);

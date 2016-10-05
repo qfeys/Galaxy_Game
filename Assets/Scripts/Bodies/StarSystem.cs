@@ -7,11 +7,11 @@ namespace Assets.Scripts.Bodies
 {
     class StarSystem : Orbital
     {
-        public StarSystem(Orbital parent, long mass, OrbitalElements elements) : base(parent, 0, elements)
+        public StarSystem(Orbital parent, OrbitalElements elements) : base(parent, 0, elements)
         {
         }
 
-        public override void Generate(System.UInt64 mass, Random rand)
+        public override void Generate(double mass, Random rand)
         {
             throw new NotImplementedException();
         }

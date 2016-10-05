@@ -5,11 +5,13 @@ using System.Text;
 
 namespace Assets.Scripts.Bodies
 {
-    class Core : Orbital
+    class Star : Orbital
     {
-        public Core() : base(null, 0, new OrbitalElements())
-        {
 
+        public const double SolarMass = 1.98855e30;
+
+        public Star(Orbital parent, double mass, OrbitalElements elements) : base(parent, mass, elements)
+        {
         }
 
         public override void Generate(double mass, Random rand)
