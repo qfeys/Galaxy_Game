@@ -11,12 +11,19 @@ namespace Assets.Scripts.Bodies
         List<Orbital> Childeren;
         public ulong Mass { get; private set; }
         OrbitalElements Elements;
+        ulong id;
+        static ulong idCounter = 0;
 
         public Orbital(Orbital parent, ulong mass, OrbitalElements elements)
         {
             Parent = parent; Mass = mass; Elements = elements;
-            Parent.Childeren.Add(this);
+            id = idCounter;
+            idCounter++;
+            if(parent != null)
+                Parent.Childeren.Add(this);
         }
+
+        public abstract void Generate(ulong mass, Random rand);
     }
 
     /// <summary>
@@ -32,7 +39,7 @@ namespace Assets.Scripts.Bodies
         double e;   // exentricity
         Orbital parent;
         ulong T { get { return (ulong)(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parent.Mass))); } }
-        const double G = 6.674e-11;
+        const double G = 6.67408e-11;
 
         public VectorS GetPositionSphere(long time)
         {
