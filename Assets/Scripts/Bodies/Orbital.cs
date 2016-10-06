@@ -31,15 +31,30 @@ namespace Assets.Scripts.Bodies
     /// </summary>
     struct OrbitalElements
     {
-        double LAN; // longitude of ascending node
-        double i;   // inclination
-        double AOP; // Argument of periapsis
-        double MAaE;// Mean anomaly at epoch
-        ulong SMA;  // Semi-major axis
-        double e;   // exentricity
-        Orbital parent;
+        public readonly double LAN; // longitude of ascending node
+        public readonly double i;   // inclination
+        public readonly double AOP; // Argument of periapsis
+        public readonly double MAaE;// Mean anomaly at epoch
+        public readonly ulong SMA;  // Semi-major axis
+        public readonly double e;   // exentricity
+        public readonly Orbital parent;
         ulong T { get { return (ulong)(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parent.Mass))); } }
-        const double G = 6.67408e-11;
+        public const double G = 6.67408e-11;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="LAN">longitude of ascending node, between 0 and 2*PI</param>
+        /// <param name="i">inclenation, between 0 and 2*PI</param>
+        /// <param name="AOP">Argument of pereapsis, between 0 and 2*PI</param>
+        /// <param name="MAaE">Mean anomaly at epoch, between 0 and 2*PI</param>
+        /// <param name="SMA">Semi-Major axis</param>
+        /// <param name="e">Eccentricity, 0 for circles, 1 for parabolas</param>
+        /// <param name="parent"></param>
+        public OrbitalElements(double LAN, double i, double AOP, double MAaE, ulong SMA, double e, Orbital parent)
+        {
+            this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parent = parent;
+        }
 
         public VectorS GetPositionSphere(long time)
         {
