@@ -21,12 +21,13 @@ namespace Assets.Scripts.Bodies
             while (mass > 1e25 || i>10)
             {
                 double gMass = (rand.NextDouble() * 0.35 + 0.6) * mass;  // between 60% and 95% of leftover mass
+                ulong sma = chooseNewSMA(rand.NextDouble(), gMass);
                 OrbitalElements gElem = new OrbitalElements(
                     rand.NextDouble() * 2 * Math.PI,
                     rand.NextDouble() * 0.09 - 0.045,           // between -0.045 and 0.045 rad
                     rand.NextDouble() * 2 * Math.PI,
                     rand.NextDouble() * 2 * Math.PI,
-                    chooseNewSMA(rand.NextDouble(), gMass),
+                    sma,
                     rand.NextDouble() * 0.01,
                     s);
 
@@ -34,7 +35,6 @@ namespace Assets.Scripts.Bodies
                 Giant g = new Giant(this, gMass, gElem);
 
                 mass -= gMass;
-                UnityEngine.Debug.Log("SM: " + mass + " GM: " + gMass);
                 i++;
             }
         }
@@ -47,7 +47,7 @@ namespace Assets.Scripts.Bodies
         {
             //(4*R*R*e^(-(2*R)/m))/m^3                      Probability function
             // P = 1- exp(-2*R/m)*(m^2+2*m*R+2*R^2)/m^2     cumulative probability function, maps to [0,1]
-            ulong m = (ulong)(gMass / Giant.JupiterMass * Giant.JupiterSMA);    // mean, the most likely radius
+            ulong m = (ulong)(Math.Sqrt( gMass / Giant.JupiterMass) * Giant.JupiterSMA);    // mean, the most likely radius
             ulong R = m;                                                        // Radius, an estimate of the sma
             double diff = P - 1 - Math.Exp(-2.0 * R / m) * (m * m + 2 * m * R + 2 * R * R) / (m * m);
             int i = 0;
