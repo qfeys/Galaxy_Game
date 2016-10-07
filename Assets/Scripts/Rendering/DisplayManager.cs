@@ -8,7 +8,9 @@ namespace Assets.Scripts.Rendering
     {
         static public DisplayManager TheOne;
         Dictionary<GameObject, Bodies.Orbital> DisplayedBodies;
+        public GameObject protoStar;
         public GameObject protoGiant;
+        Dictionary<Type, Func<GameObject>> protoInstantiation;
         public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()
@@ -20,7 +22,10 @@ namespace Assets.Scripts.Rendering
         // Use this for initialization
         void Start()
         {
-
+            protoInstantiation = new Dictionary<Type, Func<GameObject>> {
+                { typeof(Bodies.Star), () =>  Instantiate(protoStar) },
+                { typeof(Bodies.Giant), () => Instantiate(protoGiant) }
+            };
         }
 
         // Update is called once per frame
@@ -34,12 +39,13 @@ namespace Assets.Scripts.Rendering
             DisplayedBodies = new Dictionary<GameObject, Bodies.Orbital>();
             syst.Childeren.ForEach(b =>
             {
-                GameObject go = Instantiate(protoGiant);
+                GameObject go = protoInstantiation[b.GetType()]();
                 Bodies.VectorS posS = b.Elements.GetPositionSphere(God.Time);
                 double scale = Math.Pow(10, -zoom);
-                go.transform.position = new Vector3((float)(posS.r * Math.Cos(posS.u) * Math.Cos(posS.v) * scale),
+                Vector3 v = new Vector3((float)(posS.r * Math.Cos(posS.u) * Math.Cos(posS.v) * scale),
                                                     (float)(posS.r * Math.Sin(posS.u) * Math.Cos(posS.v) * scale),
                                                     (float)(posS.r * Math.Sin(posS.v) * scale));
+                go.transform.position = v;
                 DisplayedBodies.Add(go, b);
                 Debug.Log("New object displayed at: " + posS);
             });
