@@ -14,6 +14,7 @@ namespace Assets.Scripts.Rendering
         public void Awake()
         {
             if (TheOne != null) throw new Exception("A second display manager is created");
+            TheOne = this;
         }
 
         // Use this for initialization
@@ -36,11 +37,11 @@ namespace Assets.Scripts.Rendering
                 GameObject go = Instantiate(protoGiant);
                 Bodies.VectorS posS = b.Elements.GetPositionSphere(God.Time);
                 double scale = Math.Pow(10, -zoom);
-                go.transform.position = new Vector3((float)(posS.r * Math.Cos(posS.u) * Math.Sin(posS.v) * scale),
-                                                    (float)(posS.r * Math.Sin(posS.u) * Math.Sin(posS.v) * scale),
-                                                    (float)(posS.r * Math.Cos(posS.v) * scale));
+                go.transform.position = new Vector3((float)(posS.r * Math.Cos(posS.u) * Math.Cos(posS.v) * scale),
+                                                    (float)(posS.r * Math.Sin(posS.u) * Math.Cos(posS.v) * scale),
+                                                    (float)(posS.r * Math.Sin(posS.v) * scale));
                 DisplayedBodies.Add(go, b);
-
+                Debug.Log("New object displayed at: " + posS);
             });
         }
     }

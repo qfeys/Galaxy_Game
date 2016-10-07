@@ -59,6 +59,7 @@ namespace Assets.Scripts.Bodies
 
         public VectorS GetPositionSphere(long time)
         {
+            if (SMA == 0) return new VectorS(0, 0, 0);
             VectorS ret = new VectorS();
             double n = T / (2 * Math.PI);   // average rate of sweep
             double meanAnomaly = MAaE + n * time;
@@ -101,6 +102,11 @@ namespace Assets.Scripts.Bodies
             this.r = r;
             this.u = u % (2 * Math.PI);
             this.v = Math.IEEERemainder(v, Math.PI);
+        }
+
+        public override string ToString()
+        {
+            return "{"+r.ToString("e2")+","+u.ToString("0.00")+","+v.ToString("0.00")+"}";
         }
     }
 }
