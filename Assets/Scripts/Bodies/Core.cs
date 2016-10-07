@@ -13,6 +13,7 @@ namespace Assets.Scripts.Bodies
         {
             if (instance != null) throw new Exception("A core has already been created");
             instance = new Core();
+            Rendering.God.log.Add("Core Created");
             Random rand = new Random(seed);
             instance.Generate(SizeMap[size], rand);
         }
@@ -25,6 +26,7 @@ namespace Assets.Scripts.Bodies
         public override void Generate(double mass, Random rand)
         {
             StarSystem ss = new StarSystem(this, new OrbitalElements());
+            Rendering.God.log.Add("System Generated");
             ss.Generate(Star.SolarMass, rand);
         }
 

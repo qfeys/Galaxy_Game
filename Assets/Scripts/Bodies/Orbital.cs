@@ -17,6 +17,7 @@ namespace Assets.Scripts.Bodies
         public Orbital(Orbital parent, double mass, OrbitalElements elements)
         {
             Parent = parent; Mass = mass; Elements = elements;
+            Childeren = new List<Orbital>();
             id = idCounter;
             idCounter++;
             if(parent != null)
