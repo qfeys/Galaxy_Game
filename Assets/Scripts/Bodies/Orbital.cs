@@ -8,9 +8,9 @@ namespace Assets.Scripts.Bodies
     abstract class Orbital
     {
         Orbital Parent;
-        List<Orbital> Childeren;
+        public List<Orbital> Childeren { get; private set; }
         public double Mass { get; private set; }
-        OrbitalElements Elements;
+        public OrbitalElements Elements { get; private set; }
         ulong id;
         static ulong idCounter = 0;
 
