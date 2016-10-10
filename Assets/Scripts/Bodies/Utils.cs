@@ -56,6 +56,23 @@ namespace Assets.Scripts.Bodies
             if (Math.Abs(guess - newGuess) < guess * 1e-10) return newGuess;
             return eccentricAnomaly(meanAnomaly, newGuess);
         }
+
+        internal VectorS[] FindPointsOnOrbit(int number)
+        {
+            if (SMA == 0) throw new Exception("Cant find points of this orbit because this is not an orbit (sma = 0)");
+            VectorS[] ret = new VectorS[number];
+            for (int i = 0; i < number; i++)
+            {
+                VectorS point = new VectorS();
+                double meanAnomaly = MAaE + i * 2 * Math.PI / number;
+                double EA = eccentricAnomaly(meanAnomaly);
+                point.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
+                point.u = LAN + (AOP + EA) * Math.Sin(i);
+                point.v = i * Math.Sin(AOP + EA);
+                ret[i] = point;
+            }
+            return ret;
+        }
     }
 
     /// <summary>
@@ -81,6 +98,13 @@ namespace Assets.Scripts.Bodies
             this.r = r;
             this.u = u % (2 * Math.PI);
             this.v = Math.IEEERemainder(v, Math.PI);
+        }
+
+        public static explicit operator UnityEngine.Vector3(VectorS vs)
+        {
+            return new UnityEngine.Vector3((float)(vs.r * Math.Cos(vs.u) * Math.Cos(vs.v)),
+                                           (float)(vs.r * Math.Sin(vs.u) * Math.Cos(vs.v)),
+                                           (float)(vs.r * Math.Sin(vs.v)));
         }
 
         public override string ToString()

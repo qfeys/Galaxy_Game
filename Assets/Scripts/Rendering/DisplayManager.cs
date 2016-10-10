@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Assets.Scripts.Bodies;
+using System.Linq;
 
 namespace Assets.Scripts.Rendering
 {
@@ -8,6 +10,7 @@ namespace Assets.Scripts.Rendering
     {
         static public DisplayManager TheOne;
         Dictionary<GameObject, Bodies.Orbital> DisplayedBodies;
+        Dictionary<GameObject, LineRenderer> DisplayedOrbits;
         public GameObject protoStar;
         public GameObject protoGiant;
         Dictionary<Type, Func<GameObject>> protoInstantiation;
@@ -37,18 +40,30 @@ namespace Assets.Scripts.Rendering
         internal void DisplaySystem(Bodies.StarSystem syst)
         {
             DisplayedBodies = new Dictionary<GameObject, Bodies.Orbital>();
+            GameObject star = null;
             syst.Childeren.ForEach(b =>
             {
                 GameObject go = protoInstantiation[b.GetType()]();
+                if (star == null && b.GetType() == typeof(Bodies.Star)) star = go;
                 Bodies.VectorS posS = b.Elements.GetPositionSphere(God.Time);
-                double scale = Math.Pow(10, -zoom);
-                Vector3 v = new Vector3((float)(posS.r * Math.Cos(posS.u) * Math.Cos(posS.v) * scale),
-                                                    (float)(posS.r * Math.Sin(posS.u) * Math.Cos(posS.v) * scale),
-                                                    (float)(posS.r * Math.Sin(posS.v) * scale));
+                float scale = Mathf.Pow(10, -zoom);
+                Vector3 v = (Vector3)posS * scale;
                 go.transform.position = v;
                 DisplayedBodies.Add(go, b);
-                Debug.Log("New object displayed at: " + posS);
+                if (b.GetType() != typeof(Bodies.Star))
+                {
+                    go.transform.SetParent(star.transform);
+                    LineRenderer lr = star.AddComponent<LineRenderer>();
+                    lr.SetPositions(FindPointsOnOrbit(b.Elements, 20));
+                    DisplayedOrbits.Add(go, lr);
+                }
             });
+        }
+
+        private Vector3[] FindPointsOnOrbit(OrbitalElements elements, int number)
+        {
+            return elements.FindPointsOnOrbit(number).Cast<Vector3>().ToArray();
+            
         }
     }
 }
