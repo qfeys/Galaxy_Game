@@ -17,15 +17,15 @@ namespace Assets.Scripts.Rendering
         {
             if (TheOne != null) throw new Exception("A second display manager is created");
             TheOne = this;
+            protoInstantiation = new Dictionary<Type, Func<GameObject>> {
+                { typeof(Bodies.Star), () =>  Instantiate(protoStar) },
+                { typeof(Bodies.Giant), () => Instantiate(protoGiant) }
+            };
         }
 
         // Use this for initialization
         void Start()
         {
-            protoInstantiation = new Dictionary<Type, Func<GameObject>> {
-                { typeof(Bodies.Star), () =>  Instantiate(protoStar) },
-                { typeof(Bodies.Giant), () => Instantiate(protoGiant) }
-            };
         }
 
         // Update is called once per frame
