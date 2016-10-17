@@ -22,7 +22,8 @@ namespace Assets.Scripts.Rendering
             TheOne = this;
             protoInstantiation = new Dictionary<Type, Func<GameObject>> {
                 { typeof(Bodies.Star), () =>  Instantiate(protoStar) },
-                { typeof(Bodies.Giant), () => Instantiate(protoGiant) }
+                { typeof(Bodies.Giant), () => Instantiate(protoGiant) },
+                { typeof(Bodies.Rock), () => Instantiate(protoGiant) }
             };
         }
 
@@ -40,6 +41,7 @@ namespace Assets.Scripts.Rendering
         internal void DisplaySystem(Bodies.StarSystem syst)
         {
             DisplayedBodies = new Dictionary<GameObject, Bodies.Orbital>();
+            DisplayedOrbits = new Dictionary<GameObject, LineRenderer>();
             GameObject star = null;
             syst.Childeren.ForEach(b =>
             {
@@ -53,8 +55,13 @@ namespace Assets.Scripts.Rendering
                 if (b.GetType() != typeof(Bodies.Star))
                 {
                     go.transform.SetParent(star.transform);
-                    LineRenderer lr = star.AddComponent<LineRenderer>();
-                    lr.SetPositions(FindPointsOnOrbit(b.Elements, 20));
+
+                    GameObject orb = new GameObject("Orbit of " + b);
+                    orb.transform.SetParent(star.transform);
+                    LineRenderer lr = orb.AddComponent<LineRenderer>();
+                    lr.SetVertexCount(40);
+                    lr.SetWidth(0.1f, 0.2f);
+                    lr.SetPositions(FindPointsOnOrbit(b.Elements, 40));
                     DisplayedOrbits.Add(go, lr);
                 }
             });
@@ -62,7 +69,8 @@ namespace Assets.Scripts.Rendering
 
         private Vector3[] FindPointsOnOrbit(OrbitalElements elements, int number)
         {
-            return elements.FindPointsOnOrbit(number).Cast<Vector3>().ToArray();
+            //elements.FindPointsOnOrbit(20).ToList().ForEach(vs => Debug.Log(vs));
+            return elements.FindPointsOnOrbit(number).Select(vs => (Vector3)vs * Mathf.Pow(10, -zoom)).ToArray();
             
         }
     }

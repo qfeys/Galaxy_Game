@@ -25,6 +25,11 @@ namespace Assets.Scripts.Bodies
         }
 
         public abstract void Generate(double mass, Random rand);
+
+        public override string ToString()
+        {
+            return this.GetType().ToString();
+        }
     }
 
 }

@@ -61,15 +61,16 @@ namespace Assets.Scripts.Bodies
         {
             if (SMA == 0) throw new Exception("Cant find points of this orbit because this is not an orbit (sma = 0)");
             VectorS[] ret = new VectorS[number];
-            for (int i = 0; i < number; i++)
+            for (int j = 0; j < number; j++)
             {
                 VectorS point = new VectorS();
-                double meanAnomaly = MAaE + i * 2 * Math.PI / number;
+                double meanAnomaly = MAaE + j * 2 * Math.PI / number;
                 double EA = eccentricAnomaly(meanAnomaly);
                 point.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
-                point.u = LAN + (AOP + EA) * Math.Sin(i);
+                point.u = LAN + (AOP + EA) * Math.Cos(i);
                 point.v = i * Math.Sin(AOP + EA);
-                ret[i] = point;
+                //UnityEngine.Debug.Log(j + ": " + j * 2 * Math.PI / number + "rad, MA: " + meanAnomaly.ToString("0.0") + " rad, EA: " + EA.ToString("0.0") + " rad, u:" + point.u.ToString("0.0") + " rad");
+                ret[j] = point;
             }
             return ret;
         }
