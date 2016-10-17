@@ -16,6 +16,11 @@ namespace Assets.Scripts.Bodies
             throw new NotImplementedException();
         }
 
+        public override string ToString()
+        {
+            return "Giant-" + (Mass / JupiterMass).ToString("#0.00");
+        }
+
         public const double JupiterMass = 1.899e27;
         public const ulong JupiterSMA = StarSystem.AU * 52 / 10;
     }

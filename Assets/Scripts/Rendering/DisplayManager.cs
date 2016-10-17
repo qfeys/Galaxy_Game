@@ -22,9 +22,9 @@ namespace Assets.Scripts.Rendering
             if (TheOne != null) throw new Exception("A second display manager is created");
             TheOne = this;
             protoInstantiation = new Dictionary<Type, Func<GameObject>> {
-                { typeof(Bodies.Star), () =>  Instantiate(protoStar) },
-                { typeof(Bodies.Giant), () => Instantiate(protoGiant) },
-                { typeof(Bodies.Rock), () => Instantiate(protoRock) }
+                { typeof(Star), () =>  Instantiate(protoStar) },
+                { typeof(Giant), () => Instantiate(protoGiant) },
+                { typeof(Rock), () => Instantiate(protoRock) }
             };
         }
 

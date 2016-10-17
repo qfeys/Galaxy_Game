@@ -19,7 +19,7 @@ namespace Assets.Scripts.Rendering
             log = new List<string>();
             Time = 0;
 
-            Bodies.Core.Create(1, 20);
+            Bodies.Core.Create(1, 22);
             log.ForEach(l => Debug.Log(l));
             DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
         }
