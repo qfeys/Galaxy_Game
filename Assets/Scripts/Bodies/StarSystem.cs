@@ -37,6 +37,25 @@ namespace Assets.Scripts.Bodies
                 mass -= gMass;
                 i++;
             }
+            while(mass > 1e20 || i > 30)
+            {
+                double rMass = (rand.NextDouble() * 0.3 + 0.4) * mass;  // between 40% and 70% of leftover mass
+                ulong sma = chooseNewRockSMA(rand.NextDouble(), rMass);
+                OrbitalElements gElem = new OrbitalElements(
+                    rand.NextDouble() * 2 * Math.PI,
+                    rand.NextDouble() * 0.18 - 0.09,           // between -0.09 and 0.09 rad
+                    rand.NextDouble() * 2 * Math.PI,
+                    rand.NextDouble() * 2 * Math.PI,
+                    sma,
+                    rand.NextDouble() * 0.01,
+                    s);
+
+                Rendering.God.log.Add("Rock with mass: " + rMass + " and SMA: " + gElem.SMA);
+                Giant g = new Giant(this, rMass, gElem);
+
+                mass -= rMass;
+                i++;
+            }
         }
 
         /// <summary>
@@ -46,7 +65,7 @@ namespace Assets.Scripts.Bodies
         ulong chooseNewGiantSMA(double rand, double gMass)
         {
             // (4*R*R*e^(-2*R/m))/m^3                       Probability function
-            // e^(k^2 / 10 / (r - k)^2)                     Probability modifier on presence other giant
+            // e^(-k^2 / 10 / (r - k)^2)                     Probability modifier on presence other giant
             // ((log(10,x*10+1)*log(11,10)+1)/2             formulla most likly radius based on mass
             double massRatio = gMass / Giant.JupiterMass;
             ulong m = (ulong)((Math.Log(10 * massRatio + 1) / Math.Log(11) + 1) / 2 * Giant.JupiterSMA);    // mean, the most likely radius
@@ -59,7 +78,7 @@ namespace Assets.Scripts.Bodies
             {
                 Px.Add(r => Q(r, g.Elements.SMA));
             }
-            List<Tuple<double, ulong>> C = NormRiemannSum(Px, m);
+            List<Tuple<double, ulong>> C = NormRiemannSum(Px, 6 * m);
 
             // Find the last tuple where (rand-item1 > 0). This is the left border
             int lb = C.FindLastIndex(t => rand - t.Item1 > 0);
@@ -76,28 +95,32 @@ namespace Assets.Scripts.Bodies
         /// <returns></returns>
         ulong chooseNewRockSMA(double rand, double rMass)
         {
-            // (4*R*R*e^(-2*R/m))/m^3                       Probability function
-            // e^(k^2 / 10 / (r - k)^2)                     Probability modifier on presence other giant
+            // 3/2* (-(x/a)^2 + 1)/a                        Probability function
+            // e^(-k^2 / 10 / (r - k)^2)                     Probability modifier on presence other giant
             // ((log(10,x*10+1)*log(11,10)+1)/2             formulla most likly radius based on mass
-            double massRatio = rMass / Rock.EarthMass;
-            ulong m = (ulong)((Math.Log(10 * massRatio + 1) / Math.Log(11) + 1) / 2 * AU);    // mean, the most likely radius
+            ulong a = 30 * AU;  // max distance
 
-            Func<ulong, double> P = r => (4.0 * r * r * Math.Exp(-2.0 * r / m)) / (1.0 * m * m * m);
-            Func<ulong, ulong, double> Q = (r, k) => Math.Exp(-1.0 * k * k / 10 / Math.Pow(r - k, 2));
+            Func<ulong, double> P = r => 3.0 / 2 * (1 - Math.Pow((r + 0.0) / a, 2)) / a;
+            Func<ulong, ulong, double> Qg = (r, k) => Math.Exp(-1.0 * k * k / 10 / Math.Pow(r - k, 2));
+            Func<ulong, ulong, double> Qr = (r, k) => Math.Exp(-1.0 * k * k / 40 / Math.Pow(r - k, 2));
             List<Func<ulong, double>> Px = new List<Func<ulong, double>>();
             Px.Add(P);
             foreach (var g in Childeren.FindAll(c => c.GetType() == typeof(Giant)))
             {
-                Px.Add(r => Q(r, g.Elements.SMA));
+                Px.Add(r => Qg(r, g.Elements.SMA));
             }
-            List<Tuple<double, ulong>> C = NormRiemannSum(Px, m);
+            foreach (var ro in Childeren.FindAll(c => c.GetType() == typeof(Rock)))
+            {
+                Px.Add(r => Qr(r, ro.Elements.SMA));
+            }
+            List<Tuple<double, ulong>> C = NormRiemannSum(Px, a);
 
             // Find the last tuple where (rand-item1 > 0). This is the left border
             int lb = C.FindLastIndex(t => rand - t.Item1 > 0);
             // Preform and return an linear interpolation on C
             ulong R = C[lb].Item2 + (ulong)((rand - C[lb].Item1) / (C[lb + 1].Item1 - C[lb].Item1) * (C[lb + 1].Item2 - C[lb].Item2));
 
-            UnityEngine.Debug.Log("massRatio: " + massRatio + " Mean location: " + (1.0 * m / AU).ToString("0.00") + " AU, Actual location: " + (1.0 * R / AU).ToString("0.00") + " AU, Rand: " + rand);
+            UnityEngine.Debug.Log("Max location: " + (1.0 * a / AU).ToString("0.00") + " AU, Actual location: " + (1.0 * R / AU).ToString("0.00") + " AU, Rand: " + rand);
             return R;
         }
 
@@ -105,18 +128,18 @@ namespace Assets.Scripts.Bodies
         /// Projects the riemann sum of function p(x) to (int(p,0,t),t) for t = 0 to 6*m
         /// Then it normilizes this so the maximum sum is 1
         /// </summary>
-        private List<Tuple<double, ulong>> NormRiemannSum(List<Func<ulong, double>> p, ulong m)
+        private List<Tuple<double, ulong>> NormRiemannSum(List<Func<ulong, double>> p, ulong max)
         {
             List<Tuple<double, ulong>> ret = new List<Tuple<double, ulong>>();
             double s = 0;
-            for (ulong i = 0; i < m * 6; i += m / 20)    // 120 iterations
+            for (ulong i = 0; i < max; i += max / 100)    // 100 iterations
             {
                 double term = 1;
                 foreach (var q in p)
                 {
                     term *= q(i);
                 }
-                s += term * m / 20;         // Right riemann sum
+                s += term * max / 100;         // Right riemann sum
                 ret.Add(new Tuple<double, ulong>(s, i));
             }
             // Normilize all points so end point is 1

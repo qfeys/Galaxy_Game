@@ -13,6 +13,7 @@ namespace Assets.Scripts.Rendering
         Dictionary<GameObject, LineRenderer> DisplayedOrbits;
         public GameObject protoStar;
         public GameObject protoGiant;
+        public GameObject protoRock;
         Dictionary<Type, Func<GameObject>> protoInstantiation;
         public float zoom = 12; // log scale - high values are zoomed in
 
@@ -23,7 +24,7 @@ namespace Assets.Scripts.Rendering
             protoInstantiation = new Dictionary<Type, Func<GameObject>> {
                 { typeof(Bodies.Star), () =>  Instantiate(protoStar) },
                 { typeof(Bodies.Giant), () => Instantiate(protoGiant) },
-                { typeof(Bodies.Rock), () => Instantiate(protoGiant) }
+                { typeof(Bodies.Rock), () => Instantiate(protoRock) }
             };
         }
 
