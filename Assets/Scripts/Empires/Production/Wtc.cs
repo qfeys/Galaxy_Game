@@ -7,5 +7,6 @@ namespace Assets.Scripts.Empires.Production
 {
     class Wtc
     {
+
     }
 }
