@@ -65,7 +65,7 @@ namespace Assets.Scripts.Rendering
                 float scale = Mathf.Pow(10, -zoom);
                 Vector3 v = (Vector3)posS * scale;
                 b.Key.transform.position = v;
-                if (b.GetType() != typeof(Bodies.Star))
+                if (DisplayedOrbits.ContainsKey(b.Key))
                 {
                     DisplayedOrbits[b.Key].SetPositions(FindPointsOnOrbit(b.Value.Elements, 40));
                 }
