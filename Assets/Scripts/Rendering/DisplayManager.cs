@@ -10,10 +10,13 @@ namespace Assets.Scripts.Rendering
     {
         static public DisplayManager TheOne;
         SystemRenderer systemrenderer;
+        Inspector inspector;
         public GameObject protoStar;
         public GameObject protoGiant;
         public GameObject protoRock;
         public Material lineMaterial;
+
+        public GameObject protoInspector;
         public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()
@@ -22,6 +25,9 @@ namespace Assets.Scripts.Rendering
             TheOne = this;
             systemrenderer = gameObject.AddComponent<SystemRenderer>();
             systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
+            var insp = Instantiate(protoInspector);
+            inspector = insp.GetComponent<Inspector>();
+
         }
 
         // Use this for initialization
