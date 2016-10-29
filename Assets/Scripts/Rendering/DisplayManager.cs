@@ -13,6 +13,7 @@ namespace Assets.Scripts.Rendering
         public GameObject protoStar;
         public GameObject protoGiant;
         public GameObject protoRock;
+        public Material lineMaterial;
         public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()

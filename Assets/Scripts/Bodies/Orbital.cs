@@ -28,7 +28,7 @@ namespace Assets.Scripts.Bodies
 
         public override string ToString()
         {
-            return this.GetType().ToString() + id;
+            return this.GetType().Name + id;
         }
     }
 

@@ -50,6 +50,7 @@ namespace Assets.Scripts.Rendering
                     LineRenderer lr = orb.AddComponent<LineRenderer>();
                     lr.SetVertexCount(40);
                     lr.SetWidth(0.1f, 0.2f);
+                    lr.material = DisplayManager.TheOne.lineMaterial;
                     DisplayedOrbits.Add(go, lr);
                 }
             });
