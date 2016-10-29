@@ -69,7 +69,7 @@ namespace Assets.Scripts.Rendering
                 {
                     DisplayedOrbits[b.Key].SetPositions(FindPointsOnOrbit(b.Value.Elements, 40));
                 }
-            });
+            }
         }
 
         private Vector3[] FindPointsOnOrbit(OrbitalElements elements, int number)
