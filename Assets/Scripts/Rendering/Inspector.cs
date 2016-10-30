@@ -12,7 +12,7 @@ namespace Assets.Scripts.Rendering
         public void Start()
         {
             transform.SetParent(GameObject.FindGameObjectWithTag("MainCanvas").transform);
-            ((RectTransform)transform).localPosition.Set(0, Screen.height/2f, 0);
+            GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
             Debug.Log(((RectTransform)transform).localPosition.ToString());
             gameObject.SetActive(false);
         }

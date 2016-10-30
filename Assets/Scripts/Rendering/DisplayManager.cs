@@ -28,8 +28,6 @@ namespace Assets.Scripts.Rendering
             systemrenderer = gameObject.AddComponent<SystemRenderer>();
             systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
             var insp = Instantiate(protoInspector);
-            insp.transform.SetParent(GameObject.FindGameObjectWithTag("MainCanvas").transform);
-            insp.transform.localPosition.Set(0, 0, 0);
             inspector = insp.GetComponent<Inspector>();
             inputManager = gameObject.AddComponent<InputManager>();
         }
