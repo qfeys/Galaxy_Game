@@ -8,6 +8,9 @@ namespace Assets.Scripts.Rendering
 {
     class InputManager : MonoBehaviour
     {
+        public float scrollSensitivity = 0.05f;
+
+
         public void Update()
         {
             if (Input.GetMouseButtonDown(0))
@@ -28,6 +31,12 @@ namespace Assets.Scripts.Rendering
                     }
                 }
             }
+
+            if(Input.mouseScrollDelta.y != 0)
+            {
+                DisplayManager.TheOne.ChangeZoom(Input.mouseScrollDelta.y * scrollSensitivity);
+            }
+
         }
     }
 }

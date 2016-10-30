@@ -59,5 +59,11 @@ namespace Assets.Scripts.Rendering
             Orbital orb = systemrenderer.FindOrbital(obj);
             inspector.DisplayOrbital(orb);
         }
+
+        internal void ChangeZoom(float delta)
+        {
+            systemrenderer.zoom += delta;
+            systemrenderer.Render();
+        }
     }
 }
