@@ -39,6 +39,7 @@ namespace Assets.Scripts.Rendering
             {
                 GameObject go = Instantiate(prototypes[b.GetType()]);
                 go.name = b.ToString();
+                go.tag = "Orbital";
                 if (star == null && b.GetType() == typeof(Bodies.Star)) star = go;
                 DisplayedBodies.Add(go, b);
                 if (b.GetType() != typeof(Bodies.Star))
@@ -78,6 +79,15 @@ namespace Assets.Scripts.Rendering
             //elements.FindPointsOnOrbit(20).ToList().ForEach(vs => Debug.Log(vs));
             return elements.FindPointsOnOrbit(number).Select(vs => (Vector3)vs * Mathf.Pow(10, -zoom)).ToArray();
 
+        }
+
+        internal Orbital FindOrbital(GameObject obj)
+        {
+            if (DisplayedBodies.ContainsKey(obj))
+            {
+                return DisplayedBodies[obj];
+            }
+            throw new ArgumentException(obj.ToString() + " could not be found in the dictionary 'DisplayedBodies'.");
         }
     }
 }

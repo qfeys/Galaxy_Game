@@ -11,6 +11,8 @@ namespace Assets.Scripts.Rendering
         static public DisplayManager TheOne;
         SystemRenderer systemrenderer;
         Inspector inspector;
+        InputManager inputManager;
+
         public GameObject protoStar;
         public GameObject protoGiant;
         public GameObject protoRock;
@@ -26,8 +28,10 @@ namespace Assets.Scripts.Rendering
             systemrenderer = gameObject.AddComponent<SystemRenderer>();
             systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
             var insp = Instantiate(protoInspector);
+            insp.transform.SetParent(GameObject.FindGameObjectWithTag("MainCanvas").transform);
+            insp.transform.localPosition.Set(0, 0, 0);
             inspector = insp.GetComponent<Inspector>();
-
+            inputManager = gameObject.AddComponent<InputManager>();
         }
 
         // Use this for initialization
@@ -50,6 +54,12 @@ namespace Assets.Scripts.Rendering
         internal void RerenderSystem()
         {
             systemrenderer.Render();
+        }
+
+        internal void SetInspector(GameObject obj)
+        {
+            Orbital orb = systemrenderer.FindOrbital(obj);
+            inspector.DisplayOrbital(orb);
         }
     }
 }

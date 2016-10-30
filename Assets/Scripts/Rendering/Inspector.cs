@@ -11,13 +11,18 @@ namespace Assets.Scripts.Rendering
     {
         public void Start()
         {
+            transform.SetParent(GameObject.FindGameObjectWithTag("MainCanvas").transform);
+            ((RectTransform)transform).localPosition.Set(0, Screen.height/2f, 0);
+            Debug.Log(((RectTransform)transform).localPosition.ToString());
             gameObject.SetActive(false);
         }
 
         public void DisplayOrbital(Bodies.Orbital o)
         {
-            transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Text>().text = o.Mass.ToString();
-            transform.GetChild(1).GetChild(1).GetChild(1).GetComponent<Text>().text = o.Elements.SMA.ToString();
+            transform.GetChild(0).GetComponent<Text>().text = o.ToString(); 
+            transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Text>().text = o.Mass.ToString("e3");
+            transform.GetChild(1).GetChild(1).GetChild(1).GetComponent<Text>().text = o.Elements.SMA.ToString("e3");
+            gameObject.SetActive(true);
         }
     }
 }
