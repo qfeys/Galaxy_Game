@@ -13,6 +13,7 @@ namespace Assets.Scripts.Bodies
         public OrbitalElements Elements { get; private set; }
         ulong id;
         static ulong idCounter = 0;
+        List<Empires.Population> populations;
 
         public Orbital(Orbital parent, double mass, OrbitalElements elements)
         {

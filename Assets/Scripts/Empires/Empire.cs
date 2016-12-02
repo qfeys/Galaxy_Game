@@ -8,7 +8,7 @@ namespace Assets.Scripts.Empires
     class Empire
     {
 
-        List<Population> populaitons;
+        List<Population> populations;
         List<Leaders.Leader> leaders;
         Production.Wtc wtc;
         Technology.Academy academy;
@@ -17,7 +17,7 @@ namespace Assets.Scripts.Empires
 
         public Empire()
         {
-            populaitons = new List<Population>();
+            populations = new List<Population>();
             leaders = new List<Leaders.Leader>();
             wtc = new Production.Wtc();
             academy = new Technology.Academy();
