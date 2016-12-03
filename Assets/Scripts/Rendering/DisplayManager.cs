@@ -19,6 +19,7 @@ namespace Assets.Scripts.Rendering
         public Material lineMaterial;
 
         public GameObject protoInspector;
+        public GameObject OverviewWindow;
         public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()
@@ -43,6 +44,8 @@ namespace Assets.Scripts.Rendering
 
         }
 
+        #region SystemDisplay
+
         internal void DisplaySystem(Bodies.StarSystem syst)
         {
             systemrenderer.SetSystem(syst);
@@ -54,16 +57,29 @@ namespace Assets.Scripts.Rendering
             systemrenderer.Render();
         }
 
+        internal void ChangeZoom(float delta)
+        {
+            systemrenderer.zoom += delta;
+            systemrenderer.Render();
+        }
+
+        #endregion
+
         internal void SetInspector(GameObject obj)
         {
             Orbital orb = systemrenderer.FindOrbital(obj);
             inspector.DisplayOrbital(orb);
         }
 
-        internal void ChangeZoom(float delta)
+        public void RedrawOverviewTab(string tabName, GameObject tabWindow)
         {
-            systemrenderer.zoom += delta;
-            systemrenderer.Render();
+            switch (tabName)
+            {
+            case "Empire":
+
+                break;
+
+            }
         }
     }
 }

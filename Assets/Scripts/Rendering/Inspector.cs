@@ -18,9 +18,7 @@ namespace Assets.Scripts.Rendering
 
         public void DisplayOrbital(Bodies.Orbital o)
         {
-            transform.GetChild(0).GetComponent<Text>().text = o.ToString(); 
-            // transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Text>().text = o.Mass.ToString("e3");
-            // transform.GetChild(1).GetChild(1).GetChild(1).GetComponent<Text>().text = o.Elements.SMA.ToString("e3");
+            transform.GetChild(0).GetComponent<Text>().text = o.ToString();
             string[] info = string.Join(";", new[] { o.Information(), "####", "####" }).Split(';');
             int i;
             for(i = 0; i<info.Length/2; i++)

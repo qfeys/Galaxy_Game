@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.Rendering
 {
+    [ExecuteInEditMode]
     class TabbedWindow : MonoBehaviour
     {
         // must contain a button, a layoutElement and a text component
@@ -32,7 +33,9 @@ namespace Assets.Scripts.Rendering
 
         public void Start()
         {
-            var VLayGr = gameObject.AddComponent<VerticalLayoutGroup>();
+            var VLayGr = gameObject.GetComponent<VerticalLayoutGroup>();
+            if(VLayGr == null)
+                VLayGr = gameObject.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
             VLayGr.childForceExpandWidth = false;
             GameObject buttonLine = new GameObject("Tab Line");

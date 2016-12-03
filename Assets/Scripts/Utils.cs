@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Scripts.Bodies;
 
-namespace Assets.Scripts.Bodies
+namespace Assets.Scripts
 {
 
     /// <summary>

@@ -8,6 +8,7 @@ namespace Assets.Scripts.Empires
     class Empire
     {
 
+        string name;
         List<Population> populations;
         List<Leaders.Leader> leaders;
         Production.Wtc wtc;
@@ -24,6 +25,9 @@ namespace Assets.Scripts.Empires
             freeAssets = new List<Assets.Asset>();
             mobiles = new List<Mobiles.Mobile>();
         }
+
+        public long population { get { return populations.Sum(p => p.count); } }
+        public double wealth { get { return populations.Sum(p => p.wealth); } }
 
     }
 }

@@ -49,7 +49,7 @@ namespace Assets.Scripts.Bodies
             populations.Add(p);
         }
 
-        public float TotalPopulation { get { return populations.Sum(p => (float)p.population); } }
+        public float TotalPopulation { get { return populations.Sum(p => (float)p.count); } }
     }
 
 }
