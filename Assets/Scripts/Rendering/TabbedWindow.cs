@@ -167,7 +167,6 @@ namespace Assets.Scripts.Rendering
                     ((RectTransform)gameObject.transform).rect.width,
                     standardHeight);
                 isMinimised = false;
-                Debug.Log("Maximised");
             }
         }
     }

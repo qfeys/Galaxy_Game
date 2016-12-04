@@ -10,10 +10,10 @@ namespace Assets.Scripts.Empires
 
         Bodies.Orbital location;
         public long count { get; private set; }
-        public double wealth { get; private set; } // GDP in USD
-        long poverty; // amount of people livning in poverty
+        public double wealth { get; private set; } // GDP in Milion USD
+        double poverty; // part of people living in poverty
         double inequality; // gini-index
-        double contentment; // negative is bad
+        double happiness; // negative is bad
         Leaders.Leader governer;
         // species
         // culture
@@ -26,6 +26,12 @@ namespace Assets.Scripts.Empires
             this.location = location;
             count = initPop;
             location.addPopulation(this);
+            wealth = count * 0.05;
+            poverty = 0.1;
+            inequality = 0.4;
+            happiness = 0;
+            assets = new List<Assets.Asset>();
+            stockpile = new Production.Stockpile();
         }
     }
 }
