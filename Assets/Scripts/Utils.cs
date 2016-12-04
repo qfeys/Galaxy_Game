@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Scripts.Bodies;
 
-namespace Assets.Scripts.Bodies
+namespace Assets.Scripts
 {
 
     /// <summary>
@@ -114,7 +115,7 @@ namespace Assets.Scripts.Bodies
         }
     }
 
-    class Tuple<T1, T2>
+    public class Tuple<T1, T2>
     {
         public T1 Item1;
         public T2 Item2;

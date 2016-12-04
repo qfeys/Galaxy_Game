@@ -11,16 +11,31 @@ namespace Assets.Scripts.Rendering
     {
         public void Start()
         {
-            transform.SetParent(GameObject.FindGameObjectWithTag("MainCanvas").transform);
-            GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
-            gameObject.SetActive(false);
         }
 
         public void DisplayOrbital(Bodies.Orbital o)
         {
-            transform.GetChild(0).GetComponent<Text>().text = o.ToString(); 
-            transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Text>().text = o.Mass.ToString("e3");
-            transform.GetChild(1).GetChild(1).GetChild(1).GetComponent<Text>().text = o.Elements.SMA.ToString("e3");
+            transform.GetChild(0).GetComponent<Text>().text = o.ToString();
+            string[] info = string.Join(";", new[] { o.Information(), "####", "####" }).Split(';');
+            int i;
+            for(i = 0; i<info.Length/2; i++)
+            {
+                if (transform.GetChild(1).childCount <= i)
+                {
+                    Transform tr = Instantiate(transform.GetChild(1).GetChild(0).gameObject).transform;
+                    tr.SetParent(transform.GetChild(1));
+                    tr.SetAsLastSibling();
+                }
+                transform.GetChild(1).GetChild(i).GetChild(0).GetComponent<Text>().text = info[2 * i];
+                transform.GetChild(1).GetChild(i).GetChild(1).GetComponent<Text>().text = info[2 * i + 1];
+                transform.GetChild(1).GetChild(i).gameObject.SetActive(true);
+            }
+            while(transform.GetChild(1).childCount < i)
+            {
+                transform.GetChild(1).GetChild(i).gameObject.SetActive(false);
+                i++;
+            }
+            
             gameObject.SetActive(true);
         }
     }

@@ -13,6 +13,7 @@ namespace Assets.Scripts.Bodies
         public OrbitalElements Elements { get; private set; }
         ulong id;
         static ulong idCounter = 0;
+        List<Empires.Population> populations;
 
         public Orbital(Orbital parent, double mass, OrbitalElements elements)
         {
@@ -22,6 +23,7 @@ namespace Assets.Scripts.Bodies
             idCounter++;
             if(parent != null)
                 Parent.Childeren.Add(this);
+            populations = new List<Empires.Population>();
         }
 
         public abstract void Generate(double mass, Random rand);
@@ -30,6 +32,25 @@ namespace Assets.Scripts.Bodies
         {
             return this.GetType().Name + id;
         }
+
+        public string Information()
+        {
+            string info = string.Join(";", new[] { "mass", Mass.ToString("e3"), "SMA", Elements.SMA.ToString("e3")});
+            if(populations != null)
+            {
+                info = string.Join(";", new[] { info, "Population", TotalPopulation.ToString() });
+            }
+            return info;
+        }
+
+        public void addPopulation(Empires.Population p)
+        {
+            if (populations.Contains(p))
+                throw new ArgumentException("" + this.ToString() + " already has population " + p.ToString());
+            populations.Add(p);
+        }
+
+        public float TotalPopulation { get { return populations.Sum(p => (float)p.count); } }
     }
 
 }

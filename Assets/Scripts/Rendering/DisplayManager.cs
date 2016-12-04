@@ -18,7 +18,8 @@ namespace Assets.Scripts.Rendering
         public GameObject protoRock;
         public Material lineMaterial;
 
-        public GameObject protoInspector;
+        public GameObject InspectorWindow;
+        public GameObject OverviewWindow;
         public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()
@@ -27,8 +28,7 @@ namespace Assets.Scripts.Rendering
             TheOne = this;
             systemrenderer = gameObject.AddComponent<SystemRenderer>();
             systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
-            var insp = Instantiate(protoInspector);
-            inspector = insp.GetComponent<Inspector>();
+            inspector = InspectorWindow.GetComponent<Inspector>();
             inputManager = gameObject.AddComponent<InputManager>();
         }
 
@@ -40,8 +40,11 @@ namespace Assets.Scripts.Rendering
         // Update is called once per frame
         void Update()
         {
-
+            if(OverviewWindow.activeSelf == true)
+                RedrawOverviewWindow();
         }
+
+        #region SystemDisplay
 
         internal void DisplaySystem(Bodies.StarSystem syst)
         {
@@ -54,16 +57,30 @@ namespace Assets.Scripts.Rendering
             systemrenderer.Render();
         }
 
+        internal void ChangeZoom(float delta)
+        {
+            systemrenderer.zoom += delta;
+            systemrenderer.Render();
+        }
+
+        #endregion
+
         internal void SetInspector(GameObject obj)
         {
             Orbital orb = systemrenderer.FindOrbital(obj);
             inspector.DisplayOrbital(orb);
         }
 
-        internal void ChangeZoom(float delta)
+        private void RedrawOverviewWindow()
         {
-            systemrenderer.zoom += delta;
-            systemrenderer.Render();
+            if(OverviewWindow.transform.GetChild(1).GetChild(0).gameObject.activeSelf == true)  // Empire tab active
+            {
+                Transform win = OverviewWindow.transform.GetChild(1).GetChild(0);
+                InfoTable table = win.Find("Stats").GetComponent<InfoTable>();
+                table.SetInfo(new Tuple<string, string>("Population", God.PlayerEmpire.population.ToString()));
+                table.AddInfo(new Tuple<string, string>("Wealth", God.PlayerEmpire.wealth.ToString()));
+                table.Redraw();
+            }
         }
     }
 }
