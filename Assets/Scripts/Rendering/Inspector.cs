@@ -11,9 +11,6 @@ namespace Assets.Scripts.Rendering
     {
         public void Start()
         {
-            transform.SetParent(GameObject.FindGameObjectWithTag("MainCanvas").transform);
-            GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
-            gameObject.SetActive(false);
         }
 
         public void DisplayOrbital(Bodies.Orbital o)
@@ -38,7 +35,7 @@ namespace Assets.Scripts.Rendering
                 transform.GetChild(1).GetChild(i).gameObject.SetActive(false);
                 i++;
             }
-
+            
             gameObject.SetActive(true);
         }
     }

@@ -18,7 +18,7 @@ namespace Assets.Scripts.Rendering
         public GameObject protoRock;
         public Material lineMaterial;
 
-        public GameObject protoInspector;
+        public GameObject InspectorWindow;
         public GameObject OverviewWindow;
         public float zoom = 12; // log scale - high values are zoomed in
 
@@ -28,8 +28,7 @@ namespace Assets.Scripts.Rendering
             TheOne = this;
             systemrenderer = gameObject.AddComponent<SystemRenderer>();
             systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
-            var insp = Instantiate(protoInspector);
-            inspector = insp.GetComponent<Inspector>();
+            inspector = InspectorWindow.GetComponent<Inspector>();
             inputManager = gameObject.AddComponent<InputManager>();
         }
 
