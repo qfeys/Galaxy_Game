@@ -16,14 +16,17 @@ namespace Assets.Scripts.Empires
         List<Assets.Asset> freeAssets;  // in contrast to assets bound to populations
         List<Mobiles.Mobile> mobiles; 
 
-        public Empire()
+        public Empire(string name, Bodies.Orbital capital)
         {
+            this.name = name;
             populations = new List<Population>();
             leaders = new List<Leaders.Leader>();
             wtc = new Production.Wtc();
             academy = new Technology.Academy();
             freeAssets = new List<Assets.Asset>();
             mobiles = new List<Mobiles.Mobile>();
+
+            populations.Add(new Population(capital, (long)5e9));
         }
 
         public long population { get { return populations.Sum(p => p.count); } }

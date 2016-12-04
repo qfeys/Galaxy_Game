@@ -24,5 +24,7 @@ namespace Assets.Scripts.Bodies
         {
             throw new NotImplementedException();
         }
+
+        public bool Habitable { get { return breathable; } }
     }
 }

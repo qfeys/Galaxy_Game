@@ -11,6 +11,8 @@ namespace Assets.Scripts.Bodies
         {
         }
 
+        #region Generation code
+
         public override void Generate(double mass, Random rand)
         {
             Star s = new Star(this, mass * 0.995, new OrbitalElements());
@@ -47,8 +49,9 @@ namespace Assets.Scripts.Bodies
                     sma,
                     rand.NextDouble() * 0.01,
                     s);
-                
-                Rock r = new Rock(this, rMass, gElem, 60*60*24, 0.1, false);
+
+                bool breathable = rand.NextDouble() > 0.2;
+                Rock r = new Rock(this, rMass, gElem, 60*60*24, 0.1, breathable);
 
                 mass -= rMass;
                 i++;
@@ -141,5 +144,18 @@ namespace Assets.Scripts.Bodies
 
         public const ulong AU = 149597870700;
         public const ulong SolSize = 40 * AU;
+
+#endregion
+
+
+        internal Orbital RandLivableWorld()
+        {
+            foreach(Orbital o in Childeren)
+            {
+                if (o.GetType() == typeof(Rock) && ((Rock)o).Habitable)
+                    return o;
+            }
+            return null;
+        }
     }
 }

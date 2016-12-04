@@ -8,7 +8,7 @@ namespace Assets.Scripts.Empires
     class Population
     {
 
-        Bodies.Orbital planet;
+        Bodies.Orbital location;
         public long count { get; private set; }
         public double wealth { get; private set; } // GDP in USD
         long poverty; // amount of people livning in poverty
@@ -21,5 +21,11 @@ namespace Assets.Scripts.Empires
         List<Assets.Asset> assets;
         Production.Stockpile stockpile;
         
+        public Population(Bodies.Orbital location, long initPop)
+        {
+            this.location = location;
+            count = initPop;
+            location.addPopulation(this);
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace Assets.Scripts.Rendering
             Time = 0;
 
             Bodies.Core.Create(1, 22);
-            PlayerEmpire = new Empires.Empire();
+            PlayerEmpire = new Empires.Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]).RandLivableWorld());
             DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
         }
 

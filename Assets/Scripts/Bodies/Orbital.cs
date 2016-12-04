@@ -23,6 +23,7 @@ namespace Assets.Scripts.Bodies
             idCounter++;
             if(parent != null)
                 Parent.Childeren.Add(this);
+            populations = new List<Empires.Population>();
         }
 
         public abstract void Generate(double mass, Random rand);
