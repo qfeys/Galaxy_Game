@@ -41,7 +41,8 @@ namespace Assets.Scripts.Rendering
         // Update is called once per frame
         void Update()
         {
-
+            if(OverviewWindow.activeSelf == true)
+                RedrawOverviewWindow();
         }
 
         #region SystemDisplay
@@ -71,14 +72,15 @@ namespace Assets.Scripts.Rendering
             inspector.DisplayOrbital(orb);
         }
 
-        public void RedrawOverviewTab(string tabName, GameObject tabWindow)
+        private void RedrawOverviewWindow()
         {
-            switch (tabName)
+            if(OverviewWindow.transform.GetChild(1).GetChild(0).gameObject.activeSelf == true)  // Empire tab active
             {
-            case "Empire":
-
-                break;
-
+                Transform win = OverviewWindow.transform.GetChild(1).GetChild(0);
+                InfoTable table = win.Find("Stats").GetComponent<InfoTable>();
+                table.SetInfo(new Tuple<string, string>("Population", God.PlayerEmpire.population.ToString()));
+                table.AddInfo(new Tuple<string, string>("Wealth", God.PlayerEmpire.wealth.ToString()));
+                table.Redraw();
             }
         }
     }

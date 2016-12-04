@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.Rendering
 {
-    [ExecuteInEditMode]
     class TabbedWindow : MonoBehaviour
     {
         // must contain a button, a layoutElement and a text component

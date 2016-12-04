@@ -8,6 +8,7 @@ namespace Assets.Scripts.Rendering
     {
         static God TheOne;
         public static List<string> log;
+        internal static Empires.Empire PlayerEmpire { get; private set; }
 
         public static long Time { get; internal set; }
 
@@ -21,6 +22,7 @@ namespace Assets.Scripts.Rendering
 
             Bodies.Core.Create(1, 22);
             log.ForEach(l => Debug.Log(l));
+            PlayerEmpire = new Empires.Empire();
             DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
         }
 

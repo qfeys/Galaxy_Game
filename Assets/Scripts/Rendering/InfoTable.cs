@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.Rendering
 {
-    class InfoTable : MonoBehaviour
+    public class InfoTable : MonoBehaviour
     {
         List<Tuple<string, string>> info;
 
@@ -30,27 +30,31 @@ namespace Assets.Scripts.Rendering
 
         public void Redraw()
         {
-            if (transform.GetChild(0) == null)  // No child exist, so create the first line
+            if (transform.childCount == 0)  // No child exist, so create the first line
             {
                 GameObject line = new GameObject("Line");
                 line.transform.SetParent(transform, false);
                 var LayEl = line.AddComponent<LayoutElement>();
                 LayEl.minHeight = ExampleText.GetComponent<Text>().fontSize;
                 LayEl.preferredHeight = ExampleText.GetComponent<Text>().fontSize * 2;
-                LayEl.flexibleWidth = 0;
+                LayEl.flexibleWidth = 1;
+                LayEl.flexibleHeight = 0;
                 var HLayGr = line.AddComponent<HorizontalLayoutGroup>();
                 HLayGr.childForceExpandWidth = true;
-                HLayGr.childForceExpandHeight = false;
+                HLayGr.childForceExpandHeight = true;
+                HLayGr.padding = new RectOffset((int)LayEl.minHeight, (int)LayEl.minHeight, 0, 0);
 
                 GameObject name = Instantiate(ExampleText);
                 name.name = "Name";
                 name.transform.SetParent(line.transform);
                 LayEl = name.AddComponent<LayoutElement>();
                 LayEl.flexibleWidth = 1;
+                name.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
 
                 GameObject data = Instantiate(ExampleText);
-                name.name = "Data";
-                name.transform.SetParent(line.transform);
+                data.name = "Data";
+                data.transform.SetParent(line.transform);
+                data.GetComponent<Text>().alignment = TextAnchor.MiddleRight;
                 //LayEl = name.AddComponent<LayoutElement>();
                 //LayEl.flexibleWidth = 1;
             }
@@ -72,7 +76,7 @@ namespace Assets.Scripts.Rendering
                 transform.GetChild(i).GetChild(1).GetComponent<Text>().text = info[i].Item2;
             }
             if (i == 0) i++;
-            while (transform.GetChild(1).childCount <= i)
+            while (transform.GetChild(1).childCount < i)
             {
                 transform.GetChild(1).GetChild(i).gameObject.SetActive(false);
                 i++;
@@ -84,7 +88,13 @@ namespace Assets.Scripts.Rendering
             info = newInfo;
         }
 
-        public void AddInfo(Tuple<string,string> newInfo)
+        public void SetInfo(Tuple<string, string> newInfo)
+        {
+            info = new List<Tuple<string, string>>();
+            info.Add(newInfo);
+        }
+
+        public void AddInfo(Tuple<string, string> newInfo)
         {
             info.Add(newInfo);
         }
