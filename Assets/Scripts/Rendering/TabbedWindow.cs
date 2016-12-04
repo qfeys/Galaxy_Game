@@ -10,13 +10,18 @@ namespace Assets.Scripts.Rendering
     class TabbedWindow : MonoBehaviour
     {
         // must contain a button, a layoutElement and a text component
+        public bool canBeMinimised;
         public Sprite tabImageLow;
         public Sprite tabImageHigh;
         public GameObject exampleText;
         public List<string> tabNames;
         public List<GameObject> tabContent;
+
         List<GameObject> buttons;
         List<GameObject> windows;
+        float standardHeight;
+        bool isMinimised = false;
+        
 
         public void Awake()
         {
@@ -32,6 +37,8 @@ namespace Assets.Scripts.Rendering
 
         public void Start()
         {
+            standardHeight = ((RectTransform)gameObject.transform).rect.height;
+            Debug.Log(standardHeight);
             var VLayGr = gameObject.GetComponent<VerticalLayoutGroup>();
             if(VLayGr == null)
                 VLayGr = gameObject.AddComponent<VerticalLayoutGroup>();
@@ -71,13 +78,48 @@ namespace Assets.Scripts.Rendering
                 float height = t.fontSize * 3 / 2;
 
                 int j = i;
-                tab.AddComponent<Button>().onClick.AddListener(() => SetTab(j));
+                if (canBeMinimised)
+                {
+                    tab.AddComponent<Button>().onClick.AddListener(() => { MaximiseWindow(); SetTab(j); });
+                }
+                else
+                {
+                    tab.AddComponent<Button>().onClick.AddListener(() => SetTab(j));
+                }
                 buttons.Add(tab);
 
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
                 tab.GetComponent<LayoutElement>().preferredWidth = width;
 
                 GameObject window = Instantiate(tabContent[i]);
+                window.transform.SetParent(mainWindow.transform);
+                window.SetActive(false);
+                windows.Add(window);
+            }
+            if (canBeMinimised)
+            {
+                GameObject tab = new GameObject("Tab");
+                tab.transform.SetParent(buttonLine.transform);
+                Image img = tab.AddComponent<Image>();
+                img.sprite = tabImageLow;
+                img.raycastTarget = true;
+                img.type = Image.Type.Sliced;
+                img.fillCenter = true;
+
+                GameObject text = Instantiate(exampleText);
+                text.transform.SetParent(tab.transform, false);
+                Text t = text.GetComponent<Text>();
+                t.text = "X";
+                float width = t.preferredWidth + t.fontSize;
+                float height = t.fontSize * 3 / 2;
+                
+                tab.AddComponent<Button>().onClick.AddListener(() => { SetTab(tabNames.Count); MinimiseWindow(); });
+                buttons.Add(tab);
+
+                tab.AddComponent<LayoutElement>().flexibleHeight = 1;
+                tab.GetComponent<LayoutElement>().preferredWidth = width;
+
+                GameObject window = new GameObject();
                 window.transform.SetParent(mainWindow.transform);
                 window.SetActive(false);
                 windows.Add(window);
@@ -104,6 +146,29 @@ namespace Assets.Scripts.Rendering
                 buttons[n].GetComponent<Image>().sprite = tabImageHigh;
             }
 
+        }
+
+        private void MinimiseWindow()
+        {
+            if(isMinimised == false)
+            {
+                ((RectTransform)gameObject.transform).sizeDelta = new Vector2(
+                    ((RectTransform)gameObject.transform).rect.width,
+                    ((RectTransform)transform.GetChild(0).transform).rect.height);
+                isMinimised = true;
+            }
+        }
+
+        private void MaximiseWindow()
+        {
+            if (isMinimised == true)
+            {
+                ((RectTransform)gameObject.transform).sizeDelta = new Vector2(
+                    ((RectTransform)gameObject.transform).rect.width,
+                    standardHeight);
+                isMinimised = false;
+                Debug.Log("Maximised");
+            }
         }
     }
 }
