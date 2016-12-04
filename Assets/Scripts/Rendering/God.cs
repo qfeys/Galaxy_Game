@@ -7,7 +7,6 @@ namespace Assets.Scripts.Rendering
     public class God : MonoBehaviour
     {
         static God TheOne;
-        public static List<string> log;
         internal static Empires.Empire PlayerEmpire { get; private set; }
 
         public static long Time { get; internal set; }
@@ -17,11 +16,9 @@ namespace Assets.Scripts.Rendering
         {
             if (TheOne != null) throw new Exception("A second god is created");
             TheOne = this;
-            log = new List<string>();
             Time = 0;
 
             Bodies.Core.Create(1, 22);
-            log.ForEach(l => Debug.Log(l));
             PlayerEmpire = new Empires.Empire();
             DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
         }
