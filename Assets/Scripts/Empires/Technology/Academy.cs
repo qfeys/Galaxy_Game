@@ -9,12 +9,17 @@ namespace Assets.Scripts.Empires.Technology
     {
 
         static List<Technology> techTree;
-        internal enum Department { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics}
-        Dictionary<Department, double> funding;
+        internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics}
+        Dictionary<Sector, double> funding;
 
         public Academy()
         {
-            funding = Enum.GetValues(typeof(Department)).Cast<Department>().ToDictionary<Department, Department, double>(d => d, d => 100);
+            funding = Enum.GetValues(typeof(Sector)).Cast<Sector>().ToDictionary<Sector, Sector, double>(d => d, d => 100);
+        }
+
+        public static void Init()
+        {
+            techTree = ModParser.readTechnology();
         }
     }
 }
