@@ -63,7 +63,7 @@ namespace Assets.Scripts.Rendering
             foreach(var b in DisplayedBodies)
             {
                 if (star == null && b.Value.GetType() == typeof(Bodies.Star)) star = b.Key;
-                VectorS posS = b.Value.Elements.GetPositionSphere(God.Time);
+                VectorS posS = b.Value.Elements.GetPositionSphere(Simulation.God.Time);
                 float scale = Mathf.Pow(10, -zoom);
                 Vector3 v = (Vector3)posS * scale;
                 b.Key.transform.position = v;

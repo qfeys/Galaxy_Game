@@ -3,25 +3,25 @@ using System.Collections.Generic;
 using System;
 using Assets.Scripts.Empires;
 
-namespace Assets.Scripts.Rendering
+namespace Assets.Scripts.Simulation
 {
     public class God : MonoBehaviour
     {
         static God TheOne;
         internal static Empires.Empire PlayerEmpire { get; private set; }
 
-        public static long Time { get; internal set; }
+        public static DateTime Time { get; internal set; }
 
         // Use this for initialization
         void Start()
         {
             if (TheOne != null) throw new Exception("A second god is created");
             TheOne = this;
-            Time = 0;
+            Time = new DateTime(2100, 1, 1);
 
             Init();
 
-            DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
+            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
         }
 
         // Update is called once per frame

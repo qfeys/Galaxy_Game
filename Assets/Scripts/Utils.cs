@@ -19,7 +19,7 @@ namespace Assets.Scripts
         public readonly ulong SMA;  // Semi-major axis
         public readonly double e;   // exentricity
         public readonly Orbital parent;
-        ulong T { get { return (ulong)(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parent.Mass))); } }
+        TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parent.Mass))); } }
         public const double G = 6.67408e-11;
 
         /// <summary>
@@ -37,12 +37,12 @@ namespace Assets.Scripts
             this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parent = parent;
         }
 
-        public VectorS GetPositionSphere(long time)
+        public VectorS GetPositionSphere(DateTime time)
         {
             if (SMA == 0) return new VectorS(0, 0, 0);
             VectorS ret = new VectorS();
-            double n = T / (2 * Math.PI);   // average rate of sweep
-            double meanAnomaly = MAaE + n * time;
+            double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep
+            double meanAnomaly = MAaE + n * time.Second;
             double EA = eccentricAnomaly(meanAnomaly);
             ret.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
             ret.u = LAN + (AOP + EA) * Math.Sin(i);
