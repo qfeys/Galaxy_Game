@@ -56,8 +56,8 @@ namespace Assets.Scripts.Empires.Technology
                         break;
                     }
                 }
-                double mtth = -STANDARD_DEVELOPMENT_TIME * Math.Log(chance, 2);
-                // TO DO: SEND EVENT
+                TimeSpan mtth = TimeSpan.FromDays(-STANDARD_DEVELOPMENT_TIME * 356 * Math.Log(chance, 2));
+                Simulation.Event.Try(mtth, TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, () => { unlocks.Add(tech); });
             }
         }
     }

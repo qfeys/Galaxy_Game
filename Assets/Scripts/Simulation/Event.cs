@@ -19,7 +19,7 @@ namespace Assets.Scripts.Simulation
             EventSchedule.Add(this);
         }
 
-        public Event Try(TimeSpan mtth,TimeSpan interval, Interrupt interrupt, Action effect)
+        public static Event Try(TimeSpan mtth,TimeSpan interval, Interrupt interrupt, Action effect)
         {
             TimeSpan next = RNG.nextOccurence(mtth);
             if(next < interval)
