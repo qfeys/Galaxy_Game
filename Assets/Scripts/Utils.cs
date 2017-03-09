@@ -124,4 +124,20 @@ namespace Assets.Scripts
             Item1 = item1; Item2 = item2;
         }
     }
+
+    public static class RNG
+    {
+        static Random rand = new Random();
+        public static bool Chance(double chance)
+        {
+            if (chance < 0) throw new ArgumentException("Chance must be greater then zero.");
+            if (chance > 1) throw new ArgumentException("Chance must be smaller then one.");
+            return rand.NextDouble() < chance;
+        }
+
+        public static TimeSpan nextOccurence(TimeSpan mtth)
+        {
+            return new TimeSpan((long)(mtth.Ticks * -Math.Log(rand.NextDouble(), 2)));
+        }
+    }
 }
