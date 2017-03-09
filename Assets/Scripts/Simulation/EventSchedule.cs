@@ -8,14 +8,10 @@ namespace Assets.Scripts.Simulation
 {
     static class EventSchedule
     {
-        static TreeSet<Event> events;
+        static TreeSet<Event> events = new TreeSet<Event>();
 
         public static DateTime nextEvent { get { return events.FindMin().date; } }
-
-        public static void Init()
-        {
-            events = new TreeSet<Event>();
-        }
+        
 
         public static void Add(Event newEvent)
         {
