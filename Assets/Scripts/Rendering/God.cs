@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Assets.Scripts.Empires;
 
 namespace Assets.Scripts.Rendering
 {
@@ -18,8 +19,8 @@ namespace Assets.Scripts.Rendering
             TheOne = this;
             Time = 0;
 
-            Bodies.Core.Create(1, 22);
-            PlayerEmpire = new Empires.Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]).RandLivableWorld());
+            Init();
+
             DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
         }
 
@@ -27,6 +28,15 @@ namespace Assets.Scripts.Rendering
         void Update()
         {
 
+        }
+
+        public static void Init()
+        {
+            Empires.Technology.Academy.Init();
+            Bodies.Core.Create(1, 22);
+
+
+            PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]).RandLivableWorld());
         }
     }
 }

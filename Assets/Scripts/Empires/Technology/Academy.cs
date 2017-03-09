@@ -10,6 +10,9 @@ namespace Assets.Scripts.Empires.Technology
 
         static List<Technology> techTree;
         internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics}
+        const double STANDARD_DEVELOPMENT_TIME = 5; // Years
+
+        List<Technology> unlocks;
         Dictionary<Sector, double> funding;
 
         public Academy()
@@ -20,6 +23,42 @@ namespace Assets.Scripts.Empires.Technology
         public static void Init()
         {
             techTree = ModParser.readTechnology();
+        }
+
+        public void CheckUnlocks()
+        {
+            foreach(Technology tech in techTree)
+            {
+                if (unlocks.Contains(tech))
+                    continue;
+                double chance = 1;
+                foreach(var prereq in tech.prerequisites)
+                {
+                    if (unlocks.Contains(prereq.Key))
+                    {
+                        double level = unlocks.Find(t => t.Equals(prereq.Key)).CurrentLevel();
+                        if (level > prereq.Value.Item2)
+                            continue;   // Check approved
+                        else if (level > prereq.Value.Item1)
+                        {
+                            double progress = (level - prereq.Value.Item1) / (prereq.Value.Item2 - prereq.Value.Item1);
+                            chance *= progress;
+                        }
+                        else
+                        {
+                            chance = 0;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        chance = 0;
+                        break;
+                    }
+                }
+                double mtth = -STANDARD_DEVELOPMENT_TIME * Math.Log(chance, 2);
+                // TO DO: SEND EVENT
+            }
         }
     }
 }
