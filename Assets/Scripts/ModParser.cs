@@ -123,7 +123,47 @@ namespace Assets.Scripts
         public static List<Technology> readTechnology()
         {
             List < Tuple < string,object>> data = Parse(@"\Mods\Core\Technology.txt");
-            
+            List<Technology> techs = new List<Technology>();
+            for (int i = 0; i < data.Count; i++)
+            {
+                ProtoTechnology newTech = new ProtoTechnology();
+                newTech.name = data[i].Item1;
+                List<Tuple<string, object>> info = data[i].Item2 as List<Tuple<string, object>>;
+                for (int j = 0; j < info.Count; j++)
+                {
+                    switch (info[j].Item1)
+                    {
+                    case "sector":
+                        newTech.sector = (Academy.Sector)Enum.Parse(typeof(Academy.Sector), info[j].Item2 as string);
+                        break;
+                    case "prerequisites":
+                        newTech.prerequisites = new Dictionary<Technology, Tuple<double, double>>();
+                        List<Tuple<string, object>> preqs = info[j].Item2 as List<Tuple<string, object>>;
+                        for (int k = 0; k < preqs.Count; k++)
+                        {
+                            Technology preq = techs.Find(t => t.name == preqs[k].Item1);
+                            var numbers = preqs[k].Item2 as List<Tuple<string, object>>;
+                            double min = double.Parse(numbers.Find(t => t.Item1 == "min").Item2 as string);
+                            double max = double.Parse(numbers.Find(t => t.Item1 == "max").Item2 as string);
+                            newTech.prerequisites.Add(preq, new Tuple<double, double>(min, max));
+                        }
+                        break;
+                    case "max_progress":
+                        newTech.maxKnowledge = double.Parse(info[j].Item2 as string);
+                        break;
+                    case "understanding":
+                        newTech.roots = new Dictionary<Technology, double>();
+                        List<Tuple<string, object>> roots = info[j].Item2 as List<Tuple<string, object>>;
+                        for (int k = 0; k < roots.Count; k++)
+                        {
+                            Technology root = techs.Find(t => t.name == roots[k].Item1);
+                            newTech.roots.Add(root, double.Parse(roots[k].Item2 as string));
+                        }
+                        break;
+                    }
+                }
+                techs.Add(newTech.ToTech());
+            }
 
             throw new NotImplementedException();
         }
@@ -131,7 +171,18 @@ namespace Assets.Scripts
         struct ProtoTechnology
         {
             public string name;
-
+            public Academy.Sector sector;
+            public Dictionary<Technology, Tuple<double, double>> prerequisites;
+            public double maxKnowledge;
+            public Dictionary<Technology, double> roots;
+            public Technology ToTech()
+            {
+                if (prerequisites == null)
+                    prerequisites = new Dictionary<Technology, Tuple<double, double>>();
+                if (roots == null)
+                    roots = new Dictionary<Technology, double>();
+                return new Technology(name, sector, prerequisites, maxKnowledge, roots);
+            }
         }
     }
 }
