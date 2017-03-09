@@ -9,8 +9,26 @@ namespace Assets.Scripts.Simulation
     {
 
         public readonly DateTime date;
-        public readonly Action effect;
         public enum Interrupt { none, soft, hard }
+        public readonly Interrupt interrupt;
+        public readonly Action effect;
+
+        public Event(DateTime date, Interrupt interrupt, Action effect)
+        {
+            this.date = date; this.interrupt = interrupt; this.effect = effect;
+            EventSchedule.Add(this);
+        }
+
+        public Event Try(TimeSpan mtth,TimeSpan interval, Interrupt interrupt, Action effect)
+        {
+            TimeSpan next = RNG.nextOccurence(mtth);
+            if(next < interval)
+            {
+                return new Event(God.Time, interrupt, effect);
+            }
+            return null;
+        }
+
 
         public int CompareTo(Event other)
         {

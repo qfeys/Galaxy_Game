@@ -12,12 +12,12 @@ namespace Assets.Scripts.Simulation
 
         public static DateTime nextEvent { get { return events.FindMin().date; } }
 
-        static void Init()
+        public static void Init()
         {
             events = new TreeSet<Event>();
         }
 
-        static void Add(Event newEvent)
+        public static void Add(Event newEvent)
         {
             events.Add(newEvent);
         }
