@@ -11,7 +11,7 @@ namespace Assets.Scripts.Empires
         string name;
         List<Population> populations;
         List<Leaders.Leader> leaders;
-        Production.Wtc wtc;
+        Production.TradeCenter wtc;
         Technology.Academy academy;
         List<Assets.Asset> freeAssets;  // in contrast to assets bound to populations
         List<Mobiles.Mobile> mobiles; 
@@ -21,7 +21,7 @@ namespace Assets.Scripts.Empires
             this.name = name;
             populations = new List<Population>();
             leaders = new List<Leaders.Leader>();
-            wtc = new Production.Wtc();
+            wtc = new Production.TradeCenter();
             academy = new Technology.Academy();
             freeAssets = new List<Assets.Asset>();
             mobiles = new List<Mobiles.Mobile>();

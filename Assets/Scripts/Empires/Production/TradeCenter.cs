@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Assets.Scripts.Empires.Production
 {
-    class Wtc
+    class TradeCenter
     {
 
     }
