@@ -85,13 +85,21 @@ namespace Assets.Scripts.Rendering
             if (OverviewWindow.transform.GetChild(1).GetChild(4).gameObject.activeSelf == true)  // Technology tab active
             {
                 Transform win = OverviewWindow.transform.GetChild(1).GetChild(4);
-                InfoTable table = win.Find("Sectors").GetComponent<InfoTable>();
-                table.ResetInfo();
-                foreach(KeyValuePair<Empires.Technology.Academy.Sector,double> kvp in God.PlayerEmpire.academy.funding)
+                InfoTable tableSec = win.Find("Sectors").GetComponent<InfoTable>();
+                tableSec.ResetInfo();
+                foreach (KeyValuePair<Empires.Technology.Academy.Sector, double> kvp in God.PlayerEmpire.academy.funding)
                 {
-                    table.AddInfo(new Tuple<string, string>(kvp.Key.ToString(), kvp.Value.ToString()));
+                    tableSec.AddInfo(new Tuple<string, string>(kvp.Key.ToString(), kvp.Value.ToString()));
                 }
-                table.Redraw();
+                tableSec.Redraw();
+
+                InfoTable tableTech = win.Find("Techs").GetComponent<InfoTable>();
+                tableTech.ResetInfo();
+                foreach (var tech in God.PlayerEmpire.academy.unlocks)
+                {
+                    tableTech.AddInfo(new Tuple<string, string>(tech.name, tech.knowledge.ToString() +"/" + tech.understanding.ToString()));
+                }
+                tableTech.Redraw();
             }
         }
     }
