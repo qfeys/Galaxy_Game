@@ -10,9 +10,9 @@ namespace Assets.Scripts.Empires
 
         string name;
         List<Population> populations;
-        List<Leaders.Leader> leaders;
-        Production.TradeCenter wtc;
-        Technology.Academy academy;
+        public List<Leaders.Leader> leaders { get; private set; }
+        public Production.TradeCenter tradeCenter { get; private set; }
+        public Technology.Academy academy { get; private set; }
         List<Assets.Asset> freeAssets;  // in contrast to assets bound to populations
         List<Mobiles.Mobile> mobiles; 
 
@@ -21,7 +21,7 @@ namespace Assets.Scripts.Empires
             this.name = name;
             populations = new List<Population>();
             leaders = new List<Leaders.Leader>();
-            wtc = new Production.TradeCenter();
+            tradeCenter = new Production.TradeCenter();
             academy = new Technology.Academy();
             freeAssets = new List<Assets.Asset>();
             mobiles = new List<Mobiles.Mobile>();

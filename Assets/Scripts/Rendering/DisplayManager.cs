@@ -74,12 +74,23 @@ namespace Assets.Scripts.Rendering
 
         private void RedrawOverviewWindow()
         {
-            if(OverviewWindow.transform.GetChild(1).GetChild(0).gameObject.activeSelf == true)  // Empire tab active
+            if (OverviewWindow.transform.GetChild(1).GetChild(0).gameObject.activeSelf == true)  // Empire tab active
             {
                 Transform win = OverviewWindow.transform.GetChild(1).GetChild(0);
                 InfoTable table = win.Find("Stats").GetComponent<InfoTable>();
                 table.SetInfo(new Tuple<string, string>("Population", God.PlayerEmpire.population.ToString()));
                 table.AddInfo(new Tuple<string, string>("Wealth", God.PlayerEmpire.wealth.ToString()));
+                table.Redraw();
+            }
+            if (OverviewWindow.transform.GetChild(1).GetChild(4).gameObject.activeSelf == true)  // Technology tab active
+            {
+                Transform win = OverviewWindow.transform.GetChild(1).GetChild(4);
+                InfoTable table = win.Find("Sectors").GetComponent<InfoTable>();
+                table.ResetInfo();
+                foreach(KeyValuePair<Empires.Technology.Academy.Sector,double> kvp in God.PlayerEmpire.academy.funding)
+                {
+                    table.AddInfo(new Tuple<string, string>(kvp.Key.ToString(), kvp.Value.ToString()));
+                }
                 table.Redraw();
             }
         }

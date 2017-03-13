@@ -13,8 +13,8 @@ namespace Assets.Scripts.Empires.Technology
         internal enum Sector { PHYSICS, DRIVE }
         const double STANDARD_DEVELOPMENT_TIME = 5; // Years
 
-        List<Technology> unlocks;
-        Dictionary<Sector, double> funding;
+        public List<Technology> unlocks { get; private set; }
+        public Dictionary<Sector, double> funding { get; private set; }
 
         public Academy()
         {
