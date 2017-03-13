@@ -76,9 +76,9 @@ namespace Assets.Scripts.Rendering
                 transform.GetChild(i).GetChild(1).GetComponent<Text>().text = info[i].Item2;
             }
             if (i == 0) i++;
-            while (transform.GetChild(1).childCount < i)
+            while (transform.childCount < i)
             {
-                transform.GetChild(1).GetChild(i).gameObject.SetActive(false);
+                transform.GetChild(i).gameObject.SetActive(false);
                 i++;
             }
         }
@@ -97,6 +97,11 @@ namespace Assets.Scripts.Rendering
         public void AddInfo(Tuple<string, string> newInfo)
         {
             info.Add(newInfo);
+        }
+
+        internal void ResetInfo()
+        {
+            info = new List<Tuple<string, string>>();
         }
 
         public void FullRedraw()
