@@ -13,8 +13,8 @@ namespace Assets.Scripts.Empires.Technology
         public readonly double maxKnowledge;
         public readonly Dictionary<Technology, double> roots;             // These techs will increase in understanding by using this tech.
         
-        double knowledge;   // theoretical
-        double understanding; // practical
+        public double knowledge { get; private set; }     // theoretical
+        public double understanding { get; private set; } // practical
 
         public Technology(string name, Academy.Sector sector, Dictionary<Technology, Tuple<double, double>> prerequisites,
             double maxKnowledge, Dictionary<Technology, double> roots)

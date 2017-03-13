@@ -19,6 +19,8 @@ namespace Assets.Scripts.Empires.Technology
         public Academy()
         {
             funding = Enum.GetValues(typeof(Sector)).Cast<Sector>().ToDictionary<Sector, Sector, double>(d => d, d => 100);
+            unlocks = new List<Technology>();
+            CheckUnlocks();
         }
 
         public static void Init()
@@ -57,8 +59,11 @@ namespace Assets.Scripts.Empires.Technology
                         break;
                     }
                 }
-                TimeSpan mtth = TimeSpan.FromDays(-STANDARD_DEVELOPMENT_TIME * 356 * Math.Log(chance, 2));
-                Simulation.Event.Try(mtth, TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, () => { unlocks.Add(tech); });
+                if (chance > 0)
+                {
+                    TimeSpan mtth = TimeSpan.FromDays(-STANDARD_DEVELOPMENT_TIME * 365.25 * Math.Log(chance, 2));
+                    Simulation.Event.Try(mtth, TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, () => { unlocks.Add(tech); });
+                }
             }
         }
     }

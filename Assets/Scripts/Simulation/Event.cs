@@ -24,7 +24,7 @@ namespace Assets.Scripts.Simulation
             TimeSpan next = RNG.nextOccurence(mtth);
             if(next < interval)
             {
-                return new Event(God.Time, interrupt, effect);
+                return new Event(God.Time + next, interrupt, effect);
             }
             return null;
         }
