@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
 using Assets.Scripts.Bodies;
@@ -21,6 +22,7 @@ namespace Assets.Scripts.Rendering
 
         public GameObject InspectorWindow;
         public GameObject OverviewWindow;
+        public GameObject Clock;
         public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()
@@ -36,6 +38,7 @@ namespace Assets.Scripts.Rendering
         // Use this for initialization
         void Start()
         {
+            SetTimeControls();
         }
 
         // Update is called once per frame
@@ -43,6 +46,22 @@ namespace Assets.Scripts.Rendering
         {
             if(OverviewWindow.activeSelf == true)
                 RedrawOverviewWindow();
+            Clock.transform.GetChild(0).GetComponent<Text>().text = God.Time.ToString("yyyy.MM.dd HH:mm:ss");
+        }
+
+        private void SetTimeControls()
+        {
+            GameObject prefabControlButton = Clock.transform.GetChild(1).GetChild(0).gameObject;
+            foreach(var tc in God.TimeSteps)
+            {
+                GameObject newControlButton = Instantiate(prefabControlButton);
+                newControlButton.name = tc.Key;
+                newControlButton.transform.SetParent(Clock.transform.GetChild(1));
+                newControlButton.transform.SetSiblingIndex(0);
+                newControlButton.transform.GetChild(0).GetComponent<Text>().text = tc.Key;
+                newControlButton.GetComponent<Button>().onClick.AddListener(()=> God.DeltaTime = tc.Value);
+            }
+            Destroy(prefabControlButton);
         }
 
         #region SystemDisplay

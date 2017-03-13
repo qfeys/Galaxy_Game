@@ -9,8 +9,21 @@ namespace Assets.Scripts.Simulation
     {
         static God TheOne;
         internal static Empires.Empire PlayerEmpire { get; private set; }
+        public static readonly Dictionary<string, TimeSpan> TimeSteps = new Dictionary<string, TimeSpan>() {    { "1s", TimeSpan.FromSeconds(1) },
+                                                                                                                { "5s", TimeSpan.FromSeconds(5) },
+                                                                                                                { "20s", TimeSpan.FromSeconds(30) },
+                                                                                                                { "1m", TimeSpan.FromMinutes(1) },
+                                                                                                                { "5m", TimeSpan.FromMinutes(5) },
+                                                                                                                { "20m", TimeSpan.FromMinutes(1) },
+                                                                                                                { "1h", TimeSpan.FromHours(1) },
+                                                                                                                { "4h", TimeSpan.FromHours(4) },
+                                                                                                                { "12h", TimeSpan.FromHours(12) },
+                                                                                                                { "1d", TimeSpan.FromDays(1) },
+                                                                                                                { "5d", TimeSpan.FromDays(5) },
+                                                                                                                { "30d", TimeSpan.FromDays(30) } };
 
         public static DateTime Time { get; internal set; }
+        public static TimeSpan DeltaTime;
 
         // Use this for initialization
         void Start()
