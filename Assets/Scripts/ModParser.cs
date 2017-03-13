@@ -122,7 +122,7 @@ namespace Assets.Scripts
 
         public static List<Technology> readTechnology()
         {
-            List < Tuple < string,object>> data = Parse(@"\Mods\Core\Technology.txt");
+            List < Tuple < string,object>> data = Parse(@"Mods\Core\Technology.txt");
             List<Technology> techs = new List<Technology>();
             for (int i = 0; i < data.Count; i++)
             {
@@ -164,8 +164,7 @@ namespace Assets.Scripts
                 }
                 techs.Add(newTech.ToTech());
             }
-
-            throw new NotImplementedException();
+            return techs;
         }
 
         struct ProtoTechnology

@@ -32,10 +32,13 @@ namespace Assets.Scripts.Simulation
 
         public static void Init()
         {
+            Debug.Log(System.IO.Directory.GetCurrentDirectory());
+            Debug.Log("Initialising Technologies");
             Empires.Technology.Academy.Init();
+            Debug.Log("Initialising galaxy");
             Bodies.Core.Create(1, 22);
 
-
+            Debug.Log("Initialising Empires");
             PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]).RandLivableWorld());
         }
     }

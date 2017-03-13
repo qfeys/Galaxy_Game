@@ -9,7 +9,8 @@ namespace Assets.Scripts.Empires.Technology
     {
 
         static List<Technology> techTree;
-        internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics}
+        // internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics }
+        internal enum Sector { PHYSICS, DRIVE }
         const double STANDARD_DEVELOPMENT_TIME = 5; // Years
 
         List<Technology> unlocks;
