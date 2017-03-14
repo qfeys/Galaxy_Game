@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Threading;
 using Assets.Scripts.Empires;
 
 namespace Assets.Scripts.Simulation
@@ -24,6 +25,14 @@ namespace Assets.Scripts.Simulation
 
         public static DateTime Time { get; internal set; }
         public static TimeSpan DeltaTime;
+        Thread mainThread;
+        static Exception mainThreadException;
+        static bool abort = false;
+        static bool NextRealTimeTickReady = false;
+        static bool NextSimTimeTickReady = false;
+        const float REAL_TIME_BETWEEN_TICKS = 1;
+        float realTimeSindsLastTick;
+        
 
         // Use this for initialization
         void Start()
@@ -35,12 +44,28 @@ namespace Assets.Scripts.Simulation
             Init();
 
             Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
+
+            DeltaTime = TimeSpan.FromSeconds(1);
+            mainThread = new Thread(()=> { try { RunTime(); } catch (Exception e) { mainThreadException = e; } });
+            mainThread.Start();
         }
 
         // Update is called once per frame
         void Update()
         {
-
+            realTimeSindsLastTick += UnityEngine.Time.deltaTime;
+            if(realTimeSindsLastTick > REAL_TIME_BETWEEN_TICKS)
+            {
+                if (NextSimTimeTickReady)
+                {
+                    Debug.Log("Next real time tick:"+ Time.ToString("yyyy.MM.dd HH:mm:ss"));
+                    NextRealTimeTickReady = true;
+                    realTimeSindsLastTick = 0;
+                }
+                else Debug.Log("waiting on simulation");
+            }
+            if (mainThreadException != null)
+                throw mainThreadException;
         }
 
         public static void Init()
@@ -53,6 +78,35 @@ namespace Assets.Scripts.Simulation
 
             Debug.Log("Initialising Empires");
             PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]).RandLivableWorld());
+        }
+
+        private static void RunTime()
+        {
+            while(abort == false)
+            {
+                DateTime endOfTick = Time + DeltaTime;
+                while(EventSchedule.nextEvent < endOfTick)
+                {
+                    Time = EventSchedule.nextEvent;
+                    bool interupt = false;
+                    EventSchedule.ProcessNextEvent(out interupt);
+                    if (interupt == true)
+                        break;
+                }
+                NextSimTimeTickReady = true;
+                while (NextRealTimeTickReady == false && abort != true)
+                {
+                    Thread.Sleep(100);
+                }
+                NextSimTimeTickReady = false;
+            }
+        }
+
+        public void OnDestroy()
+        {
+            abort = true;
+            mainThread.Abort();
+            Debug.Log("Secondary thread: " + mainThread.ThreadState);
         }
     }
 }

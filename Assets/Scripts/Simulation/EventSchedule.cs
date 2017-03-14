@@ -16,5 +16,16 @@ namespace Assets.Scripts.Simulation
         {
             events.Add(newEvent);
         }
+
+        internal static DateTime ProcessNextEvent(out bool hardInterrupt)
+        {
+            Event ev = events.TakeFirst();
+            ev.effect();
+            if (ev.interrupt == Event.Interrupt.hard)
+                hardInterrupt = true;
+            else
+                hardInterrupt = false;
+            return ev.date;
+        }
     }
 }

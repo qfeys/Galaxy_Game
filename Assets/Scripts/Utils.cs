@@ -218,6 +218,18 @@ namespace Assets.Scripts
                 throw new NullReferenceException("This sorted list is empty");
         }
 
+        internal T TakeFirst()
+        {
+            if (collection.Count != 0)
+            {
+                var ret = collection[0];
+                collection.RemoveAt(0);
+                return ret;
+            }
+            else
+                throw new NullReferenceException("This sorted list is empty");
+        }
+
         public int Count { get { return collection.Count; } }
         public bool IsReadOnly { get { return false; } }
     }

@@ -14,7 +14,9 @@ namespace Assets.Scripts.Empires
         public Production.TradeCenter tradeCenter { get; private set; }
         public Technology.Academy academy { get; private set; }
         List<Assets.Asset> freeAssets;  // in contrast to assets bound to populations
-        List<Mobiles.Mobile> mobiles; 
+        List<Mobiles.Mobile> mobiles;
+
+        Simulation.Event nextUpdate;
 
         public Empire(string name, Bodies.Orbital capital)
         {
@@ -27,6 +29,13 @@ namespace Assets.Scripts.Empires
             mobiles = new List<Mobiles.Mobile>();
 
             populations.Add(new Population(capital, (long)5e9));
+
+            nextUpdate = new Simulation.Event(Simulation.God.Time + TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, Update);
+        }
+
+        public void Update()
+        {
+            nextUpdate = new Simulation.Event(Simulation.God.Time + TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, Update);
         }
 
         public long population { get { return populations.Sum(p => p.count); } }
