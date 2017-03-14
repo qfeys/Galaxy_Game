@@ -53,6 +53,7 @@ namespace Assets.Scripts.Simulation
         // Update is called once per frame
         void Update()
         {
+            ExcicuteQueuedActions();
             realTimeSindsLastTick += UnityEngine.Time.deltaTime;
             if(realTimeSindsLastTick > REAL_TIME_BETWEEN_TICKS)
             {
@@ -84,9 +85,13 @@ namespace Assets.Scripts.Simulation
         {
             while(abort == false)
             {
+                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                sw.Start();
+                int loops = 0;
                 DateTime endOfTick = Time + DeltaTime;
                 while(EventSchedule.nextEvent < endOfTick)
                 {
+                    loops++;
                     Time = EventSchedule.nextEvent;
                     bool interupt = false;
                     EventSchedule.ProcessNextEvent(out interupt);
@@ -94,6 +99,9 @@ namespace Assets.Scripts.Simulation
                         break;
                 }
                 NextSimTimeTickReady = true;
+                sw.Stop();
+                long mils = sw.ElapsedMilliseconds;
+                ExcicuteOnUnityThread(() => Debug.Log("Main loop processed " + loops + " events in " + mils + " ms"));
                 while (NextRealTimeTickReady == false && abort != true)
                 {
                     Thread.Sleep(100);
@@ -107,6 +115,19 @@ namespace Assets.Scripts.Simulation
             abort = true;
             mainThread.Abort();
             Debug.Log("Secondary thread: " + mainThread.ThreadState);
+        }
+
+        static Queue<Action> unityActions = new Queue<Action>();
+        public static void ExcicuteOnUnityThread(Action a)
+        {
+            unityActions.Enqueue(a);
+        }
+        void ExcicuteQueuedActions()
+        {
+            while(unityActions.Count != 0)
+            {
+                unityActions.Dequeue().Invoke();
+            }
         }
     }
 }
