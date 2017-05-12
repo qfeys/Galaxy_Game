@@ -85,6 +85,11 @@ namespace Assets.Scripts.Simulation
         {
             while(abort == false)
             {
+                if(EventSchedule.nextEvent == DateTime.MaxValue)
+                {
+                    abort = true;
+                    break;
+                }
                 System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
                 int loops = 0;
@@ -107,6 +112,7 @@ namespace Assets.Scripts.Simulation
                     Thread.Sleep(100);
                 }
                 NextSimTimeTickReady = false;
+                NextRealTimeTickReady = false;
             }
         }
 
@@ -122,6 +128,7 @@ namespace Assets.Scripts.Simulation
         {
             unityActions.Enqueue(a);
         }
+
         void ExcicuteQueuedActions()
         {
             while(unityActions.Count != 0)

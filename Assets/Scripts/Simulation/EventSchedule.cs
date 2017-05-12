@@ -9,7 +9,11 @@ namespace Assets.Scripts.Simulation
     {
         static SortedList<Event> events = new SortedList<Event>();
 
-        public static DateTime nextEvent { get { return events.FindFirst().date; } }
+        public static DateTime nextEvent { get
+            {
+                if (events.Count != 0) return events.FindFirst().date;
+                else return DateTime.MaxValue;
+            } }
         
 
         public static void Add(Event newEvent)
