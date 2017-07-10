@@ -146,6 +146,8 @@ namespace Assets.Scripts
                 {
                     switch (info[j].Item1)
                     {
+                    case "starting_tech":
+                        break;
                     case "sector":
                         newTech.sector = (Academy.Sector)Enum.Parse(typeof(Academy.Sector), info[j].Item2 as string);
                         break;
