@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Assets.Scripts
         public readonly ulong SMA;  // Semi-major axis
         public readonly double e;   // exentricity
         public readonly Orbital parent;
-        ulong T { get { return (ulong)(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parent.Mass))); } }
+        TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parent.Mass))); } }
         public const double G = 6.67408e-11;
 
         /// <summary>
@@ -37,12 +38,12 @@ namespace Assets.Scripts
             this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parent = parent;
         }
 
-        public VectorS GetPositionSphere(long time)
+        public VectorS GetPositionSphere(DateTime time)
         {
             if (SMA == 0) return new VectorS(0, 0, 0);
             VectorS ret = new VectorS();
-            double n = T / (2 * Math.PI);   // average rate of sweep
-            double meanAnomaly = MAaE + n * time;
+            double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep
+            double meanAnomaly = MAaE + n * time.Second;
             double EA = eccentricAnomaly(meanAnomaly);
             ret.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
             ret.u = LAN + (AOP + EA) * Math.Sin(i);
@@ -123,5 +124,113 @@ namespace Assets.Scripts
         {
             Item1 = item1; Item2 = item2;
         }
+    }
+
+    public static class RNG
+    {
+        static Random rand = new Random();
+        public static bool Chance(double chance)
+        {
+            if (chance < 0) throw new ArgumentException("Chance must be greater then zero.");
+            if (chance > 1) throw new ArgumentException("Chance must be smaller then one.");
+            return rand.NextDouble() < chance;
+        }
+
+        public static TimeSpan nextOccurence(TimeSpan mtth)
+        {
+            return new TimeSpan((long)(mtth.Ticks * -Math.Log(rand.NextDouble(), 2)));
+        }
+    }
+
+    public class SortedList<T> : ICollection<T>
+    {
+        private readonly List<T> collection = new List<T>();
+        // TODO: initializable:
+        private readonly IComparer<T> comparer = Comparer<T>.Default;
+
+        public void Add(T item)
+        {
+            if (Count == 0)
+            {
+                collection.Add(item);
+                return;
+            }
+            int minimum = 0;
+            int maximum = collection.Count - 1;
+
+            while (minimum <= maximum)
+            {
+                int midPoint = (minimum + maximum) / 2;
+                int comparison = comparer.Compare(collection[midPoint], item);
+                if (comparison == 0)
+                {
+                    return; // already in the list, do nothing
+                }
+                if (comparison < 0)
+                {
+                    minimum = midPoint + 1;
+                }
+                else
+                {
+                    maximum = midPoint - 1;
+                }
+            }
+            collection.Insert(minimum, item);
+        }
+
+        public bool Contains(T item)
+        {
+            // TODO: potential optimization
+            return collection.Contains(item);
+        }
+
+        public bool Remove(T item)
+        {
+            // TODO: potential optimization
+            return collection.Remove(item);
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return collection.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void Clear()
+        {
+            collection.Clear();
+        }
+
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            collection.CopyTo(array, arrayIndex);
+        }
+
+        internal T FindFirst()
+        {
+            if (collection.Count != 0)
+                return collection[0];
+            else
+                throw new NullReferenceException("This sorted list is empty");
+        }
+
+        internal T TakeFirst()
+        {
+            if (collection.Count != 0)
+            {
+                var ret = collection[0];
+                collection.RemoveAt(0);
+                return ret;
+            }
+            else
+                throw new NullReferenceException("This sorted list is empty");
+        }
+
+        public int Count { get { return collection.Count; } }
+        public bool IsReadOnly { get { return false; } }
     }
 }

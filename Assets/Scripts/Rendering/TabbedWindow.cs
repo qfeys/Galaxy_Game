@@ -38,7 +38,6 @@ namespace Assets.Scripts.Rendering
         public void Start()
         {
             standardHeight = ((RectTransform)gameObject.transform).rect.height;
-            Debug.Log(standardHeight);
             var VLayGr = gameObject.GetComponent<VerticalLayoutGroup>();
             if(VLayGr == null)
                 VLayGr = gameObject.AddComponent<VerticalLayoutGroup>();
@@ -167,7 +166,6 @@ namespace Assets.Scripts.Rendering
                     ((RectTransform)gameObject.transform).rect.width,
                     standardHeight);
                 isMinimised = false;
-                Debug.Log("Maximised");
             }
         }
     }
