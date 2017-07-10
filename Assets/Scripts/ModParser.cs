@@ -9,6 +9,19 @@ namespace Assets.Scripts
 {
     static class ModParser
     {
+        static public void ParseAllFiles()
+        {
+            try
+            {
+                Academy.SetTechTree(readTechnology());
+            }
+            catch (ArgumentException e)
+            {
+                UnityEngine.Debug.LogException(e);
+                Academy.SetTechTree(new List<Technology>());
+            }
+        }
+
         static List<Tuple<string,object>> Parse(string path)
         {
             string text = System.IO.File.ReadAllText(path);
@@ -120,7 +133,7 @@ namespace Assets.Scripts
             return data;
         }
 
-        public static List<Technology> readTechnology()
+        static List<Technology> readTechnology()
         {
             List<Tuple<string, object>> data = Parse(@"Mods\Core\Technology.txt");
             List<Technology> techs = new List<Technology>();

@@ -23,9 +23,16 @@ namespace Assets.Scripts.Empires.Technology
             CheckUnlocks();
         }
 
-        public static void Init()
+        public static void SetTechTree(List<Technology> tt)
         {
-            techTree = ModParser.readTechnology();
+            if(techTree == null)
+            {
+                UnityEngine.Debug.Log("Techtree set with " + tt.Count + " technologies.");
+            }else
+            {
+                UnityEngine.Debug.LogError("Techtree reset with " + tt.Count + " technologies.");
+            }
+            techTree = tt;
         }
 
         public void CheckUnlocks()
