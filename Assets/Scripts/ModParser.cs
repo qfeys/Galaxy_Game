@@ -33,9 +33,16 @@ namespace Assets.Scripts
             ///         -equality'='
             List<string> words = new List<string>();
             string currentWord = null;
+            bool commentRunning = false;
             for (int i = 0; i < text.Count(); i++)
             {
                 char c = text[i];
+                if (c == '#')
+                    commentRunning = true;
+                if (c == '\n')
+                    commentRunning = false;
+                if (commentRunning)
+                    continue;
                 if (c == ' ' || c == '\n' || c == '\t' || c == '\r')
                 {
                     if (currentWord != null)
