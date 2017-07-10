@@ -122,7 +122,7 @@ namespace Assets.Scripts
 
         public static List<Technology> readTechnology()
         {
-            List < Tuple < string,object>> data = Parse(@"Mods\Core\Technology.txt");
+            List<Tuple<string, object>> data = Parse(@"Mods\Core\Technology.txt");
             List<Technology> techs = new List<Technology>();
             for (int i = 0; i < data.Count; i++)
             {
@@ -160,6 +160,8 @@ namespace Assets.Scripts
                             newTech.roots.Add(root, double.Parse(roots[k].Item2 as string));
                         }
                         break;
+                    default:
+                        throw new ArgumentException("Invalid field in the technology file: " + info[j].Item1);
                     }
                 }
                 techs.Add(newTech.ToTech());
