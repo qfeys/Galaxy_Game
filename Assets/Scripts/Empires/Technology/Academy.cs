@@ -10,17 +10,31 @@ namespace Assets.Scripts.Empires.Technology
 
         static List<Technology> techTree;
         // internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics }
-        internal enum Sector { PHYSICS, DRIVE }
         const double STANDARD_DEVELOPMENT_TIME = 5; // Years
 
         public List<Technology> unlocks { get; private set; }
-        public Dictionary<Sector, double> funding { get; private set; }
+        public Dictionary<Technology.Sector, double> funding { get; private set; }
 
         public Academy()
         {
-            funding = Enum.GetValues(typeof(Sector)).Cast<Sector>().ToDictionary<Sector, Sector, double>(d => d, d => 100);
+            funding = Enum.GetValues(typeof(Technology.Sector)).Cast<Technology.Sector>().ToDictionary<Technology.Sector, Technology.Sector, double>(d => d, d => 100);
             unlocks = new List<Technology>();
             CheckUnlocks();
+        }
+
+        internal static void SetTechTree(List<ModParser.Item> itemList)
+        {
+            if (techTree == null)
+            {
+                UnityEngine.Debug.Log("Techtree set with " + itemList.Count + " technologies.");
+            }
+            else
+            {
+                UnityEngine.Debug.LogError("Techtree reset with " + itemList.Count + " technologies.");
+            }
+            List<Technology> tt = itemList.ConvertAll(i => Technology.Interpret(i));
+            Technology.PointPrerequisites(tt);
+            techTree = new List<Technology>();
         }
 
         public static void SetTechTree(List<Technology> tt)

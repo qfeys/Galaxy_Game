@@ -106,7 +106,7 @@ namespace Assets.Scripts.Rendering
                 Transform win = OverviewWindow.transform.GetChild(1).GetChild(4);
                 InfoTable tableSec = win.Find("Sectors").GetComponent<InfoTable>();
                 tableSec.ResetInfo();
-                foreach (KeyValuePair<Empires.Technology.Academy.Sector, double> kvp in God.PlayerEmpire.academy.funding)
+                foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in God.PlayerEmpire.academy.funding)
                 {
                     tableSec.AddInfo(new Tuple<string, string>(kvp.Key.ToString(), kvp.Value.ToString()));
                 }

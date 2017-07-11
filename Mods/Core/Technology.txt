@@ -2,123 +2,125 @@
 ####TECHNOLOGY######
 ####################
 
-# PHYSICS
-physics = {
-	starting_tech = TRUE
-	sector = PHYSICS
-	max_progress = 0
-}
+technology = {
+	# PHYSICS
+	physics = {
+		starting_tech = TRUE
+		sector = PHYSICS
+		max_progress = 0
+	}
 
-contained_fusion = {
-	sector = PHYSICS
-	prerequisites = {
-		physics = { min = 0 max = 100 }
+	contained_fusion = {
+		sector = PHYSICS
+		prerequisites = {
+			physics = { min = 0 max = 100 }
+		}
+		max_progress = 200
 	}
-	max_progress = 200
-}
 
-gravimetric_manipulation = {
-	sector = PHYSICS
-	prerequisites = {
-		physics = { min = 80 max = 300 }
+	gravimetric_manipulation = {
+		sector = PHYSICS
+		prerequisites = {
+			physics = { min = 80 max = 300 }
+		}
+		max_progress = 500
 	}
-	max_progress = 500
-}
 
-space_time_warping = {
-	sector = PHYSICS
-	prerequisites = {
-		physics = { min = 200 max = 800 }
-		gravimetric_manipulation = { min = 100 max = 400 }
+	space_time_warping = {
+		sector = PHYSICS
+		prerequisites = {
+			physics = { min = 200 max = 800 }
+			gravimetric_manipulation = { min = 100 max = 400 }
+		}
+		max_progress = 500
 	}
-	max_progress = 500
-}
 
-ley_lines = {
-	sector = PHYSICS
-	prerequisites = {
-		physics = { min = 50 max = 100 }
+	ley_lines = {
+		sector = PHYSICS
+		prerequisites = {
+			physics = { min = 50 max = 100 }
+		}
+		max_progress = 500
 	}
-	max_progress = 500
-}
 
-hyperspace_disruption = {
-	sector = PHYSICS
-	prerequisites = {
-		physics = { min = 400 max = 10000 }
-		gravimetric_manipulation = { min = 200 max = 500 }
-		ley_lines = { min = 200 max = 500 }
+	hyperspace_disruption = {
+		sector = PHYSICS
+		prerequisites = {
+			physics = { min = 400 max = 10000 }
+			gravimetric_manipulation = { min = 200 max = 500 }
+			ley_lines = { min = 200 max = 500 }
+		}
+		max_progress = 800
 	}
-	max_progress = 800
-}
 
-quantum_teleportation = {
-	sector = PHYSICS
-	prerequisites = {
-		physics = { min = 1000 max = 1500 }
-		hyperspace_disruption = { min = 400 max = 800 }
+	quantum_teleportation = {
+		sector = PHYSICS
+		prerequisites = {
+			physics = { min = 1000 max = 1500 }
+			hyperspace_disruption = { min = 400 max = 800 }
+		}
+		max_progress = 500
 	}
-	max_progress = 500
-}
 
-HV_Ion = {
-	sector = DRIVE
-	starting_tech = TRUE
-	max_progress = 500
-}
+	HV_Ion = {
+		sector = DRIVE
+		starting_tech = TRUE
+		max_progress = 500
+	}
 
-ion_miniaturisation = {
-	sector = DRIVE
-	prerequisites = {
-		HV_Ion = { min = 200 max = 400 }
+	ion_miniaturisation = {
+		sector = DRIVE
+		prerequisites = {
+			HV_Ion = { min = 200 max = 400 }
+		}
+		max_progress = 100
+		understanding = {
+			HV_Ion = 1
+		}
 	}
-	max_progress = 100
-	understanding = {
-		HV_Ion = 1
-	}
-}
 
-fusion_pulse = {
-	sector = DRIVE
-	prerequisites = {
-		contained_fusion = { min = 0 max = 100 }
+	fusion_pulse = {
+		sector = DRIVE
+		prerequisites = {
+			contained_fusion = { min = 0 max = 100 }
+		}
+		max_progress = 500
+		understanding = {
+			contained_fusion = 1
+		}
 	}
-	max_progress = 500
-	understanding = {
-		contained_fusion = 1
-	}
-}
 
-gravity_field = {
-	sector = DRIVE
-	prerequisites = {
-		gravimetric_manipulation = { min = 20 max = 150 }
+	gravity_field = {
+		sector = DRIVE
+		prerequisites = {
+			gravimetric_manipulation = { min = 20 max = 150 }
+		}
+		max_progress = 500
+		understanding = {
+			gravimetric_manipulation = 1
+		}
 	}
-	max_progress = 500
-	understanding = {
-		gravimetric_manipulation = 1
-	}
-}
 
-locallised_warp = {
-	sector = DRIVE
-	prerequisites = {
-		space_time_warping = { min = 20 max = 150 }
+	locallised_warp = {
+		sector = DRIVE
+		prerequisites = {
+			space_time_warping = { min = 20 max = 150 }
+		}
+		max_progress = 500
+		understanding = {
+			space_time_warping = 1
+		}
 	}
-	max_progress = 500
-	understanding = {
-		space_time_warping = 1
-	}
-}
 
-warp_bubble = {
-	sector = DRIVE
-	prerequisites = {
-		space_time_warping = { min = 100 max = 150 }
-		locallised_warp = { min = 100 max = 300 }
-	}
-	max_progress = 500
-	understanding = {
-		space_time_warping = 1
+	warp_bubble = {
+		sector = DRIVE
+		prerequisites = {
+			space_time_warping = { min = 100 max = 150 }
+			locallised_warp = { min = 100 max = 300 }
+		}
+		max_progress = 500
+		understanding = {
+			space_time_warping = 1
+		}
 	}
 }

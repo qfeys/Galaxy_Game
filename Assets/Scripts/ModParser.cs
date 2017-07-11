@@ -11,9 +11,22 @@ namespace Assets.Scripts
     {
         static public void ParseAllFiles()
         {
+            CollectSignatures();
+            string path = @"Mods\Core\Technology.txt";
             try
             {
-                Academy.SetTechTree(readTechnology());
+                List<string> words = Parse(path);
+                List<Tuple<string, object>> dataTree = ExtractData(words, 0);
+                foreach (Tuple<string, object> category in dataTree)
+                {
+                    List<Item> itemList = ConvertToItems(category.Item2 as List<Tuple<string, object>>, ItemCategories[category.Item1]);
+                    switch (category.Item1)
+                    {
+                    case "technology":
+                        Academy.SetTechTree(itemList);
+                        break;
+                    }
+                }
             }
             catch (FormatException e)
             {
@@ -22,7 +35,15 @@ namespace Assets.Scripts
             }
         }
 
-        static List<Tuple<string,object>> Parse(string path)
+        static Dictionary<string, List<Signature>> ItemCategories;
+
+        static void CollectSignatures()
+        {
+            ItemCategories = new Dictionary<string, List<Signature>>();
+            ItemCategories.Add("technology", Technology.Signature());
+        }
+
+        static List<string> Parse(string path)
         {
             string text = System.IO.File.ReadAllText(path);
 
@@ -90,9 +111,7 @@ namespace Assets.Scripts
                     " times while '}' is found " + words.Count(s => s == "}") + " times.");
             }
 
-            return ExtractData(words, 0);
-
-            throw new NotImplementedException();
+            return words;
         }
 
         static List<Tuple<string, object>> ExtractData(List<string> words, int startPoint)
@@ -151,73 +170,124 @@ namespace Assets.Scripts
             return data;
         }
 
-        static List<Technology> readTechnology()
+        static List<Item> ConvertToItems(List<Tuple<string, object>> dataTree, List<Signature> signatures)
         {
-            List<Tuple<string, object>> data = Parse(@"Mods\Core\Technology.txt");
-            List<Technology> techs = new List<Technology>();
-            for (int i = 0; i < data.Count; i++)
+            List<Item> items = new List<Item>();
+            for (int i = 0; i < dataTree.Count; i++)
             {
-                ProtoTechnology newTech = new ProtoTechnology();
-                newTech.name = data[i].Item1;
-                List<Tuple<string, object>> info = data[i].Item2 as List<Tuple<string, object>>;
-                for (int j = 0; j < info.Count; j++)
-                {
-                    switch (info[j].Item1)
-                    {
-                    case "starting_tech":
-                        break;
-                    case "sector":
-                        if (info[j].Item2.GetType() != typeof(string))
-                            throw new FormatException("The 'sector' field of technology '" + newTech.name + "' is not a string.");
-                        newTech.sector = (Academy.Sector)Enum.Parse(typeof(Academy.Sector), info[j].Item2 as string);
-                        break;
-                    case "prerequisites":
-                        newTech.prerequisites = new Dictionary<Technology, Tuple<double, double>>();
-                        List<Tuple<string, object>> preqs = info[j].Item2 as List<Tuple<string, object>>;
-                        for (int k = 0; k < preqs.Count; k++)
-                        {
-                            Technology preq = techs.Find(t => t.name == preqs[k].Item1);
-                            var numbers = preqs[k].Item2 as List<Tuple<string, object>>;
-                            double min = double.Parse(numbers.Find(t => t.Item1 == "min").Item2 as string);
-                            double max = double.Parse(numbers.Find(t => t.Item1 == "max").Item2 as string);
-                            newTech.prerequisites.Add(preq, new Tuple<double, double>(min, max));
-                        }
-                        break;
-                    case "max_progress":
-                        newTech.maxKnowledge = double.Parse(info[j].Item2 as string);
-                        break;
-                    case "understanding":
-                        newTech.roots = new Dictionary<Technology, double>();
-                        List<Tuple<string, object>> roots = info[j].Item2 as List<Tuple<string, object>>;
-                        for (int k = 0; k < roots.Count; k++)
-                        {
-                            Technology root = techs.Find(t => t.name == roots[k].Item1);
-                            newTech.roots.Add(root, double.Parse(roots[k].Item2 as string));
-                        }
-                        break;
-                    default:
-                        throw new FormatException("Invalid field in the technology file: " + info[j].Item1);
-                    }
-                }
-                techs.Add(newTech.ToTech());
+                Item newItem = new Item(signatures);
+                newItem.name = dataTree[i].Item1;
+                List<Tuple<string, object>> info = dataTree[i].Item2 as List<Tuple<string, object>>;
+                newItem = ConvertToItem(info, signatures);
+                newItem.name = dataTree[i].Item1;
+                items.Add(newItem);
             }
-            return techs;
+            return items;
         }
 
-        struct ProtoTechnology
+        static Item ConvertToItem(List<Tuple<string,object>> dataTree, List<Signature> signatures)
+        {
+            Item newItem = new Item(signatures);
+
+            foreach (Tuple<string, object> entry in dataTree)
+            {
+                Signature signtr = null;
+                if (signatures.Any(s => s.id == null))
+                {
+                    if (signatures.Count != 1)
+                        throw new Exception("There are multiple null named signatures in " + newItem.name);
+                    signtr = signatures[0];
+                }
+                else
+                {
+                    signtr = signatures.Find(s => s.id == entry.Item1);
+                }
+                object date = null;
+                switch (signtr.type)
+                {
+                case SignatueType.boolean:
+                    date = bool.Parse(entry.Item2 as string);
+                    break;
+                case SignatueType.integer:
+                    date = int.Parse(entry.Item2 as string);
+                    break;
+                case SignatueType.floating:
+                    date = double.Parse(entry.Item2 as string);
+                    break;
+                case SignatueType.words:
+                    if (signtr.wordOptions != null)
+                    {
+                        if (signtr.wordOptions.Contains(entry.Item2 as string) == false)
+                            throw new FormatException(entry.Item2 + " is not a valid option for " + entry.Item1);
+                    }
+                    date = entry.Item2 as string;
+                    break;
+                case SignatueType.list:
+                    if (signtr.listSignatures == null)
+                    {
+                        throw new Exception(entry.Item1 + " does not have a valid signature. The sublist signatures are not given.");
+                    }
+                    date = ConvertToItem(entry.Item2 as List<Tuple<string, object>>, signtr.listSignatures);
+                    break;
+                }
+                if (signtr.id == null)  // Variable name entries - we must pass the name
+                    newItem.SetEntry(signtr,new Tuple<string,object>(entry.Item1 ,date));
+                else
+                    newItem.SetEntry(signtr, date);
+            }
+
+
+            return newItem;
+        }
+
+        public enum SignatueType { boolean, words, integer, floating, list}
+
+        public class Signature
+        {
+            public string id;
+            public SignatueType type;
+            public List<string> wordOptions;
+            public List<Signature> listSignatures;
+
+            public Signature(string id, SignatueType type)
+            {
+                if (type == SignatueType.words || type == SignatueType.list)
+                    throw new ArgumentException("You used the wrong constructor for the signature " + id);
+                this.id = id; this.type = type;
+                wordOptions = null; listSignatures = null;
+            }
+
+            public Signature(string id, SignatueType type, List<string> wordOptions)
+            {
+                if (type != SignatueType.words)
+                    throw new ArgumentException("You used the wrong constructor for the signature " + id);
+                this.id = id; this.type = type;
+                this.wordOptions = wordOptions; listSignatures = null;
+            }
+
+            public Signature(string id, SignatueType type, List<Signature> listSignatures)
+            {
+                if (type != SignatueType.list)
+                    throw new ArgumentException("You used the wrong constructor for the signature " + id);
+                this.id = id; this.type = type;
+                wordOptions = null; this.listSignatures = listSignatures;
+            }
+        }
+
+        public class Item
         {
             public string name;
-            public Academy.Sector sector;
-            public Dictionary<Technology, Tuple<double, double>> prerequisites;
-            public double maxKnowledge;
-            public Dictionary<Technology, double> roots;
-            public Technology ToTech()
+            public List<Tuple<Signature, object>> entries;
+            public Item(List<Signature> signatures)
             {
-                if (prerequisites == null)
-                    prerequisites = new Dictionary<Technology, Tuple<double, double>>();
-                if (roots == null)
-                    roots = new Dictionary<Technology, double>();
-                return new Technology(name, sector, prerequisites, maxKnowledge, roots);
+                entries = new List<Tuple<Signature, object>>();
+                signatures.ForEach(s => entries.Add(new Tuple<Signature, object>(s, null)));
+            }
+            public void SetEntry(Signature signtr, object data)
+            {
+                if (entries.Any(tpl => tpl.Item1 == signtr) == false)
+                    throw new FormatException("The item '" + name + "' should not have the entry '" + signtr.id + "'.");
+                entries.Find(e => e.Item1 == signtr).Item2 = data;
             }
         }
     }
