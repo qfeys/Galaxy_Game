@@ -15,7 +15,7 @@ namespace Assets.Scripts
             {
                 Academy.SetTechTree(readTechnology());
             }
-            catch (ArgumentException e)
+            catch (FormatException e)
             {
                 UnityEngine.Debug.LogException(e);
                 Academy.SetTechTree(new List<Technology>());
@@ -71,6 +71,7 @@ namespace Assets.Scripts
                     }
                 }
             }
+
             if(currentWord != null)
             {
                 words.Add(currentWord);
@@ -86,7 +87,7 @@ namespace Assets.Scripts
             if(words.Count(s=> s == "{") != words.Count(s => s == "}"))
             {
                 throw new FormatException("The brackets in the file: " + path + " are not balanced. '{' is found " + words.Count(s => s == "{") +
-                    "times while '}' is found " + words.Count(s => s == "}") + "times.");
+                    " times while '}' is found " + words.Count(s => s == "}") + " times.");
             }
 
             return ExtractData(words, 0);
@@ -104,11 +105,11 @@ namespace Assets.Scripts
                 {
                     string prime = words[currentPos - 1];
                     if (prime == "=" || prime == "}" || prime == "{")
-                        throw new ArgumentException("The given position (" + (currentPos - 1) + ") is not a word");
+                        throw new FormatException("The given position (" + (currentPos - 1) + " - " + words[currentPos - 1] + ") is not a word");
                     if (words[currentPos] != "=")
-                        throw new ArgumentException("The given position (" + currentPos + ") is not '='");
-                    if ((new[] { "=", "}" }).Contains(words[startPoint + 2]))
-                        throw new ArgumentException("The word after the given position (" + currentPos + ") is invalid");
+                        throw new FormatException("The given position (" + currentPos + " - " + words[currentPos] + ") is not '='");
+                    if (words[currentPos + 2] == "=")
+                        throw new FormatException("The word after the given position (" + currentPos + " - " + words[currentPos + 1] + ") is invalid");
                     if (words[currentPos + 1] == "{")
                     {
                         data.Add(new Tuple<string, object>(prime, ExtractData(words, currentPos + 2)));
@@ -120,6 +121,9 @@ namespace Assets.Scripts
                 }
                 else if (words[currentPos] == "{")
                 {
+                    // Check if this was part of a valid statement, aka there is a '=' in front of it
+                    if (words[currentPos - 1] != "=")
+                        throw new FormatException("An open bracket ('{') was not precluded by an equal sign ('=').");
                     // Skip over this bracket
                     int openBrackets = 1;
                     while (openBrackets > 0)
@@ -133,6 +137,13 @@ namespace Assets.Scripts
                 }
                 else if (words[currentPos] == "}")
                     break;
+                else    // This is a normal word
+                {       // We test if it is part of a correct statement, aka flanked by 1 '=' sign.
+                    if(currentPos != 0 && currentPos != words.Count-1 && ((words[currentPos - 1] == "=") ^ (words[currentPos + 1] == "=" ))== false)
+                    {
+                        throw new FormatException("The word " + words[currentPos] + " is not part of a valid statement.");
+                    }
+                }
 
                 currentPos++;
             }
@@ -156,6 +167,8 @@ namespace Assets.Scripts
                     case "starting_tech":
                         break;
                     case "sector":
+                        if (info[j].Item2.GetType() != typeof(string))
+                            throw new FormatException("The 'sector' field of technology '" + newTech.name + "' is not a string.");
                         newTech.sector = (Academy.Sector)Enum.Parse(typeof(Academy.Sector), info[j].Item2 as string);
                         break;
                     case "prerequisites":
@@ -183,7 +196,7 @@ namespace Assets.Scripts
                         }
                         break;
                     default:
-                        throw new ArgumentException("Invalid field in the technology file: " + info[j].Item1);
+                        throw new FormatException("Invalid field in the technology file: " + info[j].Item1);
                     }
                 }
                 techs.Add(newTech.ToTech());

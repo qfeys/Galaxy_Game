@@ -4,9 +4,8 @@
 
 # PHYSICS
 physics = {
-	startingTech = TRUE
+	starting_tech = TRUE
 	sector = PHYSICS
-	
 	max_progress = 0
 }
 
@@ -64,7 +63,7 @@ quantum_teleportation = {
 
 HV_Ion = {
 	sector = DRIVE
-	startingTech = TRUE
+	starting_tech = TRUE
 	max_progress = 500
 }
 
