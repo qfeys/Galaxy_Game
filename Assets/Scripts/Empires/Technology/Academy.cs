@@ -33,7 +33,7 @@ namespace Assets.Scripts.Empires.Technology
                 UnityEngine.Debug.LogError("Techtree reset with " + itemList.Count + " technologies.");
             }
             List<Technology> tt = itemList.ConvertAll(i => Technology.Interpret(i));
-            Technology.PointPrerequisites(tt);
+            Technology.PointPrerequisitesAndRoots(tt);
             techTree = new List<Technology>();
         }
 

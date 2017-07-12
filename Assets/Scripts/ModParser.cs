@@ -188,14 +188,17 @@ namespace Assets.Scripts
         static Item ConvertToItem(List<Tuple<string,object>> dataTree, List<Signature> signatures)
         {
             Item newItem = new Item(signatures);
+            bool varName = signatures.Any(s => s.id == null) ? true : false;
+            if(varName && signatures.Count != 1)
+                throw new Exception("There are multiple null named signatures in " + newItem.name);
+            if (varName)
+                newItem = new Item(new List<Signature>());
 
             foreach (Tuple<string, object> entry in dataTree)
             {
                 Signature signtr = null;
-                if (signatures.Any(s => s.id == null))
+                if (varName)
                 {
-                    if (signatures.Count != 1)
-                        throw new Exception("There are multiple null named signatures in " + newItem.name);
                     signtr = signatures[0];
                 }
                 else
@@ -230,8 +233,8 @@ namespace Assets.Scripts
                     date = ConvertToItem(entry.Item2 as List<Tuple<string, object>>, signtr.listSignatures);
                     break;
                 }
-                if (signtr.id == null)  // Variable name entries - we must pass the name
-                    newItem.SetEntry(signtr,new Tuple<string,object>(entry.Item1 ,date));
+                if (varName)  // Variable name entries - we must pass the name
+                    newItem.entries.Add(new Tuple<Signature, object>(signtr, new Tuple<string, object>(entry.Item1, date)));
                 else
                     newItem.SetEntry(signtr, date);
             }
@@ -278,11 +281,13 @@ namespace Assets.Scripts
         {
             public string name;
             public List<Tuple<Signature, object>> entries;
+
             public Item(List<Signature> signatures)
             {
                 entries = new List<Tuple<Signature, object>>();
                 signatures.ForEach(s => entries.Add(new Tuple<Signature, object>(s, null)));
             }
+
             public void SetEntry(Signature signtr, object data)
             {
                 if (entries.Any(tpl => tpl.Item1 == signtr) == false)

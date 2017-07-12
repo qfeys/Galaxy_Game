@@ -16,6 +16,10 @@ technology = {
 			physics = { min = 0 max = 100 }
 		}
 		max_progress = 200
+		understanding = {
+			contained_fusion = 1
+			gravimetric_manipulation = 1
+		}
 	}
 
 	gravimetric_manipulation = {

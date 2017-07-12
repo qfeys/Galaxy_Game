@@ -86,6 +86,13 @@ namespace Assets.Scripts.Empires.Technology
                                        )
                                );
             }
+            t.roots = new Dictionary<Technology, double>();
+            if (i.entries.Find(e => e.Item1.id == "understanding").Item2 != null)
+            {
+                List<Tuple<string, double>> rts = (i.entries.Find(e => e.Item1.id == "understanding").Item2 as ModParser.Item).entries.
+                    ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1,(double)e.Item2));
+                rts.ForEach(r => t.roots.Add(new Technology() { name = r.Item1 }, r.Item2));
+            }
             return t;
         }
 
@@ -94,7 +101,7 @@ namespace Assets.Scripts.Empires.Technology
         /// instead of a dummy tech as given in the 'Interpret' function
         /// </summary>
         /// <param name="techTree"></param>
-        internal static void PointPrerequisites(List<Technology> techTree)
+        internal static void PointPrerequisitesAndRoots(List<Technology> techTree)
         {
             foreach(Technology t in techTree)
             {
@@ -105,6 +112,14 @@ namespace Assets.Scripts.Empires.Technology
                     if (p.sector == null)    // This means that this technology is badly defined
                     {
                         p = techTree.Find(tech => tech.name == p.name);
+                    }
+                }
+                for(int i = 0; i< t.roots.Count; i++)
+                {
+                    Technology r = preq[i];
+                    if (r.sector == null)    // This means that this technology is badly defined
+                    {
+                        r = techTree.Find(tech => tech.name == r.name);
                     }
                 }
             }
