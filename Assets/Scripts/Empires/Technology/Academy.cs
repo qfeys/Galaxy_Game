@@ -34,7 +34,7 @@ namespace Assets.Scripts.Empires.Technology
             }
             List<Technology> tt = itemList.ConvertAll(i => Technology.Interpret(i));
             Technology.PointPrerequisitesAndRoots(tt);
-            techTree = new List<Technology>();
+            techTree = tt;
         }
 
         public static void SetTechTree(List<Technology> tt)
