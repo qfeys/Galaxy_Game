@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Assets.Scripts.Empires.Technology;
 using System.IO;
 
 namespace Assets.Scripts
@@ -23,7 +22,10 @@ namespace Assets.Scripts
                     switch (category.Item1)
                     {
                     case "technology":
-                        Academy.SetTechTree(itemList);
+                        Empires.Technology.Academy.SetTechTree(itemList);
+                        break;
+                    case "installation":
+                        Empires.Installations.Installation.SetInstallationList(itemList);
                         break;
                     }
                 }
@@ -31,7 +33,7 @@ namespace Assets.Scripts
             catch (FormatException e)
             {
                 UnityEngine.Debug.LogException(e);
-                Academy.SetTechTree(new List<Technology>());
+                Empires.Technology.Academy.SetTechTree(new List<Empires.Technology.Technology>());
             }
         }
 
@@ -40,7 +42,8 @@ namespace Assets.Scripts
         static void CollectSignatures()
         {
             ItemCategories = new Dictionary<string, List<Signature>>();
-            ItemCategories.Add("technology", Technology.Signature());
+            ItemCategories.Add("technology", Empires.Technology.Technology.Signature());
+            ItemCategories.Add("installation", Empires.Installations.Installation.Signature());
         }
 
         static List<string> Parse(string path)

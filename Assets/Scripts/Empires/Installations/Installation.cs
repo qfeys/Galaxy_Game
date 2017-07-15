@@ -27,17 +27,27 @@ namespace Assets.Scripts.Empires.Installations
 
         static List<Installation> installationList;
 
-        static void SetInstallationList(List<Installation > newList)
+        static public void SetInstallationList(List<ModParser.Item> itemList)
         {
             if (installationList == null)
             {
-                UnityEngine.Debug.Log("Installation List set with " + newList.Count + " installations.");
+                UnityEngine.Debug.Log("Installation List set with " + itemList.Count + " installations.");
             }
             else
             {
-                UnityEngine.Debug.LogError("Installation List reset with " + newList.Count + " installations.");
+                UnityEngine.Debug.LogError("Installation List reset with " + itemList.Count + " installations.");
             }
-            installationList = newList;
+            installationList = itemList.ConvertAll(i => Installation.Interpret(i));
+        }
+
+        private static Installation Interpret(ModParser.Item i)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static List<ModParser.Signature> Signature()
+        {
+            throw new NotImplementedException();
         }
     }
 }
