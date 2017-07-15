@@ -18,7 +18,7 @@ namespace Assets.Scripts.Empires
         // species
         // culture
         // List<policies>
-        List<Assets.Asset> assets;
+        List<Installations.Installation> installations;
         Production.Stockpile stockpile;
         
         public Population(Bodies.Orbital location, long initPop)
@@ -30,7 +30,7 @@ namespace Assets.Scripts.Empires
             poverty = 0.1;
             inequality = 0.4;
             happiness = 0;
-            assets = new List<Assets.Asset>();
+            installations = new List<Installations.Installation>();
             stockpile = new Production.Stockpile();
         }
     }

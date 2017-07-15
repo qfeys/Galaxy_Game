@@ -13,7 +13,7 @@ namespace Assets.Scripts.Empires
         public List<Leaders.Leader> leaders { get; private set; }
         public Production.TradeCenter tradeCenter { get; private set; }
         public Technology.Academy academy { get; private set; }
-        List<Assets.Asset> freeAssets;  // in contrast to assets bound to populations
+        List<Installations.Installation> freeInstallations;  // in contrast to assets bound to populations
         List<Mobiles.Mobile> mobiles;
 
         Simulation.Event nextUpdate;
@@ -25,7 +25,7 @@ namespace Assets.Scripts.Empires
             leaders = new List<Leaders.Leader>();
             tradeCenter = new Production.TradeCenter();
             academy = new Technology.Academy();
-            freeAssets = new List<Assets.Asset>();
+            freeInstallations = new List<Installations.Installation>();
             mobiles = new List<Mobiles.Mobile>();
 
             populations.Add(new Population(capital, (long)5e9));
