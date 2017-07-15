@@ -9,11 +9,13 @@ namespace Assets.Scripts.Empires.Production
     {
         public double iron;
         public double nonFerrous;         // think copper, concrete
-        public double hydroCarbons;      // think petrochemicals
-        public double organic;
+        public double carbon;      // think petrochemicals
+        public double silicates;
         public double rareEarth;
+
         public double water;            // potable water
         public double food;
+
         public double components;
         public double electronics;
         public double consumerGoods;

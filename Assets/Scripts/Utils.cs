@@ -164,7 +164,8 @@ namespace Assets.Scripts
                 int comparison = comparer.Compare(collection[midPoint], item);
                 if (comparison == 0)
                 {
-                    return; // already in the list, do nothing
+                    collection.Insert(midPoint + 1, item);
+                    return; // already in the list, isert item here
                 }
                 if (comparison < 0)
                 {

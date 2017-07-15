@@ -12,7 +12,7 @@ namespace Assets.Scripts.Empires
         public long count { get; private set; }
         public double wealth { get; private set; } // GDP in Milion USD
         double poverty; // part of people living in poverty
-        double inequality; // gini-index
+        double inequality; // gini-index - lower is better
         double happiness; // negative is bad
         Leaders.Leader governer;
         // species

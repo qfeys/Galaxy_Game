@@ -85,7 +85,7 @@ namespace Assets.Scripts.Simulation
         {
             while(abort == false)
             {
-                if(EventSchedule.nextEvent == DateTime.MaxValue)
+                if(EventSchedule.NextEvent == DateTime.MaxValue)
                 {
                     abort = true;
                     break;
@@ -94,10 +94,10 @@ namespace Assets.Scripts.Simulation
                 sw.Start();
                 int loops = 0;
                 DateTime endOfTick = Time + DeltaTime;
-                while(EventSchedule.nextEvent < endOfTick)
+                while(EventSchedule.NextEvent < endOfTick)
                 {
                     loops++;
-                    Time = EventSchedule.nextEvent;
+                    Time = EventSchedule.NextEvent;
                     bool interupt = false;
                     EventSchedule.ProcessNextEvent(out interupt);
                     if (interupt == true)

@@ -19,12 +19,22 @@ namespace Assets.Scripts.Simulation
             EventSchedule.Add(this);
         }
 
+        /// <summary>
+        /// Try to scedule an event mith a mean time to happen. The event will automatically be sceduled.
+        /// </summary>
+        /// <param name="mtth">Mean Time to Happen</param>
+        /// <param name="interval">The maximum time interval for wich this event might be sceduled.</param>
+        /// <param name="interrupt">The priority level of the event</param>
+        /// <param name="effect">The event effect</param>
+        /// <returns>The event also gets returned.</returns>
         public static Event Try(TimeSpan mtth,TimeSpan interval, Interrupt interrupt, Action effect)
         {
             TimeSpan next = RNG.nextOccurence(mtth);
             if(next < interval)
             {
-                return new Event(God.Time + next, interrupt, effect);
+                Event e = new Event(God.Time + next, interrupt, effect);
+                EventSchedule.Add(e);
+                return e;
             }
             return null;
         }
