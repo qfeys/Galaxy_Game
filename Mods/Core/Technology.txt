@@ -5,7 +5,6 @@
 technology = {
 	# PHYSICS
 	physics = {
-		starting_tech = TRUE
 		sector = PHYSICS
 		max_progress = 0
 	}

@@ -10,40 +10,42 @@ namespace Assets.Scripts
     {
         static public void ParseAllFiles()
         {
-            CollectSignatures();
-            string path = @"Mods\Core\Technology.txt";
+            Dictionary<string, List<Signature>> signatures = CollectSignatures();
+            //string path = @"Mods\Core\Technology.txt";
+            string path = @"Mods\";
+            string[] allPaths = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
             try
             {
-                List<string> words = Parse(path);
-                List<Tuple<string, object>> dataTree = ExtractData(words, 0);
-                foreach (Tuple<string, object> category in dataTree)
+                // parse all the paths and put the list of strings that is the result of it into this array
+                List<string>[] words = Array.ConvertAll(allPaths, p => Parse(p));
+                // Convert every stringlist in that array into a datatree and put it in this new array
+                List<Tuple<string, object>>[] dataTree = Array.ConvertAll(words, w=>ExtractData(w, 0));
+                // Put all the datatrees in a single collection
+                List<Tuple<string, object>> allTrees = dataTree.SelectMany(t => t).ToList();
+                foreach (Tuple<string, object> tree in allTrees.FindAll(t => t.Item1 == "technology"))
                 {
-                    List<Item> itemList = ConvertToItems(category.Item2 as List<Tuple<string, object>>, ItemCategories[category.Item1]);
-                    switch (category.Item1)
-                    {
-                    case "technology":
-                        Empires.Technology.Academy.SetTechTree(itemList);
-                        break;
-                    case "installation":
-                        Empires.Installations.Installation.SetInstallationList(itemList);
-                        break;
-                    }
+                    List<Item> itemList = ConvertToItems(tree.Item2 as List<Tuple<string, object>>, signatures["technology"]);
+                    Empires.Technology.Technology.SetTechTree(itemList);
+                }
+                foreach (Tuple<string, object> tree in allTrees.FindAll(t => t.Item1 == "installations"))
+                {
+                    List<Item> itemList = ConvertToItems(tree.Item2 as List<Tuple<string, object>>, signatures["installations"]);
+                    Empires.Installations.Installation.SetInstallationList(itemList);
                 }
             }
             catch (FormatException e)
             {
                 UnityEngine.Debug.LogException(e);
-                Empires.Technology.Academy.SetTechTree(new List<Empires.Technology.Technology>());
             }
         }
 
-        static Dictionary<string, List<Signature>> ItemCategories;
-
-        static void CollectSignatures()
+        static Dictionary<string, List<Signature>> CollectSignatures()
         {
-            ItemCategories = new Dictionary<string, List<Signature>>();
-            ItemCategories.Add("technology", Empires.Technology.Technology.Signature());
-            ItemCategories.Add("installation", Empires.Installations.Installation.Signature());
+            Dictionary<string, List<Signature>> signatures = new Dictionary<string, List<Signature>> {
+                { "technology", Empires.Technology.Technology.Signature},
+                { "installations", Empires.Installations.Installation.Signature}
+            };
+            return signatures;
         }
 
         static List<string> Parse(string path)
@@ -178,8 +180,9 @@ namespace Assets.Scripts
             List<Item> items = new List<Item>();
             for (int i = 0; i < dataTree.Count; i++)
             {
-                Item newItem = new Item(signatures);
-                newItem.name = dataTree[i].Item1;
+                Item newItem = new Item(signatures) {
+                    name = dataTree[i].Item1
+                };
                 List<Tuple<string, object>> info = dataTree[i].Item2 as List<Tuple<string, object>>;
                 newItem = ConvertToItem(info, signatures);
                 newItem.name = dataTree[i].Item1;

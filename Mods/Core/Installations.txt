@@ -1,0 +1,22 @@
+####################
+###INSTALLATIONS####
+####################
+
+installations = {
+
+	construction_factory = {
+		cost_work = 120
+		cost_resources = {
+			iron = 60
+			nonFerrous = 30
+			carbon = 10
+			components = 30
+			electronics = 10
+		}
+		modefiers = {
+			add_industry_capacity = 10
+		}
+		prerequisites = {}
+	}
+
+}

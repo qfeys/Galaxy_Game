@@ -13,16 +13,12 @@ namespace Assets.Scripts.Empires.Technology
         public double maxKnowledge { get; private set; }
         public Dictionary<Technology, double> roots { get; private set; }             // These techs will increase in understanding by using this tech.
 
-        public double knowledge { get; private set; }     // theoretical
-        public double understanding { get; private set; } // practical
-
+        static List<Technology> techTree;
+        internal static List<Technology> TechTree { get { return techTree; } }
 
         internal enum Sector { PHYSICS, DRIVE }
 
-        private Technology()
-        {
-
-        }
+        private Technology() { }
 
         public Technology(string name, Sector sector, Dictionary<Technology, Tuple<double, double>> prerequisites,
             double maxKnowledge, Dictionary<Technology, double> roots)
@@ -32,12 +28,7 @@ namespace Assets.Scripts.Empires.Technology
 
         public Technology(Technology clone)
         {
-            name = clone.name;sector = clone.sector;prerequisites = clone.prerequisites;maxKnowledge = clone.maxKnowledge;roots = clone.roots;
-        }
-
-        internal double CurrentLevel()
-        {
-            return Math.Max(knowledge, understanding);
+            name = clone.name; sector = clone.sector; prerequisites = clone.prerequisites; maxKnowledge = clone.maxKnowledge; roots = clone.roots;
         }
 
         public override bool Equals(object obj)
@@ -52,37 +43,62 @@ namespace Assets.Scripts.Empires.Technology
             return name.GetHashCode();
         }
 
-        internal static List<ModParser.Signature> Signature()
+        internal static void SetTechTree(List<ModParser.Item> itemList)
         {
-            List<ModParser.Signature> ret = new List<ModParser.Signature>();
-            ret.Add(new ModParser.Signature("starting_tech", ModParser.SignatueType.boolean));
-            ret.Add(new ModParser.Signature("sector", ModParser.SignatueType.words, Enum.GetNames(typeof(Sector)).ToList()));
-            ret.Add(new ModParser.Signature("max_progress", ModParser.SignatueType.integer));
-            ret.Add(new ModParser.Signature("prerequisites", ModParser.SignatueType.list,
-                new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.list,
+            if (techTree == null)
+            {
+                UnityEngine.Debug.Log("Techtree set with " + itemList.Count + " technologies.");
+            }
+            else
+            {
+                UnityEngine.Debug.LogError("Techtree reset with " + itemList.Count + " technologies.");
+            }
+            List<Technology> tt = itemList.ConvertAll(i => Interpret(i));
+            PointPrerequisitesAndRoots(tt);
+            techTree = tt;
+        }
+
+        internal static Technology FindTech(string name)
+        {
+            return techTree.Find(t => t.name == name);
+        }
+
+        internal static List<ModParser.Signature> Signature
+        {
+            get
+            {
+                List<ModParser.Signature> ret = new List<ModParser.Signature> {
+                    new ModParser.Signature("starting_tech", ModParser.SignatueType.boolean),
+                    new ModParser.Signature("sector", ModParser.SignatueType.words, Enum.GetNames(typeof(Sector)).ToList()),
+                    new ModParser.Signature("max_progress", ModParser.SignatueType.floating),
+                    new ModParser.Signature("prerequisites", ModParser.SignatueType.list,
+                    new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.list,
                     new List<ModParser.Signature>() { new ModParser.Signature("min", ModParser.SignatueType.floating),
                                                     new ModParser.Signature("max", ModParser.SignatueType.floating)})
-                }));
-            ret.Add(new ModParser.Signature("understanding", ModParser.SignatueType.list,
-                new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.floating)}
-                ));
-
-            return ret;
+                    }),
+                    new ModParser.Signature("understanding", ModParser.SignatueType.list,
+                    new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.floating) }
+                    )
+                };
+                return ret;
+            }
         }
 
         internal static Technology Interpret(ModParser.Item i)
         {
-            Technology t = new Technology();
-            t.name = i.name;
-            t.sector = (Sector)Enum.Parse(typeof(Sector), i.entries.Find(e => e.Item1.id == "sector").Item2 as string);
-            List<ModParser.Item> prerqs = i.entries.Find(e => e.Item1.id == "prerequisites").Item2 as List<ModParser.Item>;
+            Technology t = new Technology() {
+                name = i.name,
+                sector = (Sector)Enum.Parse(typeof(Sector), i.entries.Find(e => e.Item1.id == "sector").Item2 as string),
+                maxKnowledge = (double)i.entries.Find(e => e.Item1.id == "max_progress").Item2
+            };
+            ModParser.Item prerqs = (ModParser.Item)i.entries.Find(e => e.Item1.id == "prerequisites").Item2;
             t.prerequisites = new Dictionary<Technology, Tuple<double, double>>();
             if (prerqs != null)
             {
-                prerqs.ForEach(p =>
-                    t.prerequisites.Add(new Technology() { name = p.name },
-                                        new Tuple<double, double>((double)p.entries.Find(e => e.Item1.id == "min").Item2,
-                                                                  (double)p.entries.Find(e => e.Item1.id == "max").Item2)
+                prerqs.entries.ConvertAll(e => e.Item2 as Tuple<string, ModParser.Item>).ForEach(p =>
+                    t.prerequisites.Add(new Technology() { name = p.Item1 },
+                                        new Tuple<double, double>((double)p.Item2.entries.Find(e => e.Item1.id == "min").Item2,
+                                                                  (double)p.Item2.entries.Find(e => e.Item1.id == "max").Item2)
                                        )
                                );
             }
@@ -90,7 +106,7 @@ namespace Assets.Scripts.Empires.Technology
             if (i.entries.Find(e => e.Item1.id == "understanding").Item2 != null)
             {
                 List<Tuple<string, double>> rts = (i.entries.Find(e => e.Item1.id == "understanding").Item2 as ModParser.Item).entries.
-                    ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1,(double)e.Item2));
+                    ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1, (double)e.Item2));
                 rts.ForEach(r => t.roots.Add(new Technology() { name = r.Item1 }, r.Item2));
             }
             return t;
@@ -103,7 +119,8 @@ namespace Assets.Scripts.Empires.Technology
         /// <param name="techTree"></param>
         internal static void PointPrerequisitesAndRoots(List<Technology> techTree)
         {
-            foreach(Technology t in techTree)
+            UnityEngine.Debug.Log("Halt to test technology.");
+            foreach (Technology t in techTree)
             {
                 var preq = t.prerequisites.Keys.ToList();
                 for (int i = 0; i < t.prerequisites.Count; i++)
@@ -114,16 +131,52 @@ namespace Assets.Scripts.Empires.Technology
                         p = techTree.Find(tech => tech.name == p.name);
                     }
                 }
-                for(int i = 0; i< t.roots.Count; i++)
+                var rts = t.roots.Keys.ToList();
+                for (int i = 0; i < t.roots.Count; i++)
                 {
-                    Technology r = preq[i];
+                    Technology r = rts[i];
                     if (r.sector == null)    // This means that this technology is badly defined
                     {
                         r = techTree.Find(tech => tech.name == r.name);
                     }
                 }
             }
+            UnityEngine.Debug.Log("Halt to test technology.");
         }
 
+    }
+
+    class TechnologyInstance
+    {
+        Technology parent;
+        public string name { get { return parent.name; }  }
+        public Technology.Sector? sector { get { return parent.sector; } }
+        public Dictionary<Technology, Tuple<double, double>> prerequisites { get { return parent.prerequisites; } } // use the max of knowledge and understanding
+        public double maxKnowledge { get { return parent.maxKnowledge; } }
+        public Dictionary<Technology, double> roots { get { return parent.roots; } }            // These techs will increase in understanding by using this tech.
+
+        public double knowledge { get; private set; }     // theoretical
+        public double understanding { get; private set; } // practical
+
+        public TechnologyInstance(string name)
+        {
+            if (Technology.TechTree.Any(t => t.name == name) == false)
+                throw new ArgumentException("The tech tree does not contain the technology: " + name);
+            parent = Technology.TechTree.Find(t => t.name == name);
+            knowledge = 0;
+            understanding = 0;
+        }
+
+        public TechnologyInstance(Technology tech)
+        {
+            parent = tech;
+            knowledge = 0;
+            understanding = 0;
+        }
+
+        internal double CurrentLevel()
+        {
+            return Math.Max(knowledge, understanding);
+        }
     }
 }
