@@ -22,11 +22,5 @@ namespace Assets.Scripts.Empires
             this.value = value;
         }
 
-        public enum Name { add_industry_capacity }
-
-        internal enum PopulationModifier { localBuildTime, wealth, }
-        internal enum GlobalModifier { globalBuildTime }
-        internal enum AssetModifier { upkeepReduction}
-        internal enum MobileModifier { increasedAcceleration}
     }
 }

@@ -8,23 +8,20 @@ namespace Assets.Scripts.Empires.Production
     class Stockpile
     {
 
-        public double iron;
-        public double nonFerrous;         // think copper, concrete
-        public double carbon;      // think petrochemicals
-        public double silicates;
-        public double rareEarth;
-
-        public double water;            // potable water
-        public double food;
-
-        public double components;
-        public double electronics;
-        public double consumerGoods;
-
         public class ResourceType
         {
-            static List<string> ResourceTypes = new List<string> { "iron", "nonFerrous", "carbon", "silicates", "rareEarth",
-            "water", "food", "components", "electronics", "consumerGoods" };
+            static List<string> ResourceTypes = new List<string> {
+                "iron",
+                "nonFerrous",
+                "carbon",
+                "silicates",
+                "rareEarth",
+                "water",
+                "food",
+                "components",
+                "electronics",
+                "consumerGoods"
+            };
 
             string type;
 
