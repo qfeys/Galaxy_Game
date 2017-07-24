@@ -136,7 +136,7 @@ namespace Assets.Scripts
             return rand.NextDouble() < chance;
         }
 
-        public static TimeSpan nextOccurence(TimeSpan mtth)
+        public static TimeSpan NextOccurence(TimeSpan mtth)
         {
             return new TimeSpan((long)(mtth.Ticks * -Math.Log(rand.NextDouble(), 2)));
         }
@@ -146,7 +146,16 @@ namespace Assets.Scripts
     {
         private readonly List<T> collection = new List<T>();
         // TODO: initializable:
-        private readonly IComparer<T> comparer = Comparer<T>.Default;
+        public SortedList()
+        {
+            comparer = Comparer<T>.Default;
+        }
+        public SortedList(IComparer<T> comparer)
+        {
+            this.comparer = comparer;
+        }
+
+        private readonly IComparer<T> comparer;
 
         public void Add(T item)
         {

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Scripts.Simulation;
 
 namespace Assets.Scripts.Empires
 {
-    class Empire
+    class Empire : IUpdatable
     {
 
         string name;
@@ -15,8 +16,6 @@ namespace Assets.Scripts.Empires
         public Technology.Academy academy { get; private set; }
         List<Installations.Installation> freeInstallations;  // in contrast to assets bound to populations
         List<Mobiles.Mobile> mobiles;
-
-        Simulation.Event nextUpdate;
 
         public Empire(string name, Bodies.Orbital capital)
         {
@@ -30,16 +29,27 @@ namespace Assets.Scripts.Empires
 
             populations.Add(Population.InitCapital(capital));
 
-            nextUpdate = new Simulation.Event(Simulation.God.Time + TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, Update);
+            NextMandatoryUpdate = God.Time.AddDays(DAYS_BETWEEN_UPDATES);
+            NextUpdateHasPriority = false;
+            EventSchedule.Add(this);
         }
 
-        public void Update()
+        public void Update(DateTime date)
         {
-            nextUpdate = new Simulation.Event(Simulation.God.Time + TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, Update);
+            LastUpdate = date;
+            NextMandatoryUpdate = date.AddDays(DAYS_BETWEEN_UPDATES);
         }
 
         public long population { get { return populations.Sum(p => p.count); } }
         public double wealth { get { return populations.Sum(p => p.wealth); } }
+
+        public DateTime LastUpdate { get; private set; }
+
+        public DateTime NextMandatoryUpdate { get; private set; }
+
+        public bool NextUpdateHasPriority { get; private set; }
+
+        const int DAYS_BETWEEN_UPDATES = 1;
 
     }
 }

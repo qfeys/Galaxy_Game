@@ -25,11 +25,11 @@ namespace Assets.Scripts.Simulation
 
         public static DateTime Time { get; internal set; }
         public static TimeSpan DeltaTime;
-        Thread mainThread;
+        Thread simThread;
         static Exception mainThreadException;
         static bool abort = false;
-        static bool NextRealTimeTickReady = false;
-        static bool NextSimTimeTickReady = false;
+        static bool nextRealTimeTickReady = false;
+        static bool nextSimTimeTickReady = false;
         const float REAL_TIME_BETWEEN_TICKS = 1;
         float realTimeSindsLastTick;
         
@@ -46,8 +46,8 @@ namespace Assets.Scripts.Simulation
             Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
 
             DeltaTime = TimeSpan.FromSeconds(1);
-            mainThread = new Thread(()=> { try { RunTime(); } catch (Exception e) { mainThreadException = e; } });
-            mainThread.Start();
+            simThread = new Thread(()=> { try { RunTime(); } catch (Exception e) { mainThreadException = e; } });
+            simThread.Start();
         }
 
         // Update is called once per frame
@@ -57,16 +57,16 @@ namespace Assets.Scripts.Simulation
             realTimeSindsLastTick += UnityEngine.Time.deltaTime;
             if(realTimeSindsLastTick > REAL_TIME_BETWEEN_TICKS)
             {
-                if (NextSimTimeTickReady)
+                if (nextSimTimeTickReady)
                 {
                     Debug.Log("Next real time tick:"+ Time.ToString("yyyy.MM.dd HH:mm:ss"));
-                    NextRealTimeTickReady = true;
+                    nextRealTimeTickReady = true;
                     realTimeSindsLastTick = 0;
                 }
                 else Debug.Log("waiting on simulation");
             }
             if (mainThreadException != null)
-                throw mainThreadException;
+                Debug.LogError( mainThreadException);
         }
 
         public static void Init()
@@ -83,44 +83,40 @@ namespace Assets.Scripts.Simulation
 
         private static void RunTime()
         {
-            while(abort == false)
+            while (abort == false)
             {
-                if(EventSchedule.NextEvent == DateTime.MaxValue)
+                if (EventSchedule.NextEvent == DateTime.MaxValue)
                 {
                     abort = true;
                     break;
                 }
                 System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
-                int loops = 0;
+
                 DateTime endOfTick = Time + DeltaTime;
-                while(EventSchedule.NextEvent < endOfTick)
-                {
-                    loops++;
-                    Time = EventSchedule.NextEvent;
-                    bool interupt = false;
-                    EventSchedule.ProcessNextEvent(out interupt);
-                    if (interupt == true)
-                        break;
-                }
-                NextSimTimeTickReady = true;
+                DateTime maxDate = endOfTick;
+                EventSchedule.CanProgress(endOfTick, out maxDate);
+                int loops = EventSchedule.Progress(maxDate);
+                Time = maxDate;
+                
+                nextSimTimeTickReady = true;
                 sw.Stop();
                 long mils = sw.ElapsedMilliseconds;
                 ExcicuteOnUnityThread(() => Debug.Log("Main loop processed " + loops + " events in " + mils + " ms"));
-                while (NextRealTimeTickReady == false && abort != true)
+                while (nextRealTimeTickReady == false && abort != true)
                 {
                     Thread.Sleep(100);
                 }
-                NextSimTimeTickReady = false;
-                NextRealTimeTickReady = false;
+                nextSimTimeTickReady = false;
+                nextRealTimeTickReady = false;
             }
         }
 
         public void OnDestroy()
         {
             abort = true;
-            mainThread.Abort();
-            Debug.Log("Secondary thread: " + mainThread.ThreadState);
+            simThread.Abort();
+            Debug.Log("Secondary thread: " + simThread.ThreadState);
         }
 
         static Queue<Action> unityActions = new Queue<Action>();

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Assets.Scripts.Empires.Technology
 {
-    class Academy
+    class Academy : Simulation.IUpdatable
     {
 
         // internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics }
@@ -14,16 +14,21 @@ namespace Assets.Scripts.Empires.Technology
         public List<TechnologyInstance> unlocks { get; private set; }
         public Dictionary<Technology.Sector, double> funding { get; private set; }
 
-        
+        public DateTime LastUpdate { get; private set; }
+
+        public DateTime NextMandatoryUpdate { get; private set; }
+
+        public bool NextUpdateHasPriority { get; private set; }
 
         public Academy()
         {
             funding = Enum.GetValues(typeof(Technology.Sector)).Cast<Technology.Sector>().ToDictionary<Technology.Sector, Technology.Sector, double>(d => d, d => 100);
             unlocks = new List<TechnologyInstance>();
-            CheckUnlocks();
+            CheckUnlocks(Simulation.God.Time);
+            Simulation.EventSchedule.Add(this);
         }
 
-        public void CheckUnlocks()
+        public void CheckUnlocks(DateTime date)
         {
             foreach(Technology tech in Technology.TechTree)
             {
@@ -57,9 +62,24 @@ namespace Assets.Scripts.Empires.Technology
                 if (chance > 0)
                 {
                     TimeSpan mtth = TimeSpan.FromDays(-STANDARD_DEVELOPMENT_TIME * 365.25 * Math.Log(chance, 2));
-                    Simulation.Event.Try(mtth, TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, () => { unlocks.Add(new TechnologyInstance(tech)); });
+                    TimeSpan timeLeft =  RNG.NextOccurence(mtth);
+                    if (date - LastUpdate < timeLeft)
+                    {
+                        unlocks.Add(new TechnologyInstance(tech));
+                    }
+                    else if(date+timeLeft < NextMandatoryUpdate)
+                    {
+                        NextMandatoryUpdate = date + timeLeft;      // if it's about time to unlock, update more frequently.
+                    }
                 }
             }
+        }
+
+        public void Update(DateTime date)
+        {
+            NextMandatoryUpdate = date + TimeSpan.FromDays(5);
+            CheckUnlocks(date);
+            LastUpdate = date;
         }
     }
 }
