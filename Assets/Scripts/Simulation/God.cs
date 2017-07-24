@@ -71,9 +71,9 @@ namespace Assets.Scripts.Simulation
 
         public static void Init()
         {
-            Debug.Log(System.IO.Directory.GetCurrentDirectory());
-            Debug.Log("Reading mod files");
+            Debug.Log("Reading mod files at " + System.IO.Directory.GetCurrentDirectory());
             ModParser.ParseAllFiles();
+
             Debug.Log("Initialising galaxy");
             Bodies.Core.Create(1, 22);
 

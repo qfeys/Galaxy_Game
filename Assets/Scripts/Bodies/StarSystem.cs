@@ -155,6 +155,7 @@ namespace Assets.Scripts.Bodies
                 if (o.GetType() == typeof(Rock) && ((Rock)o).Habitable)
                     return o;
             }
+            UnityEngine.Debug.Log("No livable world detected.");
             return null;
         }
     }

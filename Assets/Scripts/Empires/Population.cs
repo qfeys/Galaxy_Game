@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Scripts.Bodies;
 
 namespace Assets.Scripts.Empires
 {
@@ -18,10 +19,10 @@ namespace Assets.Scripts.Empires
         // species
         // culture
         // List<policies>
-        List<Installations.Installation> installations;
+        Dictionary<Installations.Installation, int> installations;
         Production.Stockpile stockpile;
         
-        public Population(Bodies.Orbital location, long initPop)
+        public Population(Orbital location, long initPop)
         {
             this.location = location;
             count = initPop;
@@ -30,8 +31,29 @@ namespace Assets.Scripts.Empires
             poverty = 0.1;
             inequality = 0.4;
             happiness = 0;
-            installations = new List<Installations.Installation>();
+            installations = new Dictionary<Installations.Installation,int>();
             stockpile = new Production.Stockpile();
+        }
+
+        Population() { }
+
+        internal static Population InitCapital(Orbital capital)
+        {
+            var p = new Population() {
+                location = capital,
+                count = (long)5e9,
+                wealth = 5e9 * 0.05,
+                poverty = 0.1,
+                inequality = 0.4,
+                happiness = 0,
+                installations = new Dictionary<Installations.Installation, int>(),
+                stockpile = new Production.Stockpile(1000)
+            };
+            capital.addPopulation(p);
+            p.installations.Add(Installations.Installation.GetCopy("general_industry"), 10);
+            p.installations.Add(Installations.Installation.GetCopy("construction_factory"), 10);
+            p.installations.Add(Installations.Installation.GetCopy("mining_equipment"), 10);
+            return p;
         }
     }
 }

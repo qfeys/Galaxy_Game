@@ -17,6 +17,8 @@ namespace Assets.Scripts.Empires.Installations
 
         public List<Modifier> modefiers { get; private set; }
 
+        static List<Installation> installationList;
+
         public Installation(string name, double costWork,
             Dictionary<Production.Stockpile.ResourceType, double> costResources, List<Modifier> modefiers)
         {
@@ -28,7 +30,7 @@ namespace Assets.Scripts.Empires.Installations
 
         Installation() { }
 
-        static List<Installation> installationList;
+#region parsing
 
         static public void SetInstallationList(List<ModParser.Item> itemList)
         {
@@ -98,10 +100,40 @@ namespace Assets.Scripts.Empires.Installations
             }
             return inst;
         }
-    }
 
-    class InstallationInstance
-    {
+#endregion
 
+        public static Installation GetCopy(string name)
+        {
+            if(installationList.Any(i=> i.name == name))
+            {
+                return installationList.Find(i => i.name == name);
+            }
+            throw new ArgumentException("The installation " + name + " is not in the list.");
+        }
+
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+            //       
+            // See the full list of guidelines at
+            //   http://go.microsoft.com/fwlink/?LinkID=85237  
+            // and also the guidance for operator== at
+            //   http://go.microsoft.com/fwlink/?LinkId=85238
+            //
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            
+            return name.Equals(((Installation)obj).name);
+        }
+
+        // override object.GetHashCode
+        public override int GetHashCode()
+        {
+            return name.GetHashCode();
+        }
     }
 }

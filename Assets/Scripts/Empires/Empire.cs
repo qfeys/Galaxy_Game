@@ -28,7 +28,7 @@ namespace Assets.Scripts.Empires
             freeInstallations = new List<Installations.Installation>();
             mobiles = new List<Mobiles.Mobile>();
 
-            populations.Add(new Population(capital, (long)5e9));
+            populations.Add(Population.InitCapital(capital));
 
             nextUpdate = new Simulation.Event(Simulation.God.Time + TimeSpan.FromDays(1), Simulation.Event.Interrupt.soft, Update);
         }

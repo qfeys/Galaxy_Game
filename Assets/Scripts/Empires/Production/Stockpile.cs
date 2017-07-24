@@ -7,10 +7,23 @@ namespace Assets.Scripts.Empires.Production
 {
     class Stockpile
     {
+        Dictionary<ResourceType, double> pile;
+
+        public Stockpile(int init = 0)
+        {
+            pile = new Dictionary<ResourceType, double>();
+            ResourceType.ResourceTypes.ForEach(r => pile.Add(r, init));
+        }
+
+        public void Add(string resource, double amount)
+        {
+            ResourceType r = new ResourceType(resource);
+            pile[r] += amount;
+        }
 
         public class ResourceType
         {
-            static List<string> ResourceTypes = new List<string> {
+            static List<string> resourceTypes = new List<string> {
                 "iron",
                 "nonFerrous",
                 "carbon",
@@ -25,16 +38,42 @@ namespace Assets.Scripts.Empires.Production
 
             string type;
 
+            public static List<ResourceType> ResourceTypes { get { return resourceTypes.ConvertAll(r=> new ResourceType(r)); } }
+
             public ResourceType(string name)
             {
-                if (ResourceTypes.Contains(name) == false)
+                if (resourceTypes.Contains(name) == false)
                     throw new ArgumentException("The resource type: " + name + " is not valid.");
                 type = name;
             }
 
             public override string ToString()
             {
-                return type;
+                return "r_" + type;
+            }
+
+            // override object.Equals
+            public override bool Equals(object obj)
+            {
+                //       
+                // See the full list of guidelines at
+                //   http://go.microsoft.com/fwlink/?LinkID=85237  
+                // and also the guidance for operator== at
+                //   http://go.microsoft.com/fwlink/?LinkId=85238
+                //
+
+                if (obj == null || GetType() != obj.GetType())
+                {
+                    return false;
+                }
+
+                return type.Equals(obj);
+            }
+
+            // override object.GetHashCode
+            public override int GetHashCode()
+            {
+                return type.GetHashCode();
             }
         }
 
