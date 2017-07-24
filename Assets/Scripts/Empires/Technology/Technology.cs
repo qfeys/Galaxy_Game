@@ -95,7 +95,10 @@ namespace Assets.Scripts.Empires.Technology
             t.prerequisites = new Dictionary<Technology, Tuple<double, double>>();
             if (prerqs != null)
             {
-                prerqs.entries.ConvertAll(e => e.Item2 as Tuple<string, ModParser.Item>).ForEach(p =>
+                prerqs.entries.ConvertAll(e => {
+                    var b = e.Item2 as Tuple<string, object>;
+                    return new Tuple<string, ModParser.Item>(b.Item1, (ModParser.Item)b.Item2);
+                }).ForEach(p =>
                     t.prerequisites.Add(new Technology() { name = p.Item1 },
                                         new Tuple<double, double>((double)p.Item2.entries.Find(e => e.Item1.id == "min").Item2,
                                                                   (double)p.Item2.entries.Find(e => e.Item1.id == "max").Item2)
