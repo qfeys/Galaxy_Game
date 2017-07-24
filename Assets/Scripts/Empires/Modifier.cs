@@ -22,5 +22,11 @@ namespace Assets.Scripts.Empires
             this.value = value;
         }
 
+        public enum Name {income,
+            add_industry_capacity,
+            add_construction_capacity,
+            add_production_capacity,
+            add_mining_capacity
+        }
     }
 }

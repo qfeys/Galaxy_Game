@@ -4,7 +4,7 @@
 
 installations = {
 
-	construction_factory = {
+	general_industry = {
 		cost_work = 120
 		cost_resources = {
 			iron = 60
@@ -15,6 +15,52 @@ installations = {
 		}
 		modefiers = {
 			add_industry_capacity = 10
+			income = 10
+		}
+		prerequisites = {}
+	}
+
+	construction_factory = {
+		cost_work = 120
+		cost_resources = {
+			iron = 60
+			nonFerrous = 30
+			carbon = 10
+			components = 30
+			electronics = 10
+		}
+		modefiers = {
+			add_construction_capacity = 10
+		}
+		prerequisites = {}
+	}
+
+	module_factory = {
+		cost_work = 120
+		cost_resources = {
+			iron = 60
+			nonFerrous = 30
+			carbon = 10
+			components = 30
+			electronics = 10
+		}
+		modefiers = {
+			add_production_capacity = 10
+		}
+		prerequisites = {}
+	}
+
+	mining_equipment = {
+		cost_work = 120
+		cost_resources = {
+			iron = 60
+			nonFerrous = 30
+			carbon = 10
+			components = 30
+			electronics = 10
+		}
+		modefiers = {
+			add_mining_capacity = 10
 		}
 		prerequisites = {}
 	}
