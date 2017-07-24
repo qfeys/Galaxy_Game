@@ -122,7 +122,6 @@ namespace Assets.Scripts.Empires.Technology
         /// <param name="techTree"></param>
         internal static void PointPrerequisitesAndRoots(List<Technology> techTree)
         {
-            UnityEngine.Debug.Log("Halt to test technology.");
             foreach (Technology t in techTree)
             {
                 var preq = t.prerequisites.Keys.ToList();
@@ -144,7 +143,6 @@ namespace Assets.Scripts.Empires.Technology
                     }
                 }
             }
-            UnityEngine.Debug.Log("Halt to test technology.");
         }
 
     }
