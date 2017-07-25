@@ -10,7 +10,7 @@ namespace Assets.Scripts.Simulation
     {
         static God TheOne;
         internal static Empires.Empire PlayerEmpire { get; private set; }
-        public static readonly Dictionary<string, TimeSpan> TimeSteps = new Dictionary<string, TimeSpan>() {    { "1s", TimeSpan.FromSeconds(1) },
+        public static readonly Dictionary<string, TimeSpan> timeSteps = new Dictionary<string, TimeSpan>() {    { "1s", TimeSpan.FromSeconds(1) },
                                                                                                                 { "5s", TimeSpan.FromSeconds(5) },
                                                                                                                 { "20s", TimeSpan.FromSeconds(30) },
                                                                                                                 { "1m", TimeSpan.FromMinutes(1) },
@@ -24,7 +24,7 @@ namespace Assets.Scripts.Simulation
                                                                                                                 { "30d", TimeSpan.FromDays(30) } };
 
         public static DateTime Time { get; internal set; }
-        public static TimeSpan DeltaTime;
+        public static TimeSpan deltaTime;
         Thread simThread;
         static Exception mainThreadException;
         static bool abort = false;
@@ -43,9 +43,9 @@ namespace Assets.Scripts.Simulation
 
             Init();
 
-            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]);
+            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]);
 
-            DeltaTime = TimeSpan.FromSeconds(1);
+            deltaTime = TimeSpan.FromSeconds(1);
             simThread = new Thread(()=> { try { RunTime(); } catch (Exception e) { mainThreadException = e; } });
             simThread.Start();
         }
@@ -78,7 +78,7 @@ namespace Assets.Scripts.Simulation
             Bodies.Core.Create(1, 22);
 
             Debug.Log("Initialising Empires");
-            PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.instance.Childeren[0]).RandLivableWorld());
+            PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]).RandLivableWorld());
         }
 
         private static void RunTime()
@@ -94,7 +94,7 @@ namespace Assets.Scripts.Simulation
                 System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
 
-                DateTime endOfTick = Time + DeltaTime;
+                DateTime endOfTick = Time + deltaTime;
                 DateTime maxDate = endOfTick;
                 EventSchedule.CanProgress(endOfTick, out maxDate);
                 int loops = EventSchedule.Progress(maxDate);

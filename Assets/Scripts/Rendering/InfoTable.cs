@@ -11,11 +11,11 @@ namespace Assets.Scripts.Rendering
     {
         List<Tuple<string, string>> info;
 
-        public GameObject ExampleText;
+        public GameObject exampleText;
 
         public void Awake()
         {
-            if (ExampleText.GetComponentInChildren<Text>() == null)
+            if (exampleText.GetComponentInChildren<Text>() == null)
                 throw new ArgumentException("You did not include a Text component in your example text.");
         }
 
@@ -35,8 +35,8 @@ namespace Assets.Scripts.Rendering
                 GameObject line = new GameObject("Line");
                 line.transform.SetParent(transform, false);
                 var LayEl = line.AddComponent<LayoutElement>();
-                LayEl.minHeight = ExampleText.GetComponent<Text>().fontSize;
-                LayEl.preferredHeight = ExampleText.GetComponent<Text>().fontSize * 2;
+                LayEl.minHeight = exampleText.GetComponent<Text>().fontSize;
+                LayEl.preferredHeight = exampleText.GetComponent<Text>().fontSize * 2;
                 LayEl.flexibleWidth = 1;
                 LayEl.flexibleHeight = 0;
                 var HLayGr = line.AddComponent<HorizontalLayoutGroup>();
@@ -44,14 +44,14 @@ namespace Assets.Scripts.Rendering
                 HLayGr.childForceExpandHeight = true;
                 HLayGr.padding = new RectOffset((int)LayEl.minHeight, (int)LayEl.minHeight, 0, 0);
 
-                GameObject name = Instantiate(ExampleText);
+                GameObject name = Instantiate(exampleText);
                 name.name = "Name";
                 name.transform.SetParent(line.transform);
                 LayEl = name.AddComponent<LayoutElement>();
                 LayEl.flexibleWidth = 1;
                 name.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
 
-                GameObject data = Instantiate(ExampleText);
+                GameObject data = Instantiate(exampleText);
                 data.name = "Data";
                 data.transform.SetParent(line.transform);
                 data.GetComponent<Text>().alignment = TextAnchor.MiddleRight;
@@ -90,8 +90,9 @@ namespace Assets.Scripts.Rendering
 
         public void SetInfo(Tuple<string, string> newInfo)
         {
-            info = new List<Tuple<string, string>>();
-            info.Add(newInfo);
+            info = new List<Tuple<string, string>> {
+                newInfo
+            };
         }
 
         public void AddInfo(Tuple<string, string> newInfo)

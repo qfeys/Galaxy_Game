@@ -18,10 +18,10 @@ namespace Assets.Scripts.Bodies
 
         public override string ToString()
         {
-            return "Giant-" + (Mass / JupiterMass).ToString("#0.00");
+            return "Giant-" + (Mass / JUPITER_MASS).ToString("#0.00");
         }
 
-        public const double JupiterMass = 1.899e27;
-        public const ulong JupiterSMA = StarSystem.AU * 52 / 10;
+        public const double JUPITER_MASS = 1.899e27;
+        public const ulong JUPITER_SMA = StarSystem.AU * 52 / 10;
     }
 }

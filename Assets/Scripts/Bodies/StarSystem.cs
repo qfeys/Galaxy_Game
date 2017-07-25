@@ -22,7 +22,7 @@ namespace Assets.Scripts.Bodies
             while (mass > 1e25 || i>10)
             {
                 double gMass = (rand.NextDouble() * 0.35 + 0.6) * mass;  // between 60% and 95% of leftover mass
-                ulong sma = chooseNewGiantSMA(rand.NextDouble(), gMass);
+                ulong sma = ChooseNewGiantSMA(rand.NextDouble(), gMass);
                 OrbitalElements gElem = new OrbitalElements(
                     rand.NextDouble() * 2 * Math.PI,
                     rand.NextDouble() * 0.09 - 0.045,           // between -0.045 and 0.045 rad
@@ -40,7 +40,7 @@ namespace Assets.Scripts.Bodies
             while(mass > 1e20 || i > 30)
             {
                 double rMass = (rand.NextDouble() * 0.35 + 0.5) * mass;  // between 50% and 85% of leftover mass
-                ulong sma = chooseNewRockSMA(rand.NextDouble(), rMass);
+                ulong sma = ChooseNewRockSMA(rand.NextDouble(), rMass);
                 OrbitalElements gElem = new OrbitalElements(
                     rand.NextDouble() * 2 * Math.PI,
                     rand.NextDouble() * 0.18 - 0.09,           // between -0.09 and 0.09 rad
@@ -62,21 +62,25 @@ namespace Assets.Scripts.Bodies
         /// Using Newtons methode to find the SMA from a probability function
         /// </summary>
         /// <returns></returns>
-        ulong chooseNewGiantSMA(double rand, double gMass)
+        ulong ChooseNewGiantSMA(double rand, double gMass)
         {
             // (4*R*R*e^(-2*R/m))/m^3                       Probability function
             // e^(-k^2 / 10 / (r - k)^2)                     Probability modifier on presence other giant
             // ((log(10,x*10+1)*log(11,10)+1)/2             formulla most likly radius based on mass
-            double massRatio = gMass / Giant.JupiterMass;
+            double massRatio = gMass / Giant.JUPITER_MASS;
             ulong m = 8 * AU;                   // mean, the most likely radius
             
             Func<ulong, ulong, double, double> P = (r, k, rtmr) => (4.0 * r * r * Math.Exp(-2.0 * r / m)) / (1.0 * m * m * m);
             Func<ulong, ulong, double, double> Q = (r, k, rtmr) => Math.Exp(-rtmr * k * k / 3 / Math.Pow(0.0 + r - k, 2)); // rmtr stands for root of mass ratio
             Dictionary<Func<ulong, ulong, double, double>, List<Tuple<ulong, double>>> Px =
-                new Dictionary<Func<ulong, ulong, double, double>, List<Tuple<ulong, double>>>();
-            Px.Add(P, new List<Tuple<ulong, double>>() { new Tuple<ulong, double>(0, 0) });
-            Px.Add(Q, Childeren.FindAll(c => (c.GetType() == typeof(Giant) || c.GetType() == typeof(Rock))).
-                Select(g => new Tuple<ulong, double>(g.Elements.SMA, Math.Sqrt(Math.Sqrt(g.Mass / Giant.JupiterMass)))).ToList());
+                new Dictionary<Func<ulong, ulong, double, double>, List<Tuple<ulong, double>>> {
+                    { P, new List<Tuple<ulong, double>>() { new Tuple<ulong, double>(0, 0) } },
+                    {
+                        Q,
+                        Childeren.FindAll(c => (c.GetType() == typeof(Giant) || c.GetType() == typeof(Rock))).
+                Select(g => new Tuple<ulong, double>(g.Elements.SMA, Math.Sqrt(Math.Sqrt(g.Mass / Giant.JUPITER_MASS)))).ToList()
+                    }
+                };
             List<Tuple<double, ulong>> C = NormRiemannSum(Px, 6 * m);
 
             // Find the last tuple where (rand-item1 > 0). This is the left border
@@ -90,7 +94,7 @@ namespace Assets.Scripts.Bodies
         /// Using Newtons methode to find the SMA from a probability function
         /// </summary>
         /// <returns></returns>
-        ulong chooseNewRockSMA(double rand, double rMass)
+        ulong ChooseNewRockSMA(double rand, double rMass)
         {
             // 3/2* (-(x/a)^2 + 1)/a                        Probability function
             // e^(-k^2 / 10 / (r - k)^2)                     Probability modifier on presence other giant
@@ -99,11 +103,15 @@ namespace Assets.Scripts.Bodies
             
             Func<ulong, ulong, double, double> P = (r, k, rtmr) => (4.0 * r * r * Math.Exp(-2.0 * r / m)) / (1.0 * m * m * m);
             Func<ulong, ulong, double, double> Q = (r, k, rtmr) => Math.Exp(-rtmr * k * k / 3 / Math.Pow(0.0 + r - k, 2)); // rmtr stands for root of mass ratio
-            Dictionary<Func<ulong, ulong, double, double>, List<Tuple<ulong, double>>> Px = 
-                new Dictionary<Func<ulong, ulong, double, double>, List<Tuple<ulong, double>>>();
-            Px.Add(P, new List<Tuple<ulong, double>>() { new Tuple<ulong, double>(0,0) });
-            Px.Add(Q, Childeren.FindAll(c => (c.GetType() == typeof(Giant)|| c.GetType() == typeof(Rock))).
-                Select(g => new Tuple<ulong, double>(g.Elements.SMA, Math.Sqrt(Math.Sqrt(g.Mass / Giant.JupiterMass)))).ToList());
+            Dictionary<Func<ulong, ulong, double, double>, List<Tuple<ulong, double>>> Px =
+                new Dictionary<Func<ulong, ulong, double, double>, List<Tuple<ulong, double>>> {
+                    { P, new List<Tuple<ulong, double>>() { new Tuple<ulong, double>(0, 0) } },
+                    {
+                        Q,
+                        Childeren.FindAll(c => (c.GetType() == typeof(Giant) || c.GetType() == typeof(Rock))).
+                Select(g => new Tuple<ulong, double>(g.Elements.SMA, Math.Sqrt(Math.Sqrt(g.Mass / Giant.JUPITER_MASS)))).ToList()
+                    }
+                };
             List<Tuple<double, ulong>> C = NormRiemannSum(Px, 6 * m);
 
             // Find the last tuple where (rand-item1 > 0). This is the left border
@@ -143,7 +151,7 @@ namespace Assets.Scripts.Bodies
         }
 
         public const ulong AU = 149597870700;
-        public const ulong SolSize = 40 * AU;
+        public const ulong SOL_SIZE = 40 * AU;
 
 #endregion
 

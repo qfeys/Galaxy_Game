@@ -44,19 +44,21 @@ namespace Assets.Scripts
             VectorS ret = new VectorS();
             double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep
             double meanAnomaly = MAaE + n * time.Second;
-            double EA = eccentricAnomaly(meanAnomaly);
+            double EA = EccentricAnomaly(meanAnomaly);
             ret.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
             ret.u = LAN + (AOP + EA) * Math.Sin(i);
             ret.v = i * Math.Sin(AOP + EA);
             return ret;
         }
 
-        double eccentricAnomaly(double meanAnomaly, double guess = double.NaN)
+        double EccentricAnomaly(double meanAnomaly, double guess = double.NaN)
         {
-            if (double.IsNaN(guess)) guess = meanAnomaly;
+            if (double.IsNaN(guess))
+                guess = meanAnomaly;
             double newGuess = meanAnomaly + e * Math.Sin(guess);
-            if (Math.Abs(guess - newGuess) < guess * 1e-10) return newGuess;
-            return eccentricAnomaly(meanAnomaly, newGuess);
+            if (Math.Abs(guess - newGuess) < guess * 1e-10)
+                return newGuess;
+            return EccentricAnomaly(meanAnomaly, newGuess);
         }
 
         internal VectorS[] FindPointsOnOrbit(int number)
@@ -67,7 +69,7 @@ namespace Assets.Scripts
             {
                 VectorS point = new VectorS();
                 double meanAnomaly = MAaE + j * 2 * Math.PI / number;
-                double EA = eccentricAnomaly(meanAnomaly);
+                double EA = EccentricAnomaly(meanAnomaly);
                 point.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
                 point.u = LAN + (AOP + EA) * Math.Cos(i);
                 point.v = i * Math.Sin(AOP + EA);

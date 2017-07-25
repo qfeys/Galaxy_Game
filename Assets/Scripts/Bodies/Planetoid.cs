@@ -9,7 +9,7 @@ namespace Assets.Scripts.Bodies
     {
 
         long dayLength;
-        public double surfaceGravity { get { return Math.Pow(Mass / Rock.EarthMass, 1 / 3); } }
+        public double SurfaceGravity { get { return Math.Pow(Mass / Rock.EARTH_MASS, 1 / 3); } }
 
         public Planetoid(Orbital parent, double mass, OrbitalElements elements, long dayLength) : base(parent, mass, elements)
         {

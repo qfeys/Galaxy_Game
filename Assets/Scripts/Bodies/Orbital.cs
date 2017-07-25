@@ -7,7 +7,7 @@ namespace Assets.Scripts.Bodies
 {
     abstract class Orbital
     {
-        Orbital Parent;
+        Orbital parent;
         public List<Orbital> Childeren { get; private set; }
         public double Mass { get; private set; }
         public OrbitalElements Elements { get; private set; }
@@ -17,12 +17,12 @@ namespace Assets.Scripts.Bodies
 
         public Orbital(Orbital parent, double mass, OrbitalElements elements)
         {
-            Parent = parent; Mass = mass; Elements = elements;
+            this.parent = parent; Mass = mass; Elements = elements;
             Childeren = new List<Orbital>();
             id = idCounter;
             idCounter++;
             if(parent != null)
-                Parent.Childeren.Add(this);
+                this.parent.Childeren.Add(this);
             populations = new List<Empires.Population>();
         }
 
@@ -43,14 +43,14 @@ namespace Assets.Scripts.Bodies
             return info;
         }
 
-        public void addPopulation(Empires.Population p)
+        public void AddPopulation(Empires.Population p)
         {
             if (populations.Contains(p))
                 throw new ArgumentException("" + this.ToString() + " already has population " + p.ToString());
             populations.Add(p);
         }
 
-        public float TotalPopulation { get { return populations.Sum(p => (float)p.count); } }
+        public float TotalPopulation { get { return populations.Sum(p => (float)p.Count); } }
     }
 
 }

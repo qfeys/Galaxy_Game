@@ -11,8 +11,8 @@ namespace Assets.Scripts.Empires.Technology
         // internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics }
         const double STANDARD_DEVELOPMENT_TIME = 5; // Years
 
-        public List<TechnologyInstance> unlocks { get; private set; }
-        public Dictionary<Technology.Sector, double> funding { get; private set; }
+        public List<TechnologyInstance> Unlocks { get; private set; }
+        public Dictionary<Technology.Sector, double> Funding { get; private set; }
 
         public DateTime LastUpdate { get; private set; }
 
@@ -25,8 +25,8 @@ namespace Assets.Scripts.Empires.Technology
 
         public Academy()
         {
-            funding = Enum.GetValues(typeof(Technology.Sector)).Cast<Technology.Sector>().ToDictionary<Technology.Sector, Technology.Sector, double>(d => d, d => 100);
-            unlocks = new List<TechnologyInstance>();
+            Funding = Enum.GetValues(typeof(Technology.Sector)).Cast<Technology.Sector>().ToDictionary<Technology.Sector, Technology.Sector, double>(d => d, d => 100);
+            Unlocks = new List<TechnologyInstance>();
             CheckUnlocks(Simulation.God.Time);
             NextMandatoryUpdate = Simulation.God.Time;
             Simulation.EventSchedule.Add(this);
@@ -36,14 +36,14 @@ namespace Assets.Scripts.Empires.Technology
         {
             foreach(Technology tech in Technology.TechTree)
             {
-                if (unlocks.Any(ti => ti.name == tech.name))
+                if (Unlocks.Any(ti => ti.Name == tech.Name))
                     continue;
                 double chance = 1;
-                foreach(var prereq in tech.prerequisites)
+                foreach(var prereq in tech.Prerequisites)
                 {
-                    if (unlocks.Any(ti => ti.name == prereq.Key.name))
+                    if (Unlocks.Any(ti => ti.Name == prereq.Key.Name))
                     {
-                        double level = unlocks.Find(t => t.Equals(prereq.Key)).CurrentLevel();
+                        double level = Unlocks.Find(t => t.Equals(prereq.Key)).CurrentLevel();
                         if (level > prereq.Value.Item2)
                             continue;   // Check approved
                         else if (level > prereq.Value.Item1)
@@ -69,7 +69,7 @@ namespace Assets.Scripts.Empires.Technology
                     TimeSpan timeLeft =  RNG.NextOccurence(mtth);
                     if (date - LastUpdate <= timeLeft)
                     {
-                        unlocks.Add(new TechnologyInstance(tech));
+                        Unlocks.Add(new TechnologyInstance(tech));
                     }
                     else if(date+timeLeft < NextMandatoryUpdate)
                     {

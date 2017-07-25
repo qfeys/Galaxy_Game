@@ -11,9 +11,7 @@ namespace Assets.Scripts.Bodies
         long dayLength;
         double atmosphere;    // Atmospheric pressure at 'sea' level
         bool breathable;
-        public double surfaceGravity { get { return Math.Pow(Mass / EarthMass, 1 / 3); } }
-
-        public const double EarthMass = 5.972e24;
+        public double SurfaceGravity { get { return Math.Pow(Mass / EARTH_MASS, 1 / 3); } }
 
         public Rock(Orbital parent, double mass, OrbitalElements elements, long dayLength, double atmosphere, bool breathable) : base(parent, mass, elements)
         {
@@ -26,5 +24,7 @@ namespace Assets.Scripts.Bodies
         }
 
         public bool Habitable { get { return breathable; } }
+
+        public const double EARTH_MASS = 5.972e24;
     }
 }

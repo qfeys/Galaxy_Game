@@ -20,9 +20,9 @@ namespace Assets.Scripts.Rendering
         public GameObject protoRock;
         public Material lineMaterial;
 
-        public GameObject InspectorWindow;
-        public GameObject OverviewWindow;
-        public GameObject Clock;
+        public GameObject inspectorWindow;
+        public GameObject overviewWindow;
+        public GameObject clock;
         public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()
@@ -31,7 +31,7 @@ namespace Assets.Scripts.Rendering
             TheOne = this;
             systemrenderer = gameObject.AddComponent<SystemRenderer>();
             systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
-            inspector = InspectorWindow.GetComponent<Inspector>();
+            inspector = inspectorWindow.GetComponent<Inspector>();
             inputManager = gameObject.AddComponent<InputManager>();
         }
 
@@ -44,22 +44,22 @@ namespace Assets.Scripts.Rendering
         // Update is called once per frame
         void Update()
         {
-            if(OverviewWindow.activeSelf == true)
+            if(overviewWindow.activeSelf == true)
                 RedrawOverviewWindow();
-            Clock.transform.GetChild(0).GetComponent<Text>().text = God.Time.ToString("yyyy.MM.dd HH:mm:ss");
+            clock.transform.GetChild(0).GetComponent<Text>().text = God.Time.ToString("yyyy.MM.dd HH:mm:ss");
         }
 
         private void SetTimeControls()
         {
-            GameObject prefabControlButton = Clock.transform.GetChild(1).GetChild(0).gameObject;
-            foreach(var tc in God.TimeSteps)
+            GameObject prefabControlButton = clock.transform.GetChild(1).GetChild(0).gameObject;
+            foreach(var tc in God.timeSteps)
             {
                 GameObject newControlButton = Instantiate(prefabControlButton);
                 newControlButton.name = tc.Key;
-                newControlButton.transform.SetParent(Clock.transform.GetChild(1));
+                newControlButton.transform.SetParent(clock.transform.GetChild(1));
                 newControlButton.transform.SetSiblingIndex(0);
                 newControlButton.transform.GetChild(0).GetComponent<Text>().text = tc.Key;
-                newControlButton.GetComponent<Button>().onClick.AddListener(()=> God.DeltaTime = tc.Value);
+                newControlButton.GetComponent<Button>().onClick.AddListener(()=> God.deltaTime = tc.Value);
             }
             Destroy(prefabControlButton);
         }
@@ -93,20 +93,20 @@ namespace Assets.Scripts.Rendering
 
         private void RedrawOverviewWindow()
         {
-            if (OverviewWindow.transform.GetChild(1).GetChild(0).gameObject.activeSelf == true)  // Empire tab active
+            if (overviewWindow.transform.GetChild(1).GetChild(0).gameObject.activeSelf == true)  // Empire tab active
             {
-                Transform win = OverviewWindow.transform.GetChild(1).GetChild(0);
+                Transform win = overviewWindow.transform.GetChild(1).GetChild(0);
                 InfoTable table = win.Find("Stats").GetComponent<InfoTable>();
-                table.SetInfo(new Tuple<string, string>("Population", God.PlayerEmpire.population.ToString()));
-                table.AddInfo(new Tuple<string, string>("Wealth", God.PlayerEmpire.wealth.ToString()));
+                table.SetInfo(new Tuple<string, string>("Population", God.PlayerEmpire.Population.ToString()));
+                table.AddInfo(new Tuple<string, string>("Wealth", God.PlayerEmpire.Wealth.ToString()));
                 table.Redraw();
             }
-            if (OverviewWindow.transform.GetChild(1).GetChild(4).gameObject.activeSelf == true)  // Technology tab active
+            if (overviewWindow.transform.GetChild(1).GetChild(4).gameObject.activeSelf == true)  // Technology tab active
             {
-                Transform win = OverviewWindow.transform.GetChild(1).GetChild(4);
+                Transform win = overviewWindow.transform.GetChild(1).GetChild(4);
                 InfoTable tableSec = win.Find("Sectors").GetComponent<InfoTable>();
                 tableSec.ResetInfo();
-                foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in God.PlayerEmpire.academy.funding)
+                foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in God.PlayerEmpire.Academy.Funding)
                 {
                     tableSec.AddInfo(new Tuple<string, string>(kvp.Key.ToString(), kvp.Value.ToString()));
                 }
@@ -114,9 +114,9 @@ namespace Assets.Scripts.Rendering
 
                 InfoTable tableTech = win.Find("Techs").GetComponent<InfoTable>();
                 tableTech.ResetInfo();
-                foreach (var tech in God.PlayerEmpire.academy.unlocks)
+                foreach (var tech in God.PlayerEmpire.Academy.Unlocks)
                 {
-                    tableTech.AddInfo(new Tuple<string, string>(tech.name, tech.knowledge.ToString() +"/" + tech.understanding.ToString()));
+                    tableTech.AddInfo(new Tuple<string, string>(tech.Name, tech.Knowledge.ToString() +"/" + tech.Understanding.ToString()));
                 }
                 tableTech.Redraw();
             }
