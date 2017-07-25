@@ -240,6 +240,11 @@ namespace Assets.Scripts
                 throw new NullReferenceException("This sorted list is empty");
         }
 
+        internal void Resort()
+        {
+            collection.Sort(comparer);
+        }
+
         public int Count { get { return collection.Count; } }
         public bool IsReadOnly { get { return false; } }
     }

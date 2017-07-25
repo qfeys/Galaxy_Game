@@ -38,6 +38,7 @@ namespace Assets.Scripts.Empires
         {
             LastUpdate = date;
             NextMandatoryUpdate = date.AddDays(DAYS_BETWEEN_UPDATES);
+            God.ExcicuteOnUnityThread(() => UnityEngine.Debug.Log("Empire update. Next update: "+NextMandatoryUpdate));
         }
 
         public long population { get { return populations.Sum(p => p.count); } }
@@ -50,6 +51,11 @@ namespace Assets.Scripts.Empires
         public bool NextUpdateHasPriority { get; private set; }
 
         const int DAYS_BETWEEN_UPDATES = 1;
+
+        public override string ToString()
+        {
+            return "Empire: " + name;
+        }
 
     }
 }

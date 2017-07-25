@@ -16,7 +16,10 @@ namespace Assets.Scripts.Empires.Technology
 
         public DateTime LastUpdate { get; private set; }
 
-        public DateTime NextMandatoryUpdate { get; private set; }
+        public DateTime NextMandatoryUpdate { get { return _nextMandatoryUpdate; } private set { _nextMandatoryUpdate = value;
+                Simulation.God.ExcicuteOnUnityThread(() => UnityEngine.Debug.Log("NMU changed to: " + _nextMandatoryUpdate));
+            } }
+        DateTime _nextMandatoryUpdate;
 
         public bool NextUpdateHasPriority { get; private set; }
 
@@ -25,6 +28,7 @@ namespace Assets.Scripts.Empires.Technology
             funding = Enum.GetValues(typeof(Technology.Sector)).Cast<Technology.Sector>().ToDictionary<Technology.Sector, Technology.Sector, double>(d => d, d => 100);
             unlocks = new List<TechnologyInstance>();
             CheckUnlocks(Simulation.God.Time);
+            NextMandatoryUpdate = Simulation.God.Time;
             Simulation.EventSchedule.Add(this);
         }
 
@@ -63,7 +67,7 @@ namespace Assets.Scripts.Empires.Technology
                 {
                     TimeSpan mtth = TimeSpan.FromDays(-STANDARD_DEVELOPMENT_TIME * 365.25 * Math.Log(chance, 2));
                     TimeSpan timeLeft =  RNG.NextOccurence(mtth);
-                    if (date - LastUpdate < timeLeft)
+                    if (date - LastUpdate <= timeLeft)
                     {
                         unlocks.Add(new TechnologyInstance(tech));
                     }
@@ -77,7 +81,7 @@ namespace Assets.Scripts.Empires.Technology
 
         public void Update(DateTime date)
         {
-            NextMandatoryUpdate = date + TimeSpan.FromDays(5);
+            NextMandatoryUpdate = date.AddDays(5);
             CheckUnlocks(date);
             LastUpdate = date;
         }

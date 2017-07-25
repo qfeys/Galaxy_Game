@@ -60,9 +60,13 @@ namespace Assets.Scripts.Simulation
             int i = 0;  // i will return the amount of events handeled
             while (events.Count != 0 && events.FindFirst().NextMandatoryUpdate <= date)
             {
-                var d = events.FindFirst().NextMandatoryUpdate;
-                events.TakeFirst().Update(d);
+                events.FindFirst().Update(events.FindFirst().NextMandatoryUpdate);
+                events.Resort();
                 i++;
+                if (i > 100) {
+                    God.Log("Exxesive (100+) amount of events in one Progress tick");
+                    break;
+                }
             }
             return i;
         }

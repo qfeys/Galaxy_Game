@@ -63,7 +63,7 @@ namespace Assets.Scripts.Simulation
                     nextRealTimeTickReady = true;
                     realTimeSindsLastTick = 0;
                 }
-                else Debug.Log("waiting on simulation");
+                else Debug.Log("waiting on simulation. RTsLT: "+realTimeSindsLastTick);
             }
             if (mainThreadException != null)
                 Debug.LogError( mainThreadException);
@@ -87,6 +87,7 @@ namespace Assets.Scripts.Simulation
             {
                 if (EventSchedule.NextEvent == DateTime.MaxValue)
                 {
+                    Log("no future event");
                     abort = true;
                     break;
                 }
@@ -110,6 +111,7 @@ namespace Assets.Scripts.Simulation
                 nextSimTimeTickReady = false;
                 nextRealTimeTickReady = false;
             }
+            ExcicuteOnUnityThread(() => Debug.Log("run time aborted"));
         }
 
         public void OnDestroy()
@@ -123,6 +125,11 @@ namespace Assets.Scripts.Simulation
         public static void ExcicuteOnUnityThread(Action a)
         {
             unityActions.Enqueue(a);
+        }
+
+        public static void Log(string message)
+        {
+            ExcicuteOnUnityThread(() => Debug.Log(message));
         }
 
         void ExcicuteQueuedActions()
