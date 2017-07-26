@@ -97,8 +97,8 @@ namespace Assets.Scripts.Rendering
             {
                 Transform win = overviewWindow.transform.GetChild(1).GetChild(0);
                 InfoTable table = win.Find("Stats").GetComponent<InfoTable>();
-                table.SetInfo(new Tuple<string, string>("Population", God.PlayerEmpire.Population.ToString()));
-                table.AddInfo(new Tuple<string, string>("Wealth", God.PlayerEmpire.Wealth.ToString()));
+                table.SetInfo(new Tuple<string, Func<object>>("Population", () => God.PlayerEmpire.Population));
+                table.AddInfo(new Tuple<string, Func<object>>("Wealth", () => God.PlayerEmpire.Wealth));
                 table.Redraw();
             }
             if (overviewWindow.transform.GetChild(1).GetChild(4).gameObject.activeSelf == true)  // Technology tab active
@@ -108,7 +108,7 @@ namespace Assets.Scripts.Rendering
                 tableSec.ResetInfo();
                 foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in God.PlayerEmpire.Academy.Funding)
                 {
-                    tableSec.AddInfo(new Tuple<string, string>(kvp.Key.ToString(), kvp.Value.ToString()));
+                    tableSec.AddInfo(new Tuple<string, Func<object>>(kvp.Key.ToString(), () => kvp.Value));
                 }
                 tableSec.Redraw();
 
@@ -116,7 +116,7 @@ namespace Assets.Scripts.Rendering
                 tableTech.ResetInfo();
                 foreach (var tech in God.PlayerEmpire.Academy.Unlocks)
                 {
-                    tableTech.AddInfo(new Tuple<string, string>(tech.Name, tech.Knowledge.ToString() +"/" + tech.Understanding.ToString()));
+                    tableTech.AddInfo(new Tuple<string, Func<object>>(tech.Name, () => tech.Knowledge.ToString() + "/" + tech.Understanding));
                 }
                 tableTech.Redraw();
             }

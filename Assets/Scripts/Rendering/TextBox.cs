@@ -11,8 +11,8 @@ namespace Assets.Scripts.Rendering
         public string _textID;
         public string MousoverID { get { return _mousoverID; } set { _mousoverID = value; } }
         public string _mousoverID;
-        public object Data_ { get { return _data; } set { _data = value; } }
-        public object _data;
+        public Func<object> Data_ { get { return _data; } set { _data = value; } }
+        public Func<object> _data;
 
         bool isData;
 
@@ -20,7 +20,7 @@ namespace Assets.Scripts.Rendering
         Text text;
         public GameObject gameObject { get { return go; } }
 
-        public TextBox(Transform parent, string textID, string mousoverID, int size = 12)
+        public TextBox(Transform parent, string textID, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft)
         {
             TextID = textID; MousoverID = mousoverID;
             isData = false;
@@ -30,11 +30,12 @@ namespace Assets.Scripts.Rendering
             text.text = Data.Localisation.GetText(textID);
             text.font = Data.Graphics.GetStandardFont();
             text.fontSize = size;
+            text.alignment = allignment;
             TextBoxScript tbs = go.AddComponent<TextBoxScript>();
             tbs.parent = this;
         }
 
-        public TextBox(Transform parent, object data, string mousoverID, int size = 12)
+        public TextBox(Transform parent, Func<object> data, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft)
         {
             TextID = null; MousoverID = mousoverID;
             isData = true;
@@ -42,11 +43,19 @@ namespace Assets.Scripts.Rendering
             go = new GameObject("dataText");
             go.transform.parent = parent;
             Text t = go.AddComponent<Text>();
-            t.text = Data.Localisation.GetText(data.ToString());
+            t.text = Data.Localisation.GetText(data().ToString());
             t.font = Data.Graphics.GetStandardFont();
             t.fontSize = size;
+            text.alignment = allignment;
             TextBoxScript tbs = go.AddComponent<TextBoxScript>();
             tbs.parent = this;
+        }
+
+        public void SetFlexibleWidth(float width)
+        {
+            if (go.GetComponent<LayoutElement>() == null)
+                go.AddComponent<LayoutElement>();
+            go.GetComponent<LayoutElement>().flexibleWidth = width;
         }
 
         private void Update()
