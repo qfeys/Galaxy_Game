@@ -10,7 +10,7 @@ namespace Assets.Scripts.Simulation
     public class God : MonoBehaviour
     {
         static God TheOne;
-        internal static Empires.Empire PlayerEmpire { get; private set; }
+        internal static Empire PlayerEmpire { get; private set; }
         public static readonly Dictionary<string, TimeSpan> timeSteps = new Dictionary<string, TimeSpan>() {    { "1s", TimeSpan.FromSeconds(1) },
                                                                                                                 { "5s", TimeSpan.FromSeconds(5) },
                                                                                                                 { "20s", TimeSpan.FromSeconds(30) },
@@ -44,6 +44,7 @@ namespace Assets.Scripts.Simulation
 
             Init();
 
+            Rendering.DisplayManager.TheOne.Init();
             Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]);
 
             deltaTime = TimeSpan.FromSeconds(1);

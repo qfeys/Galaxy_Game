@@ -16,10 +16,11 @@ namespace Assets.Scripts.Rendering
         Vector2 size;
 
         GameObject go;
+        public GameObject gameobject { get { return go; } }
 
         public TabbedWindow(Transform parent, Vector2 size, List<Tuple<string,GameObject>> tabs, int tabFontSize = 12)
         {
-            go = new GameObject();
+            go = new GameObject("TabWindow", typeof(RectTransform));
             go.transform.parent = parent;
             this.size = size;
             ((RectTransform)go.transform).sizeDelta = size;

@@ -31,7 +31,6 @@ namespace Assets.Scripts.Rendering
             TheOne = this;
             systemrenderer = gameObject.AddComponent<SystemRenderer>();
             systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
-            overviewWindow = new OverviewWindow(GameObject.FindWithTag("MainCanvas"));
             inspector = inspectorWindow.GetComponent<Inspector>();
             inputManager = gameObject.AddComponent<InputManager>();
         }
@@ -39,7 +38,12 @@ namespace Assets.Scripts.Rendering
         // Use this for initialization
         void Start()
         {
+        }
+
+        internal void Init()
+        {
             SetTimeControls();
+            overviewWindow = new OverviewWindow(GameObject.FindWithTag("MainCanvas"));
         }
 
         // Update is called once per frame

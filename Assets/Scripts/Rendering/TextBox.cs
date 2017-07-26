@@ -42,10 +42,10 @@ namespace Assets.Scripts.Rendering
             Data_ = data;
             go = new GameObject("dataText");
             go.transform.parent = parent;
-            Text t = go.AddComponent<Text>();
-            t.text = Data.Localisation.GetText(data().ToString());
-            t.font = Data.Graphics.GetStandardFont();
-            t.fontSize = size;
+            text = go.AddComponent<Text>();
+            text.text = Data.Localisation.GetText(data().ToString());
+            text.font = Data.Graphics.GetStandardFont();
+            text.fontSize = size;
             text.alignment = allignment;
             TextBoxScript tbs = go.AddComponent<TextBoxScript>();
             tbs.parent = this;

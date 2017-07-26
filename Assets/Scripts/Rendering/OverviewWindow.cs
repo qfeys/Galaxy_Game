@@ -18,13 +18,18 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, GameObject>("Empire", EmpireWindow),
                     new Tuple<string, GameObject>("TEchnology", TechnologyWindow)
                 });
+            RectTransform tr = window.gameobject.transform as RectTransform;
+            tr.pivot = new Vector2(0, 1);
+            tr.anchorMin = new Vector2(0, 1);
+            tr.anchorMax = new Vector2(0, 1);
+            tr.anchoredPosition = new Vector2(0, 0);
         }
 
         GameObject EmpireWindow
         {
             get
             {
-                GameObject go = new GameObject("Empire Window");
+                GameObject go = new GameObject("Empire Window", typeof(RectTransform));
 
                 InfoTable table = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("population", ()=>Simulation.God.PlayerEmpire.Population),
@@ -38,7 +43,7 @@ namespace Assets.Scripts.Rendering
         {
             get
             {
-                GameObject go = new GameObject("Technology Window");
+                GameObject go = new GameObject("Technology Window", typeof(RectTransform));
 
                 List<Tuple<string, Func<object>>> list = new List<Tuple<string, Func<object>>>();
                 foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in Simulation.God.PlayerEmpire.Academy.Funding)
