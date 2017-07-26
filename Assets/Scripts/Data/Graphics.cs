@@ -16,5 +16,10 @@ namespace Assets.Scripts.Data
         {
             return Resources.Load<Font>(@"Fonts\Orbitron\orbitron-light");
         }
+
+        internal static Sprite GetSprite(string name)
+        {
+            return Resources.Load<Sprite>(@"Graphics\Small button");
+        }
     }
 }
