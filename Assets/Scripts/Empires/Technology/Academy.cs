@@ -16,9 +16,7 @@ namespace Assets.Scripts.Empires.Technology
 
         public DateTime LastUpdate { get; private set; }
 
-        public DateTime NextMandatoryUpdate { get { return _nextMandatoryUpdate; } private set { _nextMandatoryUpdate = value;
-                Simulation.God.ExcicuteOnUnityThread(() => UnityEngine.Debug.Log("NMU changed to: " + _nextMandatoryUpdate));
-            } }
+        public DateTime NextMandatoryUpdate { get { return _nextMandatoryUpdate; } private set { _nextMandatoryUpdate = value; } }
         DateTime _nextMandatoryUpdate;
 
         public bool NextUpdateHasPriority { get; private set; }

@@ -67,12 +67,13 @@ namespace Assets.Scripts
             VectorS[] ret = new VectorS[number];
             for (int j = 0; j < number; j++)
             {
-                VectorS point = new VectorS();
                 double meanAnomaly = MAaE + j * 2 * Math.PI / number;
                 double EA = EccentricAnomaly(meanAnomaly);
-                point.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
-                point.u = LAN + (AOP + EA) * Math.Cos(i);
-                point.v = i * Math.Sin(AOP + EA);
+                VectorS point = new VectorS() {
+                    r = (ulong)(SMA * (1 - e * Math.Cos(EA))),
+                    u = LAN + (AOP + EA) * Math.Cos(i),
+                    v = i * Math.Sin(AOP + EA)
+                };
                 //UnityEngine.Debug.Log(j + ": " + j * 2 * Math.PI / number + "rad, MA: " + meanAnomaly.ToString("0.0") + " rad, EA: " + EA.ToString("0.0") + " rad, u:" + point.u.ToString("0.0") + " rad");
                 ret[j] = point;
             }

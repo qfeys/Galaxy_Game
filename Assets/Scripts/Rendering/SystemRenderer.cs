@@ -10,29 +10,24 @@ namespace Assets.Scripts.Rendering
     class SystemRenderer : MonoBehaviour
     {
 
-        Dictionary<GameObject, Bodies.Orbital> displayedBodies;
+        Dictionary<GameObject, Orbital> displayedBodies;
         Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
         Dictionary<Type, GameObject> prototypes;
 
         public float zoom = 10.8f; // log scale - high values are zoomed in
 
-        public void Awake()
-        {
-
-        }
-
         public void InstantiatePrototypes(GameObject star, GameObject giant, GameObject rock)
         {
             prototypes = new Dictionary<Type, GameObject> {
-                { typeof(Bodies.Star), star },
-                { typeof(Bodies.Giant), giant },
-                { typeof(Bodies.Rock), rock }
+                { typeof(Star), star },
+                { typeof(Giant), giant },
+                { typeof(Rock), rock }
             };
         }
 
         internal void SetSystem(StarSystem syst)
         {
-            displayedBodies = new Dictionary<GameObject, Bodies.Orbital>();
+            displayedBodies = new Dictionary<GameObject, Orbital>();
             displayedOrbits = new Dictionary<GameObject, LineRenderer>();
             GameObject star = null;
             syst.Childeren.ForEach(b =>
@@ -40,16 +35,16 @@ namespace Assets.Scripts.Rendering
                 GameObject go = Instantiate(prototypes[b.GetType()]);
                 go.name = b.ToString();
                 go.tag = "Orbital";
-                if (star == null && b.GetType() == typeof(Bodies.Star)) star = go;
+                if (star == null && b.GetType() == typeof(Star)) star = go;
                 displayedBodies.Add(go, b);
-                if (b.GetType() != typeof(Bodies.Star))
+                if (b.GetType() != typeof(Star))
                 {
                     go.transform.SetParent(star.transform);
 
                     GameObject orb = new GameObject("Orbit of " + b);
                     orb.transform.SetParent(star.transform);
                     LineRenderer lr = orb.AddComponent<LineRenderer>();
-                    lr.positionCount = 40;
+                    lr.positionCount = VERTICES_PER_ORBIT;
                     lr.startWidth = 0.1f;
                     lr.endWidth = 0.2f;
                     lr.material = DisplayManager.TheOne.lineMaterial;
@@ -63,14 +58,14 @@ namespace Assets.Scripts.Rendering
             GameObject star = null;
             foreach(var b in displayedBodies)
             {
-                if (star == null && b.Value.GetType() == typeof(Bodies.Star)) star = b.Key;
+                if (star == null && b.Value.GetType() == typeof(Star)) star = b.Key;
                 VectorS posS = b.Value.Elements.GetPositionSphere(Simulation.God.Time);
                 float scale = Mathf.Pow(10, -zoom);
                 Vector3 v = (Vector3)posS * scale;
                 b.Key.transform.position = v;
                 if (displayedOrbits.ContainsKey(b.Key))
                 {
-                    displayedOrbits[b.Key].SetPositions(FindPointsOnOrbit(b.Value.Elements, 40));
+                    displayedOrbits[b.Key].SetPositions(FindPointsOnOrbit(b.Value.Elements, VERTICES_PER_ORBIT));
                 }
             }
         }
@@ -90,5 +85,7 @@ namespace Assets.Scripts.Rendering
             }
             throw new ArgumentException(obj.ToString() + " could not be found in the dictionary 'DisplayedBodies'.");
         }
+
+        const int VERTICES_PER_ORBIT = 40;
     }
 }
