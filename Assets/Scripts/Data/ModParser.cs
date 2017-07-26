@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using Assets.Scripts;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Data
 {
     static class ModParser
     {
