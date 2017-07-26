@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Threading;
 using Assets.Scripts.Empires;
+using Assets.Scripts.Data;
 
 namespace Assets.Scripts.Simulation
 {
