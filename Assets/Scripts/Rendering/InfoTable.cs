@@ -25,6 +25,7 @@ namespace Assets.Scripts.Rendering
             VerticalLayoutGroup VLayGr = go.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
             VLayGr.childForceExpandWidth = false;
+            Redraw();
         }
 
         public void Redraw()

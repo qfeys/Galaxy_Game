@@ -9,13 +9,7 @@ namespace Assets.Scripts.Rendering
 {
     class TabbedWindow
     {
-        // must contain a button, a layoutElement and a text component
         public bool canBeMinimised;
-        public Sprite tabImageLow;
-        public Sprite tabImageHigh;
-        public GameObject exampleText;
-        public List<string> tabNames;
-        public List<GameObject> tabContent;
 
         List<Tuple<GameObject,GameObject>> windows;
         bool isMinimised = false;
@@ -23,8 +17,10 @@ namespace Assets.Scripts.Rendering
 
         GameObject go;
 
-        public TabbedWindow(List<Tuple<string,GameObject>> tabs, Vector2 size, int tabFontSize = 12)
+        public TabbedWindow(Transform parent, Vector2 size, List<Tuple<string,GameObject>> tabs, int tabFontSize = 12)
         {
+            go = new GameObject();
+            go.transform.parent = parent;
             this.size = size;
             ((RectTransform)go.transform).sizeDelta = size;
             var VLayGr = go.AddComponent<VerticalLayoutGroup>();
@@ -90,7 +86,7 @@ namespace Assets.Scripts.Rendering
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
                 tab.GetComponent<LayoutElement>().preferredWidth = text.gameObject.GetComponent<Text>().preferredWidth + tabFontSize;
                 
-                tab.AddComponent<Button>().onClick.AddListener(() => { SetTab(tabNames.Count); MinimiseWindow(); });
+                tab.AddComponent<Button>().onClick.AddListener(() => { SetTab(windows.Count); MinimiseWindow(); });
 
                 GameObject window = new GameObject();
                 window.transform.SetParent(mainWindow.transform);
@@ -102,7 +98,7 @@ namespace Assets.Scripts.Rendering
 
         private void SetTab(int n)
         {
-            for (int i = 0; i < tabNames.Count; i++)
+            for (int i = 0; i < windows.Count; i++)
             {
                 if(i != n)
                 {
