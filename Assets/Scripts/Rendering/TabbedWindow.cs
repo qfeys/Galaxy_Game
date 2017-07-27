@@ -9,7 +9,7 @@ namespace Assets.Scripts.Rendering
 {
     class TabbedWindow
     {
-        public bool canBeMinimised;
+        bool canBeMinimised;
 
         List<Tuple<GameObject,GameObject>> windows;
         bool isMinimised = false;
@@ -18,11 +18,12 @@ namespace Assets.Scripts.Rendering
         GameObject go;
         public GameObject gameobject { get { return go; } }
 
-        public TabbedWindow(Transform parent, Vector2 size, List<Tuple<string,GameObject>> tabs, int tabFontSize = 12)
+        public TabbedWindow(Transform parent, Vector2 size, List<Tuple<string,GameObject>> tabs, int tabFontSize = 12, bool canBeMinimised = true)
         {
             go = new GameObject("TabWindow", typeof(RectTransform));
             go.transform.parent = parent;
             this.size = size;
+            this.canBeMinimised = canBeMinimised;
             ((RectTransform)go.transform).sizeDelta = size;
             var VLayGr = go.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
@@ -39,7 +40,7 @@ namespace Assets.Scripts.Rendering
             GameObject mainWindow = new GameObject("Main Window", typeof(RectTransform));
             mainWindow.transform.parent = go.transform;
             mainWindow.AddComponent<LayoutElement>().flexibleHeight = 1;
-            mainWindow.AddComponent<HorizontalLayoutGroup>();
+            mainWindow.AddComponent<HorizontalLayoutGroup>();   // used to strech the underlying windows
 
             windows = new List<Tuple<GameObject, GameObject>>();
             for (int i = 0; i < tabs.Count; i++)
@@ -53,6 +54,7 @@ namespace Assets.Scripts.Rendering
                 img.fillCenter = true;
 
                 TextBox text = new TextBox(tab.transform, tabs[i].Item1,null,tabFontSize);
+                ((RectTransform)text.gameObject.transform).anchoredPosition += new Vector2(5, 0);
 
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
                 tab.GetComponent<LayoutElement>().preferredWidth = text.gameObject.GetComponent<Text>().preferredWidth + tabFontSize;
@@ -83,6 +85,7 @@ namespace Assets.Scripts.Rendering
                 img.fillCenter = true;
 
                 TextBox text = new TextBox(tab.transform, "X", null, tabFontSize);
+                ((RectTransform)text.gameObject.transform).anchoredPosition += new Vector2(5, 0);
 
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
                 tab.GetComponent<LayoutElement>().preferredWidth = text.gameObject.GetComponent<Text>().preferredWidth + tabFontSize;

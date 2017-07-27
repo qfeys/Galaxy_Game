@@ -20,33 +20,40 @@ namespace Assets.Scripts.Rendering
         Text text;
         public GameObject gameObject { get { return go; } }
 
-        public TextBox(Transform parent, string textID, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft)
+        public TextBox(Transform parent, string textID, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
         {
             TextID = textID; MousoverID = mousoverID;
             isData = false;
             go = new GameObject(textID, typeof(RectTransform));
-            go.transform.parent = parent;
-            text = go.AddComponent<Text>();
+            StanConstr(parent, size, allignment);
             text.text = Data.Localisation.GetText(textID);
-            text.font = Data.Graphics.GetStandardFont();
-            text.fontSize = size;
-            text.alignment = allignment;
-            TextBoxScript tbs = go.AddComponent<TextBoxScript>();
-            tbs.parent = this;
+            text.color = color ?? Color.black;
         }
 
-        public TextBox(Transform parent, Func<object> data, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft)
+        public TextBox(Transform parent, Func<object> data, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
         {
             TextID = null; MousoverID = mousoverID;
             isData = true;
             Data_ = data;
             go = new GameObject("dataText", typeof(RectTransform));
+            StanConstr(parent, size, allignment);
+            text.text = data().ToString();
+            text.color = color ?? Color.red;
+        }
+
+        private void StanConstr(Transform parent, int size, TextAnchor allignment)
+        {
             go.transform.parent = parent;
+            RectTransform tr = (RectTransform)go.transform;
+            tr.anchorMin = new Vector2(0, 0.5f);
+            tr.anchorMax = new Vector2(0, 0.5f);
+            tr.pivot = new Vector2(0, 0.5f);
+            tr.anchoredPosition = new Vector2(0, 0);
             text = go.AddComponent<Text>();
-            text.text = Data.Localisation.GetText(data().ToString());
             text.font = Data.Graphics.GetStandardFont();
             text.fontSize = size;
             text.alignment = allignment;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
             TextBoxScript tbs = go.AddComponent<TextBoxScript>();
             tbs.parent = this;
         }
@@ -62,7 +69,7 @@ namespace Assets.Scripts.Rendering
         {
             if (isData)
             {
-                text.text = Data.Localisation.GetText(Data_.ToString());
+                text.text = Data.Localisation.GetText(Data_().ToString());
             }
         }
 

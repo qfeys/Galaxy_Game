@@ -14,18 +14,37 @@ namespace Assets.Scripts.Rendering
         public GameObject exampleText;
 
         GameObject go;
+        public GameObject gameObject { get { return go; } }
         int fontSize;
 
-        public InfoTable(Transform parent, List<Tuple<string, Func<object>>> info, int fontSize = 12)
+        public InfoTable(Transform parent, List<Tuple<string, Func<object>>> info, int width = 200, int fontSize = 12) :
+            this(parent, width, fontSize)
         {
             this.info = info;
+            Redraw();
+        }
+
+        public InfoTable(Transform parent, Func<List<Tuple<string, Func<object>>>> script, int width = 200, int fontSize = 12) :
+            this(parent, width, fontSize)
+        {
+            info = null;
+            ActiveInfoTable ait = go.AddComponent<ActiveInfoTable>();
+            ait.parent = this;
+            ait.script = script;
+            info = script();
+            Redraw();
+        }
+
+        InfoTable(Transform parent, int width = 200, int fontSize = 12)
+        {
+
             this.fontSize = fontSize;
             go = new GameObject("Info Table", typeof(RectTransform));
             go.transform.parent = parent;
+            ((RectTransform)go.transform).sizeDelta = new Vector2(width, 100);
             VerticalLayoutGroup VLayGr = go.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
             VLayGr.childForceExpandWidth = false;
-            Redraw();
         }
 
         public void Redraw()
@@ -93,6 +112,23 @@ namespace Assets.Scripts.Rendering
         internal void ResetInfo()
         {
             info = new List<Tuple<string, Func<object>>>();
+        }
+
+        public class ActiveInfoTable : MonoBehaviour
+        {
+            public InfoTable parent;
+
+            public Func<List<Tuple<string, Func<object>>>> script;
+            
+            private void Update()
+            {
+                List<Tuple<string, Func<object>>> newInfo = script();
+                if (parent.info.Equals(newInfo) == false)
+                {
+                    parent.info = newInfo;
+                    parent.Redraw();
+                }
+            }
         }
     }
 }
