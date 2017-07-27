@@ -32,18 +32,6 @@ namespace Assets.Scripts.Empires.Technology
             Name = clone.Name; sector = clone.sector; Prerequisites = clone.Prerequisites; MaxKnowledge = clone.MaxKnowledge; Roots = clone.Roots;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj.GetType() == typeof(Technology) && ((Technology)obj).Name == Name)
-                return true;
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-
         internal static void SetTechTree(List<ModParser.Item> itemList)
         {
             if (techTree == null)
@@ -57,6 +45,23 @@ namespace Assets.Scripts.Empires.Technology
             List<Technology> tt = itemList.ConvertAll(i => Interpret(i));
             PointPrerequisitesAndRoots(tt);
             techTree = tt;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType() == typeof(Technology) && ((Technology)obj).Name == Name)
+                return true;
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return "t_" + Name;
         }
 
         internal static Technology FindTech(string name)
