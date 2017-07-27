@@ -21,7 +21,7 @@ namespace Assets.Scripts.Rendering
         public TabbedWindow(Transform parent, Vector2 size, List<Tuple<string,GameObject>> tabs, int tabFontSize = 12, bool canBeMinimised = true)
         {
             go = new GameObject("TabWindow", typeof(RectTransform));
-            go.transform.parent = parent;
+            go.transform.SetParent(parent, false);
             this.size = size;
             this.canBeMinimised = canBeMinimised;
             ((RectTransform)go.transform).sizeDelta = size;
@@ -29,7 +29,7 @@ namespace Assets.Scripts.Rendering
             VLayGr.childForceExpandHeight = false;
             VLayGr.childForceExpandWidth = false;
             GameObject buttonLine = new GameObject("Tab Line", typeof(RectTransform));
-            buttonLine.transform.parent = go.transform;
+            buttonLine.transform.SetParent(go.transform, false);
             var LayEl = buttonLine.AddComponent<LayoutElement>();
             LayEl.minHeight = tabFontSize * 3 / 2;
             LayEl.flexibleHeight = 0;
@@ -38,7 +38,7 @@ namespace Assets.Scripts.Rendering
             HLayGr.childForceExpandHeight = false;
             HLayGr.childForceExpandWidth = false;
             GameObject mainWindow = new GameObject("Main Window", typeof(RectTransform));
-            mainWindow.transform.parent = go.transform;
+            mainWindow.transform.SetParent(go.transform, false);
             mainWindow.AddComponent<LayoutElement>().flexibleHeight = 1;
             mainWindow.AddComponent<HorizontalLayoutGroup>();   // used to strech the underlying windows
 

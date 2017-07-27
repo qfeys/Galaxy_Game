@@ -43,7 +43,7 @@ namespace Assets.Scripts.Rendering
 
         private void StanConstr(Transform parent, int size, TextAnchor allignment)
         {
-            go.transform.parent = parent;
+            go.transform.SetParent(parent, false);
             RectTransform tr = (RectTransform)go.transform;
             tr.anchorMin = new Vector2(0, 0.5f);
             tr.anchorMax = new Vector2(0, 0.5f);

@@ -40,7 +40,7 @@ namespace Assets.Scripts.Rendering
 
             this.fontSize = fontSize;
             go = new GameObject("Info Table", typeof(RectTransform));
-            go.transform.parent = parent;
+            go.transform.SetParent(parent, false);
             ((RectTransform)go.transform).sizeDelta = new Vector2(width, 100);
             VerticalLayoutGroup VLayGr = go.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
