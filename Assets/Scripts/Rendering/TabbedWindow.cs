@@ -27,7 +27,7 @@ namespace Assets.Scripts.Rendering
             var VLayGr = go.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
             VLayGr.childForceExpandWidth = false;
-            GameObject buttonLine = new GameObject("Tab Line");
+            GameObject buttonLine = new GameObject("Tab Line", typeof(RectTransform));
             buttonLine.transform.parent = go.transform;
             var LayEl = buttonLine.AddComponent<LayoutElement>();
             LayEl.minHeight = tabFontSize * 3 / 2;
@@ -36,7 +36,7 @@ namespace Assets.Scripts.Rendering
             var HLayGr = buttonLine.AddComponent<HorizontalLayoutGroup>();
             HLayGr.childForceExpandHeight = false;
             HLayGr.childForceExpandWidth = false;
-            GameObject mainWindow = new GameObject("Main Window");
+            GameObject mainWindow = new GameObject("Main Window", typeof(RectTransform));
             mainWindow.transform.parent = go.transform;
             mainWindow.AddComponent<LayoutElement>().flexibleHeight = 1;
             mainWindow.AddComponent<HorizontalLayoutGroup>();
@@ -44,7 +44,7 @@ namespace Assets.Scripts.Rendering
             windows = new List<Tuple<GameObject, GameObject>>();
             for (int i = 0; i < tabs.Count; i++)
             {
-                GameObject tab = new GameObject("Tab");
+                GameObject tab = new GameObject("Tab", typeof(RectTransform));
                 tab.transform.SetParent(buttonLine.transform);
                 Image img = tab.AddComponent<Image>();
                 img.sprite = Data.Graphics.GetSprite("tab_image_low");
@@ -74,7 +74,7 @@ namespace Assets.Scripts.Rendering
             }
             if (canBeMinimised)
             {
-                GameObject tab = new GameObject("Tab");
+                GameObject tab = new GameObject("Tab", typeof(RectTransform));
                 tab.transform.SetParent(buttonLine.transform);
                 Image img = tab.AddComponent<Image>();
                 img.sprite = Data.Graphics.GetSprite("tab_low");
@@ -89,7 +89,7 @@ namespace Assets.Scripts.Rendering
                 
                 tab.AddComponent<Button>().onClick.AddListener(() => { SetTab(windows.Count); MinimiseWindow(); });
 
-                GameObject window = new GameObject();
+                GameObject window = new GameObject("Null Window", typeof(RectTransform));
                 window.transform.SetParent(mainWindow.transform);
                 window.SetActive(false);
                 windows.Add(new Tuple<GameObject, GameObject>(tab, window));

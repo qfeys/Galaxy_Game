@@ -24,7 +24,7 @@ namespace Assets.Scripts.Rendering
         {
             TextID = textID; MousoverID = mousoverID;
             isData = false;
-            go = new GameObject(textID);
+            go = new GameObject(textID, typeof(RectTransform));
             go.transform.parent = parent;
             text = go.AddComponent<Text>();
             text.text = Data.Localisation.GetText(textID);
@@ -40,7 +40,7 @@ namespace Assets.Scripts.Rendering
             TextID = null; MousoverID = mousoverID;
             isData = true;
             Data_ = data;
-            go = new GameObject("dataText");
+            go = new GameObject("dataText", typeof(RectTransform));
             go.transform.parent = parent;
             text = go.AddComponent<Text>();
             text.text = Data.Localisation.GetText(data().ToString());

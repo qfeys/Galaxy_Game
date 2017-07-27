@@ -20,7 +20,7 @@ namespace Assets.Scripts.Rendering
         {
             this.info = info;
             this.fontSize = fontSize;
-            go = new GameObject("Info Table");
+            go = new GameObject("Info Table", typeof(RectTransform));
             go.transform.parent = parent;
             VerticalLayoutGroup VLayGr = go.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
@@ -59,7 +59,7 @@ namespace Assets.Scripts.Rendering
 
         private GameObject CreateLine()
         {
-            GameObject line = new GameObject("Line");
+            GameObject line = new GameObject("Line", typeof(RectTransform));
             line.transform.SetParent(go.transform, false);
             LayoutElement LayEl = line.AddComponent<LayoutElement>();
             LayEl.minHeight = fontSize;
