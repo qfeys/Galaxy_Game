@@ -17,6 +17,7 @@ namespace Assets.Scripts.Rendering
             window = new TabbedWindow(canvas.transform, new Vector2(600, 400),
                 new List<Tuple<string, GameObject>>() {
                     new Tuple<string, GameObject>("Empire", EmpireWindow),
+                    new Tuple<string, GameObject>("Populations", PopulationsWindow),
                     new Tuple<string, GameObject>("Technology", TechnologyWindow)
                 });
             RectTransform tr = window.gameobject.transform as RectTransform;
@@ -42,6 +43,30 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, Func<object>>("Wealth", () => Simulation.God.PlayerEmpire.Wealth)
                 }, 200);
                 Center(table.gameObject, new Vector2(100, -100));
+                return go;
+            }
+        }
+
+        public GameObject PopulationsWindow
+        {
+            get
+            {
+                GameObject go = new GameObject("Populations Window", typeof(RectTransform));
+                TextBox title = new TextBox(go.transform, "populations_window_title", null, 24, TextAnchor.MiddleCenter);
+                Center(title.gameObject);
+                ((RectTransform)title.gameObject.transform).sizeDelta = new Vector2(200, 36);
+
+                InfoTable tablePops = new InfoTable(go.transform, () =>
+                {
+                    List<Tuple<string, Func<object>>> list = new List<Tuple<string, Func<object>>>();
+                    foreach (Empires.Population pop in Simulation.God.PlayerEmpire.Populations)
+                    {
+                        list.Add(new Tuple<string, Func<object>>(pop.ToString(), () => pop.Count));
+                    }
+                    return list;
+                }, 200);
+                Center(tablePops.gameObject, new Vector2(-100, -100));
+
                 return go;
             }
         }
