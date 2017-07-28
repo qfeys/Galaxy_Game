@@ -23,6 +23,7 @@ namespace Assets.Scripts.Data
                 byte[] data = File.ReadAllBytes(allPaths[i]);
                 Texture2D t = new Texture2D(32, 32, TextureFormat.ARGB32, false);
                 t.name = Path.GetFileNameWithoutExtension(allPaths[i]);
+                t.LoadImage(data);
                 dict.Add(Path.GetFileNameWithoutExtension(allPaths[i]), t);
             }
             Debug.Log("Loaded " + allPaths.Length + " graphics.");
