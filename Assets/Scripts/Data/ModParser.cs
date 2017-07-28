@@ -14,7 +14,7 @@ namespace Assets.Scripts.Data
             Dictionary<string, List<Signature>> signatures = CollectSignatures();
             //string path = @"Mods\Core\Technology.txt";
             string path = @"Mods\";
-            string[] allPaths = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+            string[] allPaths = Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories);
             try
             {
                 // parse all the paths and put the list of strings that is the result of it into this array

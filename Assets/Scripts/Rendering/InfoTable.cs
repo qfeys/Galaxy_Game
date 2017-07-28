@@ -123,7 +123,7 @@ namespace Assets.Scripts.Rendering
             private void Update()
             {
                 List<Tuple<string, Func<object>>> newInfo = script();
-                if (parent.info.Equals(newInfo) == false)
+                if (parent.info.SequenceEqual(newInfo) == false)
                 {
                     parent.info = newInfo;
                     parent.Redraw();

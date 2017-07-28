@@ -79,7 +79,7 @@ namespace Assets.Scripts.Rendering
                 GameObject tab = new GameObject("Tab", typeof(RectTransform));
                 tab.transform.SetParent(buttonLine.transform);
                 Image img = tab.AddComponent<Image>();
-                img.sprite = Data.Graphics.GetSprite("tab_low");
+                img.sprite = Data.Graphics.GetSprite("tab_image_low");
                 img.raycastTarget = true;
                 img.type = Image.Type.Sliced;
                 img.fillCenter = true;
@@ -89,8 +89,8 @@ namespace Assets.Scripts.Rendering
 
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
                 tab.GetComponent<LayoutElement>().preferredWidth = text.gameObject.GetComponent<Text>().preferredWidth + tabFontSize;
-                
-                tab.AddComponent<Button>().onClick.AddListener(() => { SetTab(windows.Count); MinimiseWindow(); });
+                int a = windows.Count;
+                tab.AddComponent<Button>().onClick.AddListener(() => { SetTab(a); MinimiseWindow(); });
 
                 GameObject window = new GameObject("Null Window", typeof(RectTransform));
                 window.transform.SetParent(mainWindow.transform);
@@ -109,14 +109,14 @@ namespace Assets.Scripts.Rendering
                     if (windows[i].Item2.activeSelf)
                     {
                         windows[i].Item2.SetActive(false);
-                        windows[i].Item1.GetComponent<Image>().sprite = Data.Graphics.GetSprite("tab_low");
+                        windows[i].Item1.GetComponent<Image>().sprite = Data.Graphics.GetSprite("tab_image_low");
                     }
                 }
             }
             if (windows[n].Item2.activeSelf == false)
             {
                 windows[n].Item2.SetActive(true);
-                windows[n].Item1.GetComponent<Image>().sprite = Data.Graphics.GetSprite("tab_high");
+                windows[n].Item1.GetComponent<Image>().sprite = Data.Graphics.GetSprite("tab_image_high");
             }
 
         }
