@@ -1,0 +1,4 @@
+# The localisation file
+empire_window_title: "Empire"
+populations_window_title: "Populations"
+technology_window_title: "Technology"

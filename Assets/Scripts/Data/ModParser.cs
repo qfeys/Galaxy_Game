@@ -14,13 +14,14 @@ namespace Assets.Scripts.Data
             Dictionary<string, List<Signature>> signatures = CollectSignatures();
             //string path = @"Mods\Core\Technology.txt";
             string path = @"Mods\";
-            string[] allPaths = Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories);
+            List<string> mods = Directory.EnumerateDirectories(path).ToList();
+            List<string> allPaths = mods.Select(m => Directory.GetFiles(m + @"\Common\", "*.txt", SearchOption.AllDirectories)).SelectMany(p => p.ToList()).ToList();
             try
             {
                 // parse all the paths and put the list of strings that is the result of it into this array
-                List<string>[] words = Array.ConvertAll(allPaths, p => Parse(p));
+                List<List<string>> words = allPaths.ConvertAll(p => Parse(p));
                 // Convert every stringlist in that array into a datatree and put it in this new array
-                List<Tuple<string, object>>[] dataTree = Array.ConvertAll(words, w=>ExtractData(w, 0));
+                List<List<Tuple<string, object>>> dataTree = words.ConvertAll(w => ExtractData(w, 0));
                 // Put all the datatrees in a single collection
                 List<Tuple<string, object>> allTrees = dataTree.SelectMany(t => t).ToList();
                 foreach (Tuple<string, object> tree in allTrees.FindAll(t => t.Item1 == "technology"))

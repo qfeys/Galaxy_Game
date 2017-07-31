@@ -75,7 +75,7 @@ namespace Assets.Scripts.Rendering
         {
             if (isData)
             {
-                text.text = Data.Localisation.GetText(Data_().ToString());
+                text.text = Data_().ToString();
             }
         }
 
