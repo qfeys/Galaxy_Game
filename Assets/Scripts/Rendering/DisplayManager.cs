@@ -12,7 +12,6 @@ namespace Assets.Scripts.Rendering
     {
         static public DisplayManager TheOne;
         SystemRenderer systemrenderer;
-        OverviewWindow overviewWindow;
         Inspector inspector;
         InputManager inputManager;
 
@@ -43,7 +42,7 @@ namespace Assets.Scripts.Rendering
         internal void Init()
         {
             SetTimeControls();
-            overviewWindow = new OverviewWindow(GameObject.FindWithTag("MainCanvas"));
+            OverviewWindow.Create(GameObject.FindWithTag("MainCanvas"));
         }
 
         // Update is called once per frame

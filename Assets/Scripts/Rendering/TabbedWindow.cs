@@ -17,6 +17,7 @@ namespace Assets.Scripts.Rendering
 
         GameObject go;
         public GameObject gameobject { get { return go; } }
+        public RectTransform transform { get { return go.transform as RectTransform; } }
 
         public TabbedWindow(Transform parent, Vector2 size, List<Tuple<string,GameObject>> tabs, int tabFontSize = 12, bool canBeMinimised = true)
         {

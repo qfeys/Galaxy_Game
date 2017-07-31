@@ -15,6 +15,7 @@ namespace Assets.Scripts.Rendering
 
         GameObject go;
         public GameObject gameObject { get { return go; } }
+        public RectTransform transform { get { return go.transform as RectTransform; } }
         int fontSize;
 
         public InfoTable(Transform parent, List<Tuple<string, Func<object>>> info, int width = 200, int fontSize = 12) :

@@ -19,6 +19,7 @@ namespace Assets.Scripts.Rendering
         GameObject go;
         Text text;
         public GameObject gameObject { get { return go; } }
+        public RectTransform transform { get { return go.transform as RectTransform; } }
 
         public TextBox(Transform parent, string textID, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
         {
