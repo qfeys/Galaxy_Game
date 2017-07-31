@@ -47,5 +47,9 @@ namespace Assets.Scripts.Data
             Debug.Log("Failed loading graphic: " + name);
             return Resources.Load<Sprite>(@"Graphics\Small button");
         }
+
+        public static class Color_ {
+             public static Color text { get { return new Color(1, 1, 0.8f); } }
+        }
     }
 }

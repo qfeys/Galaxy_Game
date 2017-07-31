@@ -28,7 +28,7 @@ namespace Assets.Scripts.Rendering
             go = new GameObject(textID, typeof(RectTransform));
             StanConstr(parent, size, allignment);
             text.text = Data.Localisation.GetText(textID);
-            text.color = color ?? Color.black;
+            text.color = color ?? Data.Graphics.Color_.text;
         }
 
         public TextBox(Transform parent, Func<object> data, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
@@ -64,6 +64,11 @@ namespace Assets.Scripts.Rendering
             if (go.GetComponent<LayoutElement>() == null)
                 go.AddComponent<LayoutElement>();
             go.GetComponent<LayoutElement>().flexibleWidth = width;
+        }
+
+        public void SetColor(Color col)
+        {
+            text.color = col;
         }
 
         private void Update()

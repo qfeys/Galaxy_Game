@@ -10,23 +10,22 @@ namespace Assets.Scripts.Rendering
     public class InfoTable
     {
         List<Tuple<string, Func<object>>> info;
-
-        public GameObject exampleText;
+        string title = null;
 
         GameObject go;
         public GameObject gameObject { get { return go; } }
         public RectTransform transform { get { return go.transform as RectTransform; } }
         int fontSize;
 
-        public InfoTable(Transform parent, List<Tuple<string, Func<object>>> info, int width = 200, int fontSize = 12) :
-            this(parent, width, fontSize)
+        public InfoTable(Transform parent, List<Tuple<string, Func<object>>> info, int width = 200, int fontSize = 12, string title = null) :
+            this(parent, width, fontSize, title)
         {
             this.info = info;
             Redraw();
         }
 
-        public InfoTable(Transform parent, Func<List<Tuple<string, Func<object>>>> script, int width = 200, int fontSize = 12) :
-            this(parent, width, fontSize)
+        public InfoTable(Transform parent, Func<List<Tuple<string, Func<object>>>> script, int width = 200, int fontSize = 12, string title = null) :
+            this(parent, width, fontSize, title)
         {
             info = null;
             ActiveInfoTable ait = go.AddComponent<ActiveInfoTable>();
@@ -36,9 +35,9 @@ namespace Assets.Scripts.Rendering
             Redraw();
         }
 
-        InfoTable(Transform parent, int width = 200, int fontSize = 12)
+        InfoTable(Transform parent, int width = 200, int fontSize = 12, string title = null)
         {
-
+            this.title = title;
             this.fontSize = fontSize;
             go = new GameObject("Info Table", typeof(RectTransform));
             go.transform.SetParent(parent, false);
@@ -54,6 +53,10 @@ namespace Assets.Scripts.Rendering
             {
                 UnityEngine.Object.Destroy(go.transform.GetChild(i).gameObject);
                 go.transform.GetChild(i).SetParent(null);
+            }
+            if(title != null)
+            {
+                CreateTitle();
             }
             if (info.Count == 0)        // no data - place a dummy line
             {
@@ -75,6 +78,16 @@ namespace Assets.Scripts.Rendering
                     TextBox data = new TextBox(line.transform, info[i].Item2, "#####", fontSize, TextAnchor.MiddleRight);
                 }
             }
+        }
+
+        private void CreateTitle()
+        {
+            TextBox titleTxt = new TextBox(go.transform, title, null, (int)(fontSize * 1.2f), TextAnchor.MiddleCenter);
+            LayoutElement LayEl = titleTxt.gameObject.AddComponent<LayoutElement>();
+            LayEl.minHeight = fontSize * 1.2f;
+            LayEl.preferredHeight = fontSize * 2 * 1.2f;
+            LayEl.flexibleWidth = 1;
+            LayEl.flexibleHeight = 0;
         }
 
         private GameObject CreateLine()

@@ -25,7 +25,7 @@ namespace Assets.Scripts.Rendering
             window.transform.anchorMax = new Vector2(0, 1);
             window.transform.anchoredPosition = new Vector2(0, 0);
             Image im = window.gameobject.AddComponent<Image>();
-            im.sprite = Data.Graphics.GetSprite("standard_window");
+            im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
         }
 
@@ -38,7 +38,7 @@ namespace Assets.Scripts.Rendering
             InfoTable table = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("population", ()=>Simulation.God.PlayerEmpire.Population),
                     new Tuple<string, Func<object>>("Wealth", () => Simulation.God.PlayerEmpire.Wealth)
-                }, 200);
+                }, 200, 12, "Populations");
             Center(table.transform, new Vector2(100, -100));
             return go;
         }

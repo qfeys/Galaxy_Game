@@ -32,12 +32,13 @@ namespace Assets.Scripts.Rendering
             GameObject buttonLine = new GameObject("Tab Line", typeof(RectTransform));
             buttonLine.transform.SetParent(go.transform, false);
             var LayEl = buttonLine.AddComponent<LayoutElement>();
-            LayEl.minHeight = tabFontSize * 3 / 2;
+            LayEl.minHeight = tabFontSize * 3 / 2 + 5;
             LayEl.flexibleHeight = 0;
             LayEl.flexibleWidth = 1;
             var HLayGr = buttonLine.AddComponent<HorizontalLayoutGroup>();
             HLayGr.childForceExpandHeight = false;
             HLayGr.childForceExpandWidth = false;
+            HLayGr.padding = new RectOffset(5, 0, 3, 2);
             GameObject mainWindow = new GameObject("Main Window", typeof(RectTransform));
             mainWindow.transform.SetParent(go.transform, false);
             mainWindow.AddComponent<LayoutElement>().flexibleHeight = 1;
