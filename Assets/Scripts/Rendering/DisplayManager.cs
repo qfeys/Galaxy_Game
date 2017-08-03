@@ -21,7 +21,6 @@ namespace Assets.Scripts.Rendering
         public Material lineMaterial;
 
         public GameObject inspectorWindow;
-        public GameObject overviewWindow;
         public GameObject clock;
         public float zoom = 12; // log scale - high values are zoomed in
 
@@ -38,14 +37,18 @@ namespace Assets.Scripts.Rendering
         // Use this for initialization
         void Start()
         {
+        }
+
+        internal void Init()
+        {
             SetTimeControls();
+            OverviewWindow.Create(GameObject.FindWithTag("MainCanvas"));
+            MouseOver.Create();
         }
 
         // Update is called once per frame
         void Update()
         {
-            if(overviewWindow.activeSelf == true)
-                RedrawOverviewWindow();
             clock.transform.GetChild(0).GetComponent<Text>().text = God.Time.ToString("yyyy.MM.dd HH:mm:ss");
         }
 
@@ -89,37 +92,6 @@ namespace Assets.Scripts.Rendering
         {
             Orbital orb = systemrenderer.FindOrbital(obj);
             inspector.DisplayOrbital(orb);
-        }
-
-        private void RedrawOverviewWindow()
-        {
-            if (overviewWindow.transform.GetChild(1).GetChild(0).gameObject.activeSelf == true)  // Empire tab active
-            {
-                Transform win = overviewWindow.transform.GetChild(1).GetChild(0);
-                InfoTable table = win.Find("Stats").GetComponent<InfoTable>();
-                table.SetInfo(new Tuple<string, string>("Population", God.PlayerEmpire.Population.ToString()));
-                table.AddInfo(new Tuple<string, string>("Wealth", God.PlayerEmpire.Wealth.ToString()));
-                table.Redraw();
-            }
-            if (overviewWindow.transform.GetChild(1).GetChild(4).gameObject.activeSelf == true)  // Technology tab active
-            {
-                Transform win = overviewWindow.transform.GetChild(1).GetChild(4);
-                InfoTable tableSec = win.Find("Sectors").GetComponent<InfoTable>();
-                tableSec.ResetInfo();
-                foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in God.PlayerEmpire.Academy.Funding)
-                {
-                    tableSec.AddInfo(new Tuple<string, string>(kvp.Key.ToString(), kvp.Value.ToString()));
-                }
-                tableSec.Redraw();
-
-                InfoTable tableTech = win.Find("Techs").GetComponent<InfoTable>();
-                tableTech.ResetInfo();
-                foreach (var tech in God.PlayerEmpire.Academy.Unlocks)
-                {
-                    tableTech.AddInfo(new Tuple<string, string>(tech.Name, tech.Knowledge.ToString() +"/" + tech.Understanding.ToString()));
-                }
-                tableTech.Redraw();
-            }
         }
     }
 }

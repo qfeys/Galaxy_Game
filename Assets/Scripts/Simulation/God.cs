@@ -10,7 +10,7 @@ namespace Assets.Scripts.Simulation
     public class God : MonoBehaviour
     {
         static God TheOne;
-        internal static Empires.Empire PlayerEmpire { get; private set; }
+        internal static Empire PlayerEmpire { get; private set; }
         public static readonly Dictionary<string, TimeSpan> timeSteps = new Dictionary<string, TimeSpan>() {    { "1s", TimeSpan.FromSeconds(1) },
                                                                                                                 { "5s", TimeSpan.FromSeconds(5) },
                                                                                                                 { "20s", TimeSpan.FromSeconds(30) },
@@ -44,7 +44,6 @@ namespace Assets.Scripts.Simulation
 
             Init();
 
-            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]);
 
             deltaTime = TimeSpan.FromSeconds(1);
             simThread = new Thread(()=> { try { RunTime(); } catch (Exception e) { mainThreadException = e; } });
@@ -74,12 +73,17 @@ namespace Assets.Scripts.Simulation
         {
             Debug.Log("Reading mod files at " + System.IO.Directory.GetCurrentDirectory());
             ModParser.ParseAllFiles();
+            Data.Graphics.LoadGraphics();
+            Localisation.Load();
 
             Debug.Log("Initialising galaxy");
             Bodies.Core.Create(1, 22);
 
             Debug.Log("Initialising Empires");
             PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]).RandLivableWorld());
+
+            Rendering.DisplayManager.TheOne.Init();
+            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]);
         }
 
         private static void RunTime()

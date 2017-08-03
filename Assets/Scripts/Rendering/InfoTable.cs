@@ -7,112 +7,142 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.Rendering
 {
-    public class InfoTable : MonoBehaviour
+    public class InfoTable
     {
-        List<Tuple<string, string>> info;
+        List<Tuple<string, Func<object>>> info;
+        string title = null;
 
-        public GameObject exampleText;
+        GameObject go;
+        public GameObject gameObject { get { return go; } }
+        public RectTransform transform { get { return go.transform as RectTransform; } }
+        int fontSize;
 
-        public void Awake()
+        public InfoTable(Transform parent, List<Tuple<string, Func<object>>> info, int width = 200, int fontSize = 12, string title = null) :
+            this(parent, width, fontSize, title)
         {
-            if (exampleText.GetComponentInChildren<Text>() == null)
-                throw new ArgumentException("You did not include a Text component in your example text.");
+            this.info = info;
+            Redraw();
         }
 
-        public void Start()
+        public InfoTable(Transform parent, Func<List<Tuple<string, Func<object>>>> script, int width = 200, int fontSize = 12, string title = null) :
+            this(parent, width, fontSize, title)
         {
-            var VLayGr = gameObject.GetComponent<VerticalLayoutGroup>();
-            if (VLayGr == null)
-                VLayGr = gameObject.AddComponent<VerticalLayoutGroup>();
+            info = null;
+            ActiveInfoTable ait = go.AddComponent<ActiveInfoTable>();
+            ait.parent = this;
+            ait.script = script;
+            info = script();
+            Redraw();
+        }
+
+        InfoTable(Transform parent, int width = 200, int fontSize = 12, string title = null)
+        {
+            this.title = title;
+            this.fontSize = fontSize;
+            go = new GameObject("Info Table", typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            ((RectTransform)go.transform).sizeDelta = new Vector2(width, 100);
+            VerticalLayoutGroup VLayGr = go.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
             VLayGr.childForceExpandWidth = false;
         }
 
         public void Redraw()
         {
-            if (transform.childCount == 0)  // No child exist, so create the first line
+            for (int i = go.transform.childCount - 1; i >= 0; i--)      // Kill all previous lines
             {
-                GameObject line = new GameObject("Line");
-                line.transform.SetParent(transform, false);
-                var LayEl = line.AddComponent<LayoutElement>();
-                LayEl.minHeight = exampleText.GetComponent<Text>().fontSize;
-                LayEl.preferredHeight = exampleText.GetComponent<Text>().fontSize * 2;
-                LayEl.flexibleWidth = 1;
-                LayEl.flexibleHeight = 0;
-                var HLayGr = line.AddComponent<HorizontalLayoutGroup>();
-                HLayGr.childForceExpandWidth = true;
-                HLayGr.childForceExpandHeight = true;
-                HLayGr.padding = new RectOffset((int)LayEl.minHeight, (int)LayEl.minHeight, 0, 0);
-
-                GameObject name = Instantiate(exampleText);
-                name.name = "Name";
-                name.transform.SetParent(line.transform);
-                LayEl = name.AddComponent<LayoutElement>();
-                LayEl.flexibleWidth = 1;
-                name.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
-
-                GameObject data = Instantiate(exampleText);
-                data.name = "Data";
-                data.transform.SetParent(line.transform);
-                data.GetComponent<Text>().alignment = TextAnchor.MiddleRight;
-                //LayEl = name.AddComponent<LayoutElement>();
-                //LayEl.flexibleWidth = 1;
+                UnityEngine.Object.Destroy(go.transform.GetChild(i).gameObject);
+                go.transform.GetChild(i).SetParent(null);
             }
-            if (info.Count == 0)
+            if(title != null)
             {
-                transform.GetChild(0).GetChild(0).GetComponent<Text>().text = "#####";
-                transform.GetChild(0).GetChild(1).GetComponent<Text>().text = "#####";
+                CreateTitle();
             }
-            int i;
-            for (i = 0; i < info.Count; i++)
+            if (info.Count == 0)        // no data - place a dummy line
             {
-                if (transform.childCount <= i)  // There are not enough childeren (lines)
+                GameObject line = CreateLine();
+
+                TextBox name = new TextBox(line.transform, "#####", "#####", fontSize, TextAnchor.MiddleLeft);
+                name.SetFlexibleWidth(1);
+
+                TextBox data = new TextBox(line.transform, "#####", "#####", fontSize, TextAnchor.MiddleRight);
+            }
+            else
+            {
+                for (int i = 0; i < info.Count; i++)       ///TODO: OPTIMISATION - DO ONLY REDRAW IF THE LINES ARE NOT THE SAME
                 {
-                    Transform nLine = Instantiate(transform.GetChild(0).gameObject).transform;
-                    nLine.SetParent(transform);
-                    nLine.SetAsLastSibling();
+                    GameObject line = CreateLine();
+                    TextBox name = new TextBox(line.transform, info[i].Item1, "#####", fontSize, TextAnchor.MiddleLeft);
+                    name.SetFlexibleWidth(1);
+
+                    TextBox data = new TextBox(line.transform, info[i].Item2, "#####", fontSize, TextAnchor.MiddleRight);
                 }
-                transform.GetChild(i).GetChild(0).GetComponent<Text>().text = info[i].Item1;
-                transform.GetChild(i).GetChild(1).GetComponent<Text>().text = info[i].Item2;
-            }
-            if (i == 0) i++;
-            while (transform.childCount < i)
-            {
-                transform.GetChild(i).gameObject.SetActive(false);
-                i++;
             }
         }
 
-        public void SetInfo(List<Tuple<string,string>> newInfo)
+        private void CreateTitle()
+        {
+            TextBox titleTxt = new TextBox(go.transform, title, null, (int)(fontSize * 1.2f), TextAnchor.MiddleCenter);
+            LayoutElement LayEl = titleTxt.gameObject.AddComponent<LayoutElement>();
+            LayEl.minHeight = fontSize * 1.2f;
+            LayEl.preferredHeight = fontSize * 2 * 1.2f;
+            LayEl.flexibleWidth = 1;
+            LayEl.flexibleHeight = 0;
+        }
+
+        private GameObject CreateLine()
+        {
+            GameObject line = new GameObject("Line", typeof(RectTransform));
+            line.transform.SetParent(go.transform, false);
+            LayoutElement LayEl = line.AddComponent<LayoutElement>();
+            LayEl.minHeight = fontSize;
+            LayEl.preferredHeight = fontSize * 2;
+            LayEl.flexibleWidth = 1;
+            LayEl.flexibleHeight = 0;
+            HorizontalLayoutGroup HLayGr = line.AddComponent<HorizontalLayoutGroup>();
+            HLayGr.childForceExpandWidth = true;
+            HLayGr.childForceExpandHeight = true;
+            HLayGr.padding = new RectOffset((int)LayEl.minHeight, (int)LayEl.minHeight, 0, 0);
+            return line;
+        }
+
+        public void SetInfo(List<Tuple<string, Func<object>>> newInfo)
         {
             info = newInfo;
         }
 
-        public void SetInfo(Tuple<string, string> newInfo)
+        public void SetInfo(Tuple<string, Func<object>> newInfo)
         {
-            info = new List<Tuple<string, string>> {
+            info = new List<Tuple<string, Func<object>>> {
                 newInfo
             };
         }
 
-        public void AddInfo(Tuple<string, string> newInfo)
+        public void AddInfo(Tuple<string, Func<object>> newInfo)
         {
             info.Add(newInfo);
         }
 
         internal void ResetInfo()
         {
-            info = new List<Tuple<string, string>>();
+            info = new List<Tuple<string, Func<object>>>();
         }
 
-        public void FullRedraw()
+        public class ActiveInfoTable : MonoBehaviour
         {
-            for(int i = transform.childCount-1; i >= 0; i--)
+            public InfoTable parent;
+
+            public Func<List<Tuple<string, Func<object>>>> script;
+            
+            private void Update()
             {
-                Destroy(transform.GetChild(i).gameObject);
-                transform.GetChild(i).SetParent(null);
+                List<Tuple<string, Func<object>>> newInfo = script();
+                if (parent.info.SequenceEqual(newInfo) == false)
+                {
+                    parent.info = newInfo;
+                    parent.Redraw();
+                }
             }
-            Redraw();
         }
     }
 }
