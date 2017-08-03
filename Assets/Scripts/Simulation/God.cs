@@ -44,8 +44,6 @@ namespace Assets.Scripts.Simulation
 
             Init();
 
-            Rendering.DisplayManager.TheOne.Init();
-            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]);
 
             deltaTime = TimeSpan.FromSeconds(1);
             simThread = new Thread(()=> { try { RunTime(); } catch (Exception e) { mainThreadException = e; } });
@@ -83,6 +81,9 @@ namespace Assets.Scripts.Simulation
 
             Debug.Log("Initialising Empires");
             PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]).RandLivableWorld());
+
+            Rendering.DisplayManager.TheOne.Init();
+            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]);
         }
 
         private static void RunTime()

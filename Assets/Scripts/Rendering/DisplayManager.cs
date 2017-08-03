@@ -43,6 +43,7 @@ namespace Assets.Scripts.Rendering
         {
             SetTimeControls();
             OverviewWindow.Create(GameObject.FindWithTag("MainCanvas"));
+            MouseOver.Create();
         }
 
         // Update is called once per frame
