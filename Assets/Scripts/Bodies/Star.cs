@@ -13,15 +13,66 @@ namespace Assets.Scripts.Bodies
         public OrbitalElements Elements { get; private set; }
         public List<Orbital> Planets { get; private set; }
 
-        public double Luminosity { get { return LumAndMassTable[spc.class_][spc.size][spc.specification].Item1; } }
-        public double Mass { get { return LumAndMassTable[spc.class_][spc.size][spc.specification].Item2; } }
-        public int Temperature { get { return LumAndMassTable[spc.class_][spc.size][spc.specification].Item3; } }
-        public double Radius { get { return LumAndMassTable[spc.class_][spc.size][spc.specification].Item4; } }
+        public double Luminosity { get; private set; }
+        public double Mass { get; private set; }
+        public int Temperature { get; private set; }
+        public double Radius { get; private set; }
 
         public Star(StarSystem starSystem, SpectralClass spc)
         {
             this.starSystem = starSystem;
             this.spc = spc;
+            
+            // Set luminocity
+            if(spc.class_ == SpectralClass.Class_.WhiteDwarf)
+            {
+                // Wait for now
+            }else if(spc.class_ == SpectralClass.Class_.BrownDwarf)
+            {
+                // Wait for now
+            }
+            else    // all other stars
+            {
+                Luminosity = LumAndMassTable[spc.class_][spc.size][spc.specification].Item1;
+                Mass = LumAndMassTable[spc.class_][spc.size][spc.specification].Item2;
+                Temperature = LumAndMassTable[spc.class_][spc.size][spc.specification].Item3;
+                Radius = LumAndMassTable[spc.class_][spc.size][spc.specification].Item4;
+
+                if (spc.size == SpectralClass.Size.IV)
+                {
+                    int a = starSystem.rng.D10;
+                    double mult = 0;
+                    if (a == 3) mult = -.1;
+                    if (a == 4) mult = -.2;
+                    if (a == 5) mult = -.3;
+                    if (a == 6) mult = -.4;
+                    if (a == 7) mult = .1;
+                    if (a == 8) mult = .2;
+                    if (a == 9) mult = .3;
+                    if (a == 10) mult = .4;
+                    Mass *= mult + 1;
+                    Luminosity *= 2 * mult + 1;
+                    Radius = Math.Sqrt(Luminosity) * Math.Pow(5800 / Temperature, 2);
+                }
+                else if (spc.size <= SpectralClass.Size.III)
+                {
+                    int a = starSystem.rng.D10;
+                    if (a == 1) { Mass *= 0.3; Luminosity *= 0.3; }
+                    if (a == 2) { Mass *= 0.4; Luminosity *= 0.4; }
+                    if (a == 3) { Mass *= 0.5; Luminosity *= 0.5; }
+                    if (a == 4) { Mass *= 0.6; Luminosity *= 0.6; }
+                    if (a == 5) { Mass *= 0.7; Luminosity *= 0.7; }
+                    if (a == 6) { Mass *= 0.8; Luminosity *= 0.8; }
+                    if (a == 7) { Mass *= 0.9; Luminosity *= 0.9; }
+                    if (a == 8) { Mass *= 1.0; Luminosity *= 1.0; }
+                    if (a == 9) { Mass *= 1.25; Luminosity *= 1.5; }
+                    if (a == 10) { Mass *= 1.5; Luminosity *= 2.0; }
+                    Radius = Math.Sqrt(Luminosity) * Math.Pow(5800 / Temperature, 2);
+                }
+            }
+
+            
+
         }
 
 

@@ -17,7 +17,7 @@ namespace Assets.Scripts.Bodies
         static ulong idCounter = 0;
 
         int seed;
-        RNG rng;
+        public RNG rng { get; private set; }
 
         public StarSystem(int seed)
         {
