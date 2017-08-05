@@ -77,13 +77,13 @@ namespace Assets.Scripts.Simulation
             Localisation.Load();
 
             Debug.Log("Initialising galaxy");
-            Bodies.Core.Create(1, 22);
+            Bodies.Galaxy.Create(1, 22);
 
             Debug.Log("Initialising Empires");
-            PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]).RandLivableWorld());
+            PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Galaxy.systems[0]).RandLivableWorld());
 
             Rendering.DisplayManager.TheOne.Init();
-            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]);
+            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Galaxy.systems[0]);
         }
 
         private static void RunTime()

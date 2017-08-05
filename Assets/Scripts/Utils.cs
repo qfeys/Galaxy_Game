@@ -129,8 +129,9 @@ namespace Assets.Scripts
         }
     }
 
-    public static class RNG
+    public class RNG
     {
+        // Static functions
         static Random rand = new Random();
         public static bool Chance(double chance)
         {
@@ -143,9 +144,19 @@ namespace Assets.Scripts
         {
             return new TimeSpan((long)(mtth.Ticks * -Math.Log(rand.NextDouble(), 2)));
         }
-    }
 
-    public class SortedList<T> : ICollection<T>
+        // instance functions
+        Random irand;
+        public RNG(int seed)
+        {
+            irand = new Random(seed);
+        }
+
+        public int D10 { get { return irand.Next(1, 11); } }
+        public int D100 { get { return irand.Next(1, 101); } }
+        public int D1000 { get { return irand.Next(1, 1001); } }
+
+        public class SortedList<T> : ICollection<T>
     {
         private readonly List<T> collection = new List<T>();
         // TODO: initializable:

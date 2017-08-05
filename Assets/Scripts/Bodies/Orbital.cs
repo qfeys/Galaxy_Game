@@ -26,7 +26,7 @@ namespace Assets.Scripts.Bodies
             populations = new List<Empires.Population>();
         }
 
-        public abstract void Generate(double mass, Random rand);
+        //public abstract void Generate(double mass, Random rand);
 
         public override string ToString()
         {
