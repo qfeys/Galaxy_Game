@@ -46,6 +46,14 @@ namespace Assets.Scripts.Bodies
         /// The solar day in hours
         /// </summary>
         public double SolarDay { get { return 1 / (1 / RotationalPeriod + 1 / OrbElements.T.TotalHours * AxialTilt < 90 ? -1 : +1); } }
+        /// <summary>
+        /// The luminocity of a planet, in Sol equivalents. This is only relevant for superjovians
+        /// </summary>
+        public double Luminocity { get; private set; }
+        /// <summary>
+        /// The surface temperature of a  planet, in Kelvin.
+        /// </summary>
+        public double SurfaceTemperature { get; private set; }
         public List<Planet> moons { get; private set; }
         bool innerPlanet;
         bool isMoon;
@@ -98,8 +106,21 @@ namespace Assets.Scripts.Bodies
             isMoon = true;
             parentPlanet = planet;
             parent = parentPlanet.parent;
-            OrbElements = new OrbitalElements(parentPlanet.NorthDirection + Math.PI / 2, parentPlanet.AxialTilt, 0, rng.Circle, semiMajorAxis, 0, parentPlanet.Mass * EARTH_MASS);
-
+            double sma = semiMajorAxis * parentPlanet.Radius / StarSystem.AU;
+            OrbElements = new OrbitalElements(parentPlanet.NorthDirection + Math.PI / 2, parentPlanet.AxialTilt, 0, rng.Circle, sma, 0, parentPlanet.Mass * EARTH_MASS);
+            // Radius
+            int a = rng.D100 + parent.starSystem.Abundance * (parent.starSystem.Abundance < 0 ? 2 : 1);
+            if (a <= 64) { Radius = rng.D10 * 10; type = Type.Chunk; }
+            else if (a <= 84) { Radius = rng.D10 * 100; type = Type.Chunk; }
+            else if (a <= 94) { Radius = rng.D10 * 100 + 1000; type = Type.Chunk; }
+            else if (a <= 99) { Radius = rng.D10 * 200 + 2000; type = Type.Terrestial_planet; }
+            else { Radius = 4000 + rng.D10 * 400; type = Type.Terrestial_planet; }
+            Density = innerPlanet ? 0.3 + rng.D10 * 0.1 : 0.1 + rng.D10 * 0.05;
+            Mass = Math.Pow(Radius / 6380, 3) * Density;
+            // Test for rings
+            double rocheLimit = 2.456 * Math.Pow(parentPlanet.Density / Density, 0.33);
+            if (semiMajorAxis < rocheLimit)
+                type = Type.Ring;
         }
 
         void CalculateSize()
@@ -110,7 +131,7 @@ namespace Assets.Scripts.Bodies
                 if (type == Type.Chunk) Radius = 200 * a;
                 else if (type == Type.Terrestial_planet)
                     if (a == 1) Radius = 2000 * rng.D10 * 100;
-                    else if (a + parent.starSystem.Abundance <= 2 ) Radius = 2000 * rng.D10 * 100;
+                    else if (a + parent.starSystem.Abundance <= 2) Radius = 2000 * rng.D10 * 100;
                     else if (a + parent.starSystem.Abundance <= 4) Radius = 3000 * rng.D10 * 100;
                     else if (a + parent.starSystem.Abundance <= 8) Radius = (a - 1) * 1000 + rng.D10 * 100;
                     else if (a + parent.starSystem.Abundance <= 9) Radius = 8000 + rng.D10 * 200;
@@ -130,7 +151,8 @@ namespace Assets.Scripts.Bodies
                 if (Density > 1.5) Density = 1.5;
 
                 Mass = Math.Pow(Radius / 6380, 3) * Density;
-            }else if(type == Type.Superjovian)
+            }
+            else if (type == Type.Superjovian)
             {
                 int a = rng.D10;
                 if (a <= 4) Mass = 500 * rng.D10 * 50;
@@ -138,8 +160,19 @@ namespace Assets.Scripts.Bodies
                 else if (a <= 9) Mass = 2000 + rng.D10 * 100;
                 else Mass = 3000 + rng.D10 * 100;
 
-                Radius = (int)(60000 + (rng.D10 - parent.starSystem.Age/2)*2000);
+                Radius = (int)(60000 + (rng.D10 - parent.starSystem.Age / 2) * 2000);
                 Density = Mass * Math.Pow(6380 / Radius, 3);
+                // Luminocity (see chart at the bottom of page 19)
+                int row = (int)Math.Round(Mass / 500 - parent.starSystem.Age);
+                if (row < 1) { Luminocity = 1.6e-8 * Math.Pow(0.5, -row + 1); SurfaceTemperature = 200 - 30 * (-row + 1); }
+                else if (row == 1) { Luminocity = 1.6e-8; SurfaceTemperature = 200; }
+                else if (row == 2) { Luminocity = 3.4e-8; SurfaceTemperature = 240; }
+                else if (row == 3) { Luminocity = 6.2e-8; SurfaceTemperature = 280; }
+                else if (row == 4) { Luminocity = 1.4e-7; SurfaceTemperature = 340; }
+                else if (row == 5) { Luminocity = 2.6e-7; SurfaceTemperature = 400; }
+                else if (row == 6) { Luminocity = 4.5e-7; SurfaceTemperature = 460; }
+                else if (row == 7) { Luminocity = 8.0e-7; SurfaceTemperature = 530; }
+                else if (row == 8) { Luminocity = 1.4e-6; SurfaceTemperature = 610; }
             }
         }
 
@@ -175,9 +208,9 @@ namespace Assets.Scripts.Bodies
                 // Axial tilt (table 2.2.3)
                 int b = rng.D10;
                 if (b <= 2) AxialTilt = rng.D10 * Math.PI / 180;
-                else if (b <= 4) AxialTilt = (10 + rng.D10)*Math.PI / 180;
-                else if (b <= 6) AxialTilt = (20 + rng.D10)*Math.PI / 180;
-                else if (b <= 8) AxialTilt = (30 + rng.D10)*Math.PI / 180;
+                else if (b <= 4) AxialTilt = (10 + rng.D10) * Math.PI / 180;
+                else if (b <= 6) AxialTilt = (20 + rng.D10) * Math.PI / 180;
+                else if (b <= 8) AxialTilt = (30 + rng.D10) * Math.PI / 180;
                 else AxialTilt = (40 + rng.D100 * 1.4 * Math.PI / 180;
                 NorthDirection = rng.Circle;
             }
@@ -313,7 +346,7 @@ namespace Assets.Scripts.Bodies
             CalculateSize();
         }
 
-        public enum Type { Chunk, Terrestial_planet, Gas_Giant, Superjovian, Astroid_Belt, Empty, Interloper, Trojan, Double_Planet, Captured}
+        public enum Type { Chunk, Terrestial_planet, Gas_Giant, Superjovian, Astroid_Belt, Ring, Empty, Interloper, Trojan, Double_Planet, Captured }
         /// <summary>
         /// The mass of the Earth in kg
         /// </summary>
