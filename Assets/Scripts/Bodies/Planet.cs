@@ -30,9 +30,22 @@ namespace Assets.Scripts.Bodies
         /// The escape velocity relative to Earth
         /// </summary>
         public double EscapeVelocity { get { return Math.Sqrt(19600 * SurfaceGravity * Radius) / 11200; } }
+        /// <summary>
+        /// The rotational period in hours
+        /// </summary>
+        public double RotationalPeriod { get; private set; }
+        /// <summary>
+        /// The axial tilt in degrees
+        /// </summary>
+        public double AxialTilt { get; private set; }
+        /// <summary>
+        /// The solar day in hours
+        /// </summary>
+        public double SolarDay { get { return 1 / (1 / RotationalPeriod + 1 / OrbElements.T.TotalHours * AxialTilt < 90 ? -1 : +1); } }
         bool innerPlanet;
         bool isMoon;
         bool isCaptured = false;
+        bool isTidallyLocked;
         Tuple<Planet, Planet> doubleChilderen;
 
         public RNG rng { get { return parent.starSystem.rng; } }
@@ -110,6 +123,55 @@ namespace Assets.Scripts.Bodies
             }
         }
 
+        public void CalculateDay()
+        {
+            double tidalForce = parent.Mass * 26640000 / Math.Pow(OrbElements.SMA * 400, 3);
+            isTidallyLocked = (0.83 + rng.D10 * 0.03) * tidalForce * parent.starSystem.Age / 6.6 > 1;
+            if (isTidallyLocked == false)
+            {
+                // Rotational period (table 2.2.2)
+                int a = rng.D10 + (int)(tidalForce * parent.starSystem.Age);
+                if (type == Type.Chunk)
+                    if (a <= 5) RotationalPeriod = rng.D10 * 2;
+                    else if (a <= 7) RotationalPeriod = rng.D10 * 24;
+                    else if (a <= 9) RotationalPeriod = rng.D100 * 24;
+                    else RotationalPeriod = (rng.D1000 + 100) * 24;
+                else if (type == Type.Terrestial_planet)
+                    if (a <= 5) RotationalPeriod = 10 + rng.D10 * 2;
+                    else if (a <= 7) RotationalPeriod = 30 + rng.D100;
+                    else if (a <= 9) RotationalPeriod = rng.D100 * 48;
+                    else RotationalPeriod = (rng.D1000 + 100) * 24;
+                else if (type == Type.Gas_Giant || type == Type.Superjovian)
+                    if (a <= 5) RotationalPeriod = 6 + rng.D10 / 2.0;
+                    else if (a <= 7) RotationalPeriod = 11 + rng.D10 / 2.0;
+                    else if (a <= 9) RotationalPeriod = 16 + rng.D10;
+                    else RotationalPeriod = 26 + rng.D10;
+                else throw new ArgumentException("You tried to calculate the day for an " + type);
+
+                double mod = (int)(tidalForce * parent.starSystem.Age);
+                if (type == Type.Terrestial_planet) mod -= Math.Sqrt(Mass);
+                if (type == Type.Gas_Giant && Mass < 50) mod += 2;
+                RotationalPeriod *= 1 + (mod * 0.1);
+                // Axial tilt (table 2.2.3)
+                int b = rng.D10;
+                if (b <= 2) AxialTilt = rng.D10;
+                else if (b <= 4) AxialTilt = 10 + rng.D10;
+                else if (b <= 6) AxialTilt = 20 + rng.D10;
+                else if (b <= 8) AxialTilt = 30 + rng.D10;
+                else AxialTilt = 40 + rng.D100 * 1.4;
+            }
+            else
+            {
+                if (OrbElements.e < 0.11) RotationalPeriod = OrbElements.T.TotalHours;
+                else if (OrbElements.e < 0.30) RotationalPeriod = 3 / 2 * OrbElements.T.TotalHours;
+                else if (OrbElements.e < 0.48) RotationalPeriod = 2 / 1 * OrbElements.T.TotalHours;
+                else if (OrbElements.e < 0.65) RotationalPeriod = 5 / 2 * OrbElements.T.TotalHours;
+                else if (OrbElements.e < 0.80) RotationalPeriod = 3 / 1 * OrbElements.T.TotalHours;
+                else RotationalPeriod = 7 / 2 * OrbElements.T.TotalHours;
+                AxialTilt = 0;
+            }
+        }
+
         private Type RollType()
         {
             int a = rng.D10;
@@ -139,6 +201,7 @@ namespace Assets.Scripts.Bodies
 
         public List<Planet> ResolveAstroidBelt()
         {
+            // NOTE: the sol astroid belt contains more then 200 objects larger than 100 km. The chunk minimum size is 200 km
             throw new NotImplementedException();
         }
 

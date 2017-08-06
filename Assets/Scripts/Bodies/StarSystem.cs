@@ -10,9 +10,15 @@ namespace Assets.Scripts.Bodies
         public Star Primary { get; private set; }
         public Star Secondary { get; private set; }
         public Star Tertiary { get; private set; }
-        int tertiaryPos = 0; // 1 means orbiting primary, 2 means orbiting secondary, 3 means orbiting both
+        /// <summary>
+        /// 1 means orbiting primary, 2 means orbiting secondary, 3 means orbiting both
+        /// </summary>
+        int tertiaryPos = 0;
         public List<Planet> Planets { get; private set; }
-        public double Age { get; private set; } // unit: GY
+        /// <summary>
+        /// Age in GY (bilions of years)
+        /// </summary>
+        public double Age { get; private set; }
         public int Abundance { get; private set; }
         ulong id;
         static ulong idCounter = 0;
@@ -267,6 +273,8 @@ namespace Assets.Scripts.Bodies
                 Planets.FindAll(p => p.type == Planet.Type.Trojan).ForEach(p => p.ResolveTrojan());
                 Planets.FindAll(p => p.type == Planet.Type.Double_Planet).ForEach(p => p.ResolveDoublePlanet());
                 Planets.FindAll(p => p.type == Planet.Type.Captured).ForEach(p => p.ResolveCaptured());
+
+                Planets.ForEach(p => p.CalculateDay());
             }
 
 

@@ -21,7 +21,7 @@ namespace Assets.Scripts
         public readonly double e;   // exentricity
         public readonly double parentMass;
         // TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
-        TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass))); } }
+        public TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass))); } }
         /// <summary>
         /// The gravitational constant, unit: m^3 / (kg s)
         /// </summary>
