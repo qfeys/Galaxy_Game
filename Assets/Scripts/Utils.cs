@@ -161,6 +161,10 @@ namespace Assets.Scripts
         public int D100 { get { return irand.Next(1, 101); } }
         public int D1000 { get { return irand.Next(1, 1001); } }
 
+        /// <summary>
+        /// A random number between 0 and 2 Pi
+        /// </summary>
+        public double Circle { get { return irand.NextDouble() * 2 * Math.PI; } }
     }
 
 

@@ -254,6 +254,7 @@ namespace Assets.Scripts.Bodies
                             (tertiaryPos == 3 && o * 3 > closestSeperationT)
                         );
                         // Generate planets
+                        orbitSizesT.ForEach(o => Planets.Add(new Planet(Tertiary, o)));
                     }
                 }
             }
