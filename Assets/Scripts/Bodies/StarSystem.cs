@@ -11,7 +11,7 @@ namespace Assets.Scripts.Bodies
         public Star Secondary { get; private set; }
         public Star Tertiary { get; private set; }
         int tertiaryPos = 0; // 1 means orbiting primary, 2 means orbiting secondary, 3 means orbiting both
-        public List<Orbital> Planets { get; private set; }
+        public List<Planet> Planets { get; private set; }
         public double Age { get; private set; } // unit: GY
         public int Abundance { get; private set; }
         ulong id;
@@ -174,8 +174,8 @@ namespace Assets.Scripts.Bodies
                 {
                     double apparentParentMassPrimary = Math.Pow(r1, 3) * (Primary.Mass + Secondary.Mass) / Math.Pow(meanSeperation, 3);
                     double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(Primary.Mass / Secondary.Mass, 3);
-                    Primary.SetElements(new OrbitalElements(0, 0, 0, 0, (ulong)(r1 * AU), eccentricity, apparentParentMassPrimary));
-                    Secondary.SetElements(new OrbitalElements(0, 0, Math.PI, 0, (ulong)((meanSeperation - r1) * AU), eccentricity, apparentParentMassSecondary));
+                    Primary.SetElements(new OrbitalElements(0, 0, 0, 0, r1, eccentricity, apparentParentMassPrimary));
+                    Secondary.SetElements(new OrbitalElements(0, 0, Math.PI, 0, meanSeperation - r1, eccentricity, apparentParentMassSecondary));
                 }
 
                 if(Tertiary != null)
@@ -220,7 +220,7 @@ namespace Assets.Scripts.Bodies
                     {
                         double centralMass = tertiaryPos == 1 ? Primary.Mass : tertiaryPos == 2 ? Secondary.Mass : (Primary.Mass + Secondary.Mass);
                         double r3 = meanSeperation / (1 + centralMass / Tertiary.Mass);
-                        Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, (ulong)(meanSeperation * AU), eccentricity, centralMass));
+                        Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, meanSeperation, eccentricity, centralMass));
                     }
                 }
             }
@@ -254,7 +254,7 @@ namespace Assets.Scripts.Bodies
                             (tertiaryPos == 3 && o * 3 > closestSeperationT)
                         );
                         // Generate planets
-                        orbitSizesT.ForEach(o => Planets.Add(new Planet(Tertiary, o)));
+                        orbitSizesT.ForEach(o => Planets.Add(new Planet(Tertiary, o, true)));
                     }
                 }
             }
@@ -475,9 +475,9 @@ namespace Assets.Scripts.Bodies
 
         internal Orbital RandLivableWorld()
         {
-            foreach(Orbital o in Planets)
+            foreach(Planet o in Planets)
             {
-                if (o.GetType() == typeof(Rock) && ((Rock)o).Habitable)
+                //if (o.GetType() == typeof(Rock) && ((Rock)o).Habitable)
                     return o;
             }
             UnityEngine.Debug.Log("No livable world detected.");

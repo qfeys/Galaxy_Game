@@ -17,14 +17,19 @@ namespace Assets.Scripts
         public readonly double i;   // inclination
         public readonly double AOP; // Argument of periapsis
         public readonly double MAaE;// Mean anomaly at epoch
-        public readonly ulong SMA;  // Semi-major axis
+        public readonly double SMA;  // Semi-major axis
         public readonly double e;   // exentricity
         public readonly double parentMass;
-        TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
+        // TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
+        TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass))); } }
         /// <summary>
-        /// The gravitational constant
+        /// The gravitational constant, unit: m^3 / (kg s)
         /// </summary>
         public const double G = 6.67408e-11;
+        /// <summary>
+        /// The gravitational constant, normalised to use AU instead of meters. unit: 1 / (kg s)
+        /// </summary>
+        public const double G_AU = 4.46134e-22;
 
         /// <summary>
         /// 
@@ -33,10 +38,10 @@ namespace Assets.Scripts
         /// <param name="i">inclenation, between 0 and 2*PI</param>
         /// <param name="AOP">Argument of pereapsis, between 0 and 2*PI</param>
         /// <param name="MAaE">Mean anomaly at epoch, between 0 and 2*PI</param>
-        /// <param name="SMA">Semi-Major axis, in meters</param>
+        /// <param name="SMA">Semi-Major axis, in AU</param>
         /// <param name="e">Eccentricity, 0 for circles, 1 for parabolas</param>
         /// <param name="parent"></param>
-        public OrbitalElements(double LAN, double i, double AOP, double MAaE, ulong SMA, double e, double parentMass)
+        public OrbitalElements(double LAN, double i, double AOP, double MAaE, double SMA, double e, double parentMass)
         {
             this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parentMass = parentMass;
         }

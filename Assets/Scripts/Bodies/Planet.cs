@@ -42,7 +42,7 @@ namespace Assets.Scripts.Bodies
             else if (b <= 8) inclination = (rng.D10 * 0.6 + 0.3) * Math.PI / 180;
             else inclination = (rng.D10 * -0.6 - 0.3) * Math.PI / 180;
 
-            OrbElements = new OrbitalElements(rng.Circle, inclination, rng.Circle, rng.Circle, (ulong)(meanDistance * StarSystem.AU), eccentricity, parent.Mass);
+            OrbElements = new OrbitalElements(rng.Circle, inclination, rng.Circle, rng.Circle, meanDistance, eccentricity, parent.Mass);
         }
 
         Planet(Star parent, bool innerPlanet, Type type, OrbitalElements orbitalElements)
@@ -69,6 +69,8 @@ namespace Assets.Scripts.Bodies
                 if (a <= 5) Radius = (a + 4) * 3000 + rng.D10 * 300;
                 else Radius = (a - 3) * 10000 + rng.D10 * 1000;
 
+            //if(innerPlanet)
+            //    if(type==Type.Chunk) Density = 0.3 + rng.D10 * 0.127/(0.4+)
         }
 
         private Type RollType()
