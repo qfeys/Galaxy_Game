@@ -13,9 +13,21 @@ namespace Assets.Scripts.Bodies
         public OrbitalElements OrbElements { get; private set; }
         public List<Orbital> Planets { get; private set; }
 
+        /// <summary>
+        /// unit is Sol luminocity
+        /// </summary>
         public double Luminosity { get; private set; }
+        /// <summary>
+        /// unit is Sol mass
+        /// </summary>
         public double Mass { get; private set; }
+        /// <summary>
+        /// unit is Kelvin
+        /// </summary>
         public int Temperature { get; private set; }
+        /// <summary>
+        /// unit is Sol radius
+        /// </summary>
         public double Radius { get; private set; }
 
         public Star(StarSystem starSystem, SpectralClass spc)

@@ -13,7 +13,7 @@ namespace Assets.Scripts.Bodies
         int tertiaryPos = 0; // 1 means orbiting primary, 2 means orbiting secondary, 3 means orbiting both
         public List<Orbital> Planets { get; private set; }
         public double Age { get; private set; } // unit: GY
-        public double Abundance { get; private set; }
+        public int Abundance { get; private set; }
         ulong id;
         static ulong idCounter = 0;
 
@@ -30,11 +30,11 @@ namespace Assets.Scripts.Bodies
         /// </summary>
         internal void Generate()
         {
-            // Generate stars
+            // Generate primary
             rng = new RNG(seed);
             SpectralClass spcP = RollSpectralClass();
             spcP.specification = rng.D10;
-            // system Age
+            // Determine system Age
             {
                 if (Primary.spc.size <= SpectralClass.Size.IV)       // subgiants & giants
                 {
@@ -84,7 +84,7 @@ namespace Assets.Scripts.Bodies
                 }
             }
 
-            // Other stars
+            // Create Other stars
             if(rng.D10 >= 7)    // This is a binary system
             {
                 SpectralClass spcS;
@@ -127,16 +127,22 @@ namespace Assets.Scripts.Bodies
             }
             Primary = new Star(this, spcP);
 
-            // System Abundance
-            int a = rng.D10 + rng.D10 + (int)Age;
-            if (a <= 9) Abundance = +2;
-            else if (a <= 12) Abundance = +1;
-            else if (a <= 18) Abundance = +0;
-            else if (a <= 21) Abundance = -1;
-            else Abundance = -3;
+            // Determine System Abundance
+            {
+                int a = rng.D10 + rng.D10 + (int)Age;
+                if (a <= 9) Abundance = +2;
+                else if (a <= 12) Abundance = +1;
+                else if (a <= 18) Abundance = +0;
+                else if (a <= 21) Abundance = -1;
+                else Abundance = -3;
+            }
 
-            // Pairing up
-            if(Secondary != null)
+            // Determine orbits of binary and tertiary stars
+            double closestSeperation = 0;
+            double furthestSeperation = 0;
+            double closestSeperationT = 0;
+            double furthestSeperationT = 0;
+            if (Secondary != null)
             {
                 double meanSeperation;  // In AU
                 int b = rng.D10 + (Age > 5 ? +1 : 0) + (Age < 1 ? -1 : 0);
@@ -156,8 +162,8 @@ namespace Assets.Scripts.Bodies
                 else if (c <= 9) eccentricity = rng.D10 * 0.01 + 0.4;
                 else eccentricity = rng.D10 * 0.04 + 0.5;
 
-                double closestSeperation = meanSeperation * (1 - eccentricity);
-                double furthestSeperation = meanSeperation * (1 + eccentricity);
+                closestSeperation = meanSeperation * (1 - eccentricity);
+                furthestSeperation = meanSeperation * (1 + eccentricity);
                 double orbitalPeriod = Math.Sqrt(Math.Pow(meanSeperation, 3) / (Primary.Mass + Secondary.Mass));
                 double r1 = meanSeperation / (1 + Primary.Mass / Secondary.Mass);
                 if(r1 < Primary.Radius)     // The baricentrum is inside the primary. Just set the primary as the center of the system
@@ -176,8 +182,6 @@ namespace Assets.Scripts.Bodies
                 {
                     double meanSeperationT;  // In AU
                     double eccentricityT;
-                    double closestSeperationT;
-                    double furthestSeperationT;
 
                     int j = 0;
                     do
@@ -222,7 +226,88 @@ namespace Assets.Scripts.Bodies
             }
 
             // Generate Planets
+            {
+                List<double> orbitSizes = GenerateOrbits(Primary);
 
+                // Destroy invalid orbits due to binaries
+                orbitSizes.RemoveAll(o => 
+                    (Secondary != null && o * 3 > closestSeperation && o < furthestSeperation * 3) ||
+                    (tertiaryPos == 1 && o * 3 > closestSeperationT && o < furthestSeperationT * 3) ||
+                    (tertiaryPos == 3 && o * 3 > closestSeperationT && o < furthestSeperationT * 3)
+                );
+
+                if (Secondary != null)   // Repeat for secondary
+                {
+                    List<double> orbitSizesS = GenerateOrbits(Secondary);
+                    // Destroy invalid orbits due to binaries
+                    orbitSizesS.RemoveAll(o => 
+                        (o * 3 > closestSeperation) ||
+                        (tertiaryPos == 2 && o * 3 > closestSeperationT && o < furthestSeperationT * 3)
+                    );
+
+                    if (Tertiary != null) // repeat for tertiary
+                    {
+                        List<double> orbitSizesT = GenerateOrbits(Secondary);
+                        // Destroy invalid orbits due to binaries
+                        orbitSizesT.RemoveAll(o =>
+                            ((tertiaryPos == 1 || tertiaryPos == 2) && (o * 3 > closestSeperationT || o * 3 > furthestSeperationT + closestSeperation  )) ||
+                            (tertiaryPos == 3 && o * 3 > closestSeperationT)
+                        );
+                        // Generate planets
+                    }
+                }
+            }
+
+
+        }
+
+
+        /// <summary>
+        /// Generates the orbits of planets around a given star. This also removes the orbits inside the shorching radius
+        /// for both normal stars and white dwarfs. This does not pay attention to validity because of binaries. In the
+        /// document, this is section one/4 steps 1, 2 and 4 and the white dwarf part of step 3. (page 11)
+        /// </summary>
+        /// <param name="star"></param>
+        /// <returns></returns>
+        List<double> GenerateOrbits(Star star)
+        {
+            int numberOfOrbits;
+            List<double> orbitSizes;
+            int a = rng.D10;
+            if (star.spc.size == SpectralClass.Size.V)
+                if (star.spc.class_ == SpectralClass.Class_.K && star.spc.specification >= 5)
+                    a += 1;
+                else if (star.spc.class_ == SpectralClass.Class_.M)
+                    if (star.spc.specification <= 4) a += 2;
+                    else a += 3;
+            if (star.spc.class_ == SpectralClass.Class_.BrownDwarf)
+                a += 5;
+            a += (-Abundance);
+            numberOfOrbits = 0;
+            if (a == 1) numberOfOrbits = rng.D10 + 10;
+            else if (a <= 5) numberOfOrbits = rng.D10 + 5;
+            else if (a <= 7) numberOfOrbits = rng.D10;
+            else if (a <= 9) numberOfOrbits = rng.D10 / 2;
+            else numberOfOrbits = 0;
+
+            orbitSizes = new List<double>();
+            orbitSizes.Add(0.05 * Math.Pow(star.Mass, 2) * rng.D10);
+            for (int i = 1; i < numberOfOrbits; i++)
+            {
+                orbitSizes.Add(orbitSizes[i - 1] * (1.1 + rng.D10 * 0.1) + 0.1);
+            }
+            // Destroy orbits inside schorching radius
+            double schorchingRadius = 0.025 * Math.Sqrt(Primary.Luminosity); // unit: AU
+            if (Primary.spc.class_ == SpectralClass.Class_.WhiteDwarf)
+            {
+                int b = rng.D10 + (Primary.Mass > 0.6 ? 2 : 0) + (Primary.Mass > 0.9 ? 2 : 0);
+                if (b <= 4) schorchingRadius = Math.Max(schorchingRadius, 2);
+                else if (b <= 8) schorchingRadius = Math.Max(schorchingRadius, 4);
+                else if (b <= 11) schorchingRadius = Math.Max(schorchingRadius, 6);
+                else schorchingRadius = Math.Max(schorchingRadius, 10);
+            }
+            orbitSizes.RemoveAll(o => o < schorchingRadius);
+            return orbitSizes;
         }
 
         private SpectralClass RollSpectralClass()
@@ -402,7 +487,7 @@ namespace Assets.Scripts.Bodies
 
     class SpectralClass
     {
-        public enum Class_ { O, B, A, F, G, K, M, WhiteDwarf, BrownDwarf }
+        public enum Class_ { O, B, A, F, G, K, WhiteDwarf, M, BrownDwarf }
         public enum Size { Ia, Ib, II, III, IV, V, VII }
         public Class_ class_;
         public Size size;
