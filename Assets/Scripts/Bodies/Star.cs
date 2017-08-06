@@ -152,7 +152,7 @@ namespace Assets.Scripts.Bodies
 
         }
 
-        Star() { };
+        Star() { }
 
         internal void SetElements(OrbitalElements el)
         {
@@ -169,7 +169,7 @@ namespace Assets.Scripts.Bodies
                 Mass = parent1.Mass + parent2.Mass,
                 Temperature = parent1.Temperature,
                 Radius = parent1.Radius
-            }
+            };
         }
 
         /// <summary>
