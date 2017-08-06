@@ -35,19 +35,23 @@ namespace Assets.Scripts.Bodies
         /// </summary>
         public double RotationalPeriod { get; private set; }
         /// <summary>
-        /// The axial tilt in degrees
+        /// The axial tilt in radian [0-2Pi]
         /// </summary>
         public double AxialTilt { get; private set; }
+        /// <summary>
+        /// The direction that points outward from the north pole, as measured on the ecliptica, in radian [0-2Pi]
+        /// </summary>
+        public double NorthDirection { get; private set; }
         /// <summary>
         /// The solar day in hours
         /// </summary>
         public double SolarDay { get { return 1 / (1 / RotationalPeriod + 1 / OrbElements.T.TotalHours * AxialTilt < 90 ? -1 : +1); } }
+        public List<Planet> moons { get; private set; }
         bool innerPlanet;
         bool isMoon;
         bool isCaptured = false;
         bool isTidallyLocked;
         Tuple<Planet, Planet> doubleChilderen;
-
         public RNG rng { get { return parent.starSystem.rng; } }
 
         public Planet(Star parent, double meanDistance, bool InnerPlanet)
@@ -80,6 +84,22 @@ namespace Assets.Scripts.Bodies
             this.innerPlanet = innerPlanet;
             this.type = type;
             OrbElements = orbitalElements;
+        }
+
+        /// <summary>
+        /// Constructor for moons
+        /// </summary>
+        /// <param name="planet"></param>
+        /// <param name="o"></param>
+        /// <param name="innerPlanet"></param>
+        Planet(Planet planet, double semiMajorAxis, bool innerPlanet)
+        {
+            this.innerPlanet = innerPlanet;
+            isMoon = true;
+            parentPlanet = planet;
+            parent = parentPlanet.parent;
+            OrbElements = new OrbitalElements(parentPlanet.NorthDirection + Math.PI / 2, parentPlanet.AxialTilt, 0, rng.Circle, semiMajorAxis, 0, parentPlanet.Mass * EARTH_MASS);
+
         }
 
         void CalculateSize()
@@ -154,11 +174,12 @@ namespace Assets.Scripts.Bodies
                 RotationalPeriod *= 1 + (mod * 0.1);
                 // Axial tilt (table 2.2.3)
                 int b = rng.D10;
-                if (b <= 2) AxialTilt = rng.D10;
-                else if (b <= 4) AxialTilt = 10 + rng.D10;
-                else if (b <= 6) AxialTilt = 20 + rng.D10;
-                else if (b <= 8) AxialTilt = 30 + rng.D10;
-                else AxialTilt = 40 + rng.D100 * 1.4;
+                if (b <= 2) AxialTilt = rng.D10 * Math.PI / 180;
+                else if (b <= 4) AxialTilt = (10 + rng.D10)*Math.PI / 180;
+                else if (b <= 6) AxialTilt = (20 + rng.D10)*Math.PI / 180;
+                else if (b <= 8) AxialTilt = (30 + rng.D10)*Math.PI / 180;
+                else AxialTilt = (40 + rng.D100 * 1.4 * Math.PI / 180;
+                NorthDirection = rng.Circle;
             }
             else
             {
@@ -169,7 +190,46 @@ namespace Assets.Scripts.Bodies
                 else if (OrbElements.e < 0.80) RotationalPeriod = 3 / 1 * OrbElements.T.TotalHours;
                 else RotationalPeriod = 7 / 2 * OrbElements.T.TotalHours;
                 AxialTilt = 0;
+                NorthDirection = 0;
             }
+        }
+
+        public void CalculateMoons()
+        {
+            if (isTidallyLocked)
+                return;
+            int numberOfMoons = 0;
+            int a = rng.D10 + (innerPlanet ? 0 : 5);
+            if (type == Type.Chunk)
+                if (a <= 9) numberOfMoons = 0;
+                else numberOfMoons = 1;
+            else if (type == Type.Terrestial_planet) // Numbers a little bit different than in the paper
+                if (a <= 5) numberOfMoons = 0;
+                else if (a <= 7) numberOfMoons = 1;
+                else if (a <= 9) numberOfMoons = 1 + rng.D10 / 5;
+                else if (a <= 13) numberOfMoons = 1 + rng.D10 / 2;
+                else numberOfMoons = 1 + rng.D10;
+            else if (type == Type.Gas_Giant || type == Type.Superjovian)
+                if (a <= 0) numberOfMoons = 0;
+                else if (a <= 5) numberOfMoons = rng.D10 / 2;
+                else if (a < 7) numberOfMoons = rng.D10;
+                else if (a < 9) numberOfMoons = rng.D10 + 5;
+                else if (a < 13) numberOfMoons = rng.D10 + 10;
+                else numberOfMoons = rng.D10 + 20;
+            else throw new ArgumentException("You try to calculate the moons for a planet of type " + type);
+
+            List<double> orbits = new List<double>();
+            for (int i = 0; i < numberOfMoons; i++)
+            {
+                int b = rng.D10;
+                if (b <= 4) orbits.Add(1 + rng.D10 * 0.5);      // Close
+                else if (b <= 6) orbits.Add(6 + rng.D10 * 1);   // Average
+                else if (b <= 9) orbits.Add(16 + rng.D10 * 3);  // Distant
+                else orbits.Add(45 + rng.D100 * 3);             // Very Distant
+                // Disregarded special orbits TODO: implement special orbits
+            }
+
+            orbits.ForEach(o => moons.Add(new Planet(this, o, innerPlanet)));
         }
 
         private Type RollType()
@@ -254,7 +314,10 @@ namespace Assets.Scripts.Bodies
         }
 
         public enum Type { Chunk, Terrestial_planet, Gas_Giant, Superjovian, Astroid_Belt, Empty, Interloper, Trojan, Double_Planet, Captured}
-
+        /// <summary>
+        /// The mass of the Earth in kg
+        /// </summary>
+        public const double EARTH_MASS = 5.972e24;
 
 
 
