@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Assets.Scripts.Empires;
 
 namespace Assets.Scripts.Bodies
@@ -134,6 +135,11 @@ namespace Assets.Scripts.Bodies
             else if (a <= 97) return Type.Trojan;
             else if (a <= 99) return Type.Double_Planet;
             else return Type.Captured;
+        }
+
+        public List<Planet> ResolveAstroidBelt()
+        {
+            throw new NotImplementedException();
         }
 
         public void ResolveInterloper()

@@ -152,9 +152,24 @@ namespace Assets.Scripts.Bodies
 
         }
 
+        Star() { };
+
         internal void SetElements(OrbitalElements el)
         {
             OrbElements = el;
+        }
+
+        internal static Star Combine(Star parent1, Star parent2)
+        {
+            return new Star() {
+                starSystem = parent1.starSystem,
+                spc = parent1.spc,
+                OrbElements = parent1.OrbElements,
+                Luminosity = parent1.Luminosity + parent2.Luminosity,
+                Mass = parent1.Mass + parent2.Mass,
+                Temperature = parent1.Temperature,
+                Radius = parent1.Radius
+            }
         }
 
         /// <summary>

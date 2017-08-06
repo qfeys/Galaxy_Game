@@ -254,9 +254,19 @@ namespace Assets.Scripts.Bodies
                             (tertiaryPos == 3 && o * 3 > closestSeperationT)
                         );
                         // Generate planets
-                        orbitSizesT.ForEach(o => Planets.Add(new Planet(Tertiary, o, true)));
+                        orbitSizesT.ForEach(o => Planets.Add(new Planet(Tertiary, o, o < 4 * Math.Sqrt(Tertiary.Luminosity))));
                     }
+                    orbitSizesS.ForEach(o => Planets.Add(new Planet(Secondary, o, o < 4 * Math.Sqrt(Secondary.Luminosity))));
+                    orbitSizes.FindAll(o => o > furthestSeperation).ForEach(o => Planets.Add(new Planet(Star.Combine(Primary,Secondary), o, o < 4 * Math.Sqrt(Secondary.Luminosity))));
+                    orbitSizes.RemoveAll(o => o > furthestSeperation);
                 }
+                orbitSizes.ForEach(o => Planets.Add(new Planet(Primary, o, o < 4 * Math.Sqrt(Secondary.Luminosity))));
+
+                Planets.FindAll(p => p.type == Planet.Type.Astroid_Belt).ForEach(p => p.ResolveAstroidBelt());
+                Planets.FindAll(p => p.type == Planet.Type.Interloper).ForEach(p => p.ResolveInterloper());
+                Planets.FindAll(p => p.type == Planet.Type.Trojan).ForEach(p => p.ResolveTrojan());
+                Planets.FindAll(p => p.type == Planet.Type.Double_Planet).ForEach(p => p.ResolveDoublePlanet());
+                Planets.FindAll(p => p.type == Planet.Type.Captured).ForEach(p => p.ResolveCaptured());
             }
 
 
