@@ -17,6 +17,18 @@ namespace Assets.Scripts.Bodies
         /// The density relative to Earth
         /// </summary>
         public double Density { get; private set; }
+        /// <summary>
+        /// The mass relative to Earth
+        /// </summary>
+        public double Mass { get; private set; }
+        /// <summary>
+        /// The survace gravity relative to Earth
+        /// </summary>
+        public double SurfaceGravity { get { return Mass / Math.Pow(Radius / 6380, 2); } }
+        /// <summary>
+        /// The escape velocity relative to Earth
+        /// </summary>
+        public double EscapeVelocity { get { return Math.Sqrt(19600 * SurfaceGravity * Radius) / 11200; } }
         bool innerPlanet;
         bool isMoon;
         bool isCaptured = false;
@@ -44,6 +56,8 @@ namespace Assets.Scripts.Bodies
             else inclination = (rng.D10 * -0.6 - 0.3) * Math.PI / 180;
 
             OrbElements = new OrbitalElements(rng.Circle, inclination, rng.Circle, rng.Circle, meanDistance, eccentricity, parent.Mass);
+
+            CalculateSize();
         }
 
         Planet(Star parent, bool innerPlanet, Type type, OrbitalElements orbitalElements)
@@ -56,22 +70,43 @@ namespace Assets.Scripts.Bodies
 
         void CalculateSize()
         {
-            if (type != Type.Chunk || type != Type.Terrestial_planet || type != Type.Gas_Giant || type != Type.Superjovian)
-                return;
-            int a = rng.D10;
-            if (type == Type.Chunk) Radius = 200 * a;
-            else if (type == Type.Terrestial_planet)
-                if (a <= 2) Radius = 2000 * rng.D10 * 100;
-                else if (a <= 4) Radius = 3000 * rng.D10 * 100;
-                else if (a <= 8) Radius = (a - 1) * 1000 + rng.D10 * 100;
-                else if (a <= 9) Radius = 8000 + rng.D10 * 200;
-                else Radius = 10000 + rng.D10 * 500;
-            else if (type == Type.Gas_Giant)
-                if (a <= 5) Radius = (a + 4) * 3000 + rng.D10 * 300;
-                else Radius = (a - 3) * 10000 + rng.D10 * 1000;
+            if (type == Type.Chunk || type == Type.Terrestial_planet || type == Type.Gas_Giant)
+            {
+                int a = rng.D10;
+                if (type == Type.Chunk) Radius = 200 * a;
+                else if (type == Type.Terrestial_planet)
+                    if (a == 1) Radius = 2000 * rng.D10 * 100;
+                    else if (a + parent.starSystem.Abundance <= 2 ) Radius = 2000 * rng.D10 * 100;
+                    else if (a + parent.starSystem.Abundance <= 4) Radius = 3000 * rng.D10 * 100;
+                    else if (a + parent.starSystem.Abundance <= 8) Radius = (a - 1) * 1000 + rng.D10 * 100;
+                    else if (a + parent.starSystem.Abundance <= 9) Radius = 8000 + rng.D10 * 200;
+                    else Radius = 10000 + rng.D10 * 500;
+                else if (type == Type.Gas_Giant)
+                    if (a <= 5) Radius = (a + 4) * 3000 + rng.D10 * 300;
+                    else Radius = (a - 3) * 10000 + rng.D10 * 1000;
 
-            //if(innerPlanet)
-            //    if(type==Type.Chunk) Density = 0.3 + rng.D10 * 0.127/(0.4+)
+                int b = rng.D10 + parent.starSystem.Abundance;
+                if (b < 1) b = 1; else if (b > 11) b = 11;
+                if (innerPlanet)
+                    if (type == Type.Chunk || type == Type.Terrestial_planet) Density = 0.3 + b * 0.127 / Math.Pow(0.4 + OrbElements.SMA / Math.Sqrt(parent.Luminosity), 0.67);
+                    else if (type == Type.Gas_Giant) Density = 0.1 + b * 0.025;
+                    else
+                        if (type == Type.Chunk || type == Type.Terrestial_planet) Density = 0.1 + b * 0.05;
+                    else if (type == Type.Gas_Giant) Density = 0.08 + b * 0.025;
+                if (Density > 1.5) Density = 1.5;
+
+                Mass = Math.Pow(Radius / 6380, 3) * Density;
+            }else if(type == Type.Superjovian)
+            {
+                int a = rng.D10;
+                if (a <= 4) Mass = 500 * rng.D10 * 50;
+                else if (a <= 7) Mass = 1000 + rng.D10 * 100;
+                else if (a <= 9) Mass = 2000 + rng.D10 * 100;
+                else Mass = 3000 + rng.D10 * 100;
+
+                Radius = (int)(60000 + (rng.D10 - parent.starSystem.Age/2)*2000);
+                Density = Mass * Math.Pow(6380 / Radius, 3);
+            }
         }
 
         private Type RollType()
@@ -110,6 +145,7 @@ namespace Assets.Scripts.Bodies
             {
                 type = RollType();
             } while (type != Type.Chunk || type != Type.Terrestial_planet || type != Type.Gas_Giant);
+            CalculateSize();
         }
 
         public Planet ResolveTrojan()
@@ -122,6 +158,8 @@ namespace Assets.Scripts.Bodies
                 OrbElements.MAaE + Math.PI / 3 * rng.D10 > 5 ? +1 : -1,
                 OrbElements.SMA, OrbElements.e, OrbElements.parentMass);
             Planet companion = new Planet(parent, innerPlanet, rng.D10 <= 9 ? Type.Chunk : Type.Terrestial_planet, companionElements);
+            CalculateSize();
+            companion.CalculateSize();
             return companion;
         }
 
@@ -143,6 +181,7 @@ namespace Assets.Scripts.Bodies
             do type = RollType();
             while (type != Type.Chunk || type != Type.Terrestial_planet || type != Type.Gas_Giant || type != Type.Superjovian);
             isCaptured = true;
+            CalculateSize();
         }
 
         public enum Type { Chunk, Terrestial_planet, Gas_Giant, Superjovian, Astroid_Belt, Empty, Interloper, Trojan, Double_Planet, Captured}
