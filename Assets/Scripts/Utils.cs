@@ -19,8 +19,8 @@ namespace Assets.Scripts
         public readonly double MAaE;// Mean anomaly at epoch
         public readonly ulong SMA;  // Semi-major axis
         public readonly double e;   // exentricity
-        public readonly Orbital parent;
-        TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parent.Mass))); } }
+        public readonly double parentMass;
+        TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
         public const double G = 6.67408e-11;
 
         /// <summary>
@@ -30,12 +30,12 @@ namespace Assets.Scripts
         /// <param name="i">inclenation, between 0 and 2*PI</param>
         /// <param name="AOP">Argument of pereapsis, between 0 and 2*PI</param>
         /// <param name="MAaE">Mean anomaly at epoch, between 0 and 2*PI</param>
-        /// <param name="SMA">Semi-Major axis</param>
+        /// <param name="SMA">Semi-Major axis, in meters</param>
         /// <param name="e">Eccentricity, 0 for circles, 1 for parabolas</param>
         /// <param name="parent"></param>
-        public OrbitalElements(double LAN, double i, double AOP, double MAaE, ulong SMA, double e, Orbital parent)
+        public OrbitalElements(double LAN, double i, double AOP, double MAaE, ulong SMA, double e, double parentMass)
         {
-            this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parent = parent;
+            this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parentMass = parentMass;
         }
 
         public VectorS GetPositionSphere(DateTime time)
@@ -79,6 +79,8 @@ namespace Assets.Scripts
             }
             return ret;
         }
+
+        public static OrbitalElements Center { get { return new OrbitalElements(0, 0, 0, 0, 0, 0, 0); } }
     }
 
     /// <summary>
@@ -119,15 +121,15 @@ namespace Assets.Scripts
         }
     }
 
-    public class Tuple<T1, T2>
-    {
-        public T1 Item1;
-        public T2 Item2;
-        public Tuple(T1 item1, T2 item2)
-        {
-            Item1 = item1; Item2 = item2;
-        }
-    }
+    //public class Tuple<T1, T2>
+    //{
+    //    public T1 Item1;
+    //    public T2 Item2;
+    //    public Tuple(T1 item1, T2 item2)
+    //    {
+    //        Item1 = item1; Item2 = item2;
+    //    }
+    //}
 
     public class RNG
     {
@@ -156,7 +158,10 @@ namespace Assets.Scripts
         public int D100 { get { return irand.Next(1, 101); } }
         public int D1000 { get { return irand.Next(1, 1001); } }
 
-        public class SortedList<T> : ICollection<T>
+    }
+
+
+    public class SortedList<T> : ICollection<T>
     {
         private readonly List<T> collection = new List<T>();
         // TODO: initializable:

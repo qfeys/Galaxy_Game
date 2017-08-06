@@ -11,8 +11,8 @@ namespace Assets.Scripts.Bodies
         public Star Secondary { get; private set; }
         public Star Tertiary { get; private set; }
         public List<Orbital> Planets { get; private set; }
-        public double Mass { get; private set; }
-        public OrbitalElements Elements { get; private set; }
+        public double Age { get; private set; } // unit: GY
+        public double Abundance { get; private set; }
         ulong id;
         static ulong idCounter = 0;
 
@@ -24,16 +24,70 @@ namespace Assets.Scripts.Bodies
             this.seed = seed;
         }
 
+        /// <summary>
+        /// Generate a new star system from this seed. The algoritme that is used is described in this paper: http://sol.trisen.com/downloads/wg.pdf
+        /// </summary>
         internal void Generate()
         {
             // Generate stars
             rng = new RNG(seed);
             SpectralClass spcP = RollSpectralClass();
             spcP.specification = rng.D10;
+            // system Age
+            {
+                if (Primary.spc.size <= SpectralClass.Size.IV)       // subgiants & giants
+                {
+                    SpectralClass comparedSpc = new SpectralClass() {
+                        size = SpectralClass.Size.IV,
+                        class_ = Star.LumAndMassTable.Aggregate((s, t) => s.Value[SpectralClass.Size.IV].Min(
+                            k => Math.Abs(k.Value.Item2 - Star.LumAndMassTable[Primary.spc.class_][Primary.spc.size][Primary.spc.specification].Item2)
+                            ) < t.Value[SpectralClass.Size.IV].Min(
+                                k => Math.Abs(k.Value.Item2 - Star.LumAndMassTable[Primary.spc.class_][Primary.spc.size][Primary.spc.specification].Item2)
+                                ) ? s : t).Key         // New record for the most complex LINQ command ! The above function seaches for the spectral class of size 4 that has the closest  
+                                                       // matching mass to our primary
+                    };
+                    comparedSpc.specification = Star.LumAndMassTable[comparedSpc.class_][SpectralClass.Size.IV].Aggregate((l, r) => l.Value.Item2 < r.Value.Item2 ? l : r).Key;
+                    if (comparedSpc.class_ == SpectralClass.Class_.B) Age = 0.1;
+                    else if (comparedSpc.class_ == SpectralClass.Class_.A)
+                        if (comparedSpc.specification <= 4) Age = 0.6;
+                        else Age = 1.3;
+                    else if (comparedSpc.class_ == SpectralClass.Class_.F)
+                        if (comparedSpc.specification <= 4) Age = 3.2;
+                        else Age = 5.6;
+                    else if (comparedSpc.class_ == SpectralClass.Class_.G)
+                        if (comparedSpc.specification <= 4) Age = 10;
+                        else Age = 14;
+                    else if (comparedSpc.class_ == SpectralClass.Class_.K)
+                        if (comparedSpc.specification <= 4) Age = 23;
+                        else Age = 42;
+                    else if (comparedSpc.class_ == SpectralClass.Class_.M) Age = 50;
+                    else throw new Exception("Invalid compared spectral class. The class we tried to use was: " + comparedSpc.ToString());
+                }
+                else        // The other stars
+                {
+                    if (Primary.spc.class_ == SpectralClass.Class_.B) Age = 0.1;
+                    else if (Primary.spc.class_ == SpectralClass.Class_.A)
+                        if (Primary.spc.specification <= 4) Age = AgeTable["A0-A4"][rng.D10].Item1;
+                        else Age = AgeTable["A5-A9"][rng.D10].Item1;
+                    else if (Primary.spc.class_ == SpectralClass.Class_.F)
+                        if (Primary.spc.specification <= 4) Age = AgeTable["F0-F4"][rng.D10].Item1;
+                        else Age = AgeTable["F5-F9"][rng.D10].Item1;
+                    else if (Primary.spc.class_ == SpectralClass.Class_.G)
+                        if (Primary.spc.specification <= 4) Age = AgeTable["G0-G4"][rng.D10].Item1;
+                        else Age = AgeTable["G5-G9"][rng.D10].Item1;
+                    else if (Primary.spc.class_ == SpectralClass.Class_.K)
+                        if (Primary.spc.specification <= 4) Age = AgeTable["K0-K4"][rng.D10].Item1;
+                        else Age = AgeTable["K5-K9"][rng.D10].Item1;
+                    else if (Primary.spc.class_ == SpectralClass.Class_.M) Age = AgeTable["M0-M9"][rng.D10].Item1;
+                    else if (Primary.spc.class_ == SpectralClass.Class_.WhiteDwarf) Age = rng.D10;
+                }
+            }
+
+            // Other stars
             if(rng.D10 >= 7)    // This is a binary system
             {
                 SpectralClass spcS;
-                if (rng.D10 <= 2)
+                if (rng.D10 <= 2)   // The binary has the came class
                 {
                     spcS = new SpectralClass(spcP) {
                         specification = rng.D10
@@ -41,7 +95,7 @@ namespace Assets.Scripts.Bodies
                     if (spcS.specification < spcP.specification)
                         spcS.specification = spcP.specification;
                 }
-                else
+                else                // A different class
                 {
                     spcS = RollSpectralClass();
                     if (spcS.size == SpectralClass.Size.III || (spcS.size == SpectralClass.Size.IV && spcS.class_ == SpectralClass.Class_.K) || spcS.class_ < spcP.class_)
@@ -71,6 +125,56 @@ namespace Assets.Scripts.Bodies
                 Secondary = new Star(this, spcS);
             }
             Primary = new Star(this, spcP);
+
+            // System Abundance
+            int a = rng.D10 + rng.D10 + (int)Age;
+            if (a <= 9) Abundance = +2;
+            else if (a <= 12) Abundance = +1;
+            else if (a <= 18) Abundance = +0;
+            else if (a <= 21) Abundance = -1;
+            else Abundance = -3;
+
+            // Pairing up
+            if(Secondary != null)
+            {
+                double meanSeperation;  // In AU
+                int b = rng.D10 + (Age > 5 ? +1 : 0) + (Age < 1 ? -1 : 0);
+                bool veryClose = false;
+                bool close = false;
+                if (b <= 3) { meanSeperation = rng.D10 * 0.05; veryClose = true; }
+                else if (b <= 6) { meanSeperation = rng.D10 * 0.5; close = true; }
+                else if (b <= 8) meanSeperation = rng.D10 * 3;
+                else if (b <= 9) meanSeperation = rng.D10 * 20;
+                else meanSeperation = rng.D100 * 200;
+                double eccentricity;
+                int c = rng.D10 + (veryClose ? -2 : 0) + (close ? -1 : 0);
+                if (c <= 2) eccentricity = rng.D10 * 0.01;
+                else if (c <= 4) eccentricity = rng.D10 * 0.01 + 0.1;
+                else if (c <= 6) eccentricity = rng.D10 * 0.01 + 0.2;
+                else if (c <= 8) eccentricity = rng.D10 * 0.01 + 0.3;
+                else if (c <= 9) eccentricity = rng.D10 * 0.01 + 0.4;
+                else eccentricity = rng.D10 * 0.04 + 0.5;
+
+                double closestSeperation = meanSeperation * (1 - eccentricity);
+                double furthestSeperation = meanSeperation * (1 + eccentricity);
+                double orbitalPeriod = Math.Sqrt(Math.Pow(meanSeperation, 3) / (Primary.Mass + Secondary.Mass));
+                double r1 = meanSeperation / (1 + Primary.Mass / Secondary.Mass);
+                if(r1 < Primary.Radius)     // The baricentrum is inside the primary. Just set the primary as the center of the system
+                {
+                    Primary.SetElements(OrbitalElements.Center);
+                    Secondary.SetElements(new OrbitalElements(0, 0, 0, 0, (ulong)(meanSeperation * AU), eccentricity, Primary.Mass));
+                }
+                else // TODO! Test whether the masses used here are correct!
+                {
+                    Primary.SetElements(new OrbitalElements(0, 0, 0, 0, (ulong)(r1 * AU), eccentricity, Secondary.Mass));
+                    Secondary.SetElements(new OrbitalElements(0, 0, Math.PI, 0, (ulong)((meanSeperation - r1) * AU), eccentricity, Primary.Mass));
+                }
+
+                if(Tertiary != null)
+                {
+
+                }
+            }
 
             // Generate Planets
 
@@ -106,15 +210,141 @@ namespace Assets.Scripts.Bodies
             }
             else throw new ArgumentOutOfRangeException("The RNG gave us a number bigger than 100.");
         }
-        
-        public const ulong AU = 149597870700;
+
+        /// <summary>
+        /// The first number is the age (GY), the second is the change in luminocity
+        /// </summary>
+        static public readonly Dictionary<string, Dictionary<int, Tuple<double, double>>> AgeTable = new Dictionary<string, Dictionary<int, Tuple<double, double>>>() {
+            {"A0-A4",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(0.1,0) },
+                {2, new Tuple<double, double>(0.1,0) },
+                {3, new Tuple<double, double>(0.2,0) },
+                {4, new Tuple<double, double>(0.2,0) },
+                {5, new Tuple<double, double>(0.3,0) },
+                {6, new Tuple<double, double>(0.3,0) },
+                {7, new Tuple<double, double>(0.4,0) },
+                {8, new Tuple<double, double>(0.4,0) },
+                {9, new Tuple<double, double>(0.5,0) },
+                {10, new Tuple<double, double>(0.6,0) }
+            }
+            },
+            {"A5-A9",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(0.2,-.2) },
+                {2, new Tuple<double, double>(0.4,-.2) },
+                {3, new Tuple<double, double>(0.5,-.1) },
+                {4, new Tuple<double, double>(0.6,-.1) },
+                {5, new Tuple<double, double>(0.7, .0) },
+                {6, new Tuple<double, double>(0.8, .0) },
+                {7, new Tuple<double, double>(0.9, .1) },
+                {8, new Tuple<double, double>(1.0, .1) },
+                {9, new Tuple<double, double>(1.1, .2) },
+                {10, new Tuple<double, double>(1.2,.2) }
+            }
+            },
+            {"F0-F4",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(0.3,-.4) },
+                {2, new Tuple<double, double>(0.6,-.3) },
+                {3, new Tuple<double, double>(1.0,-.2) },
+                {4, new Tuple<double, double>(1.3,-.1) },
+                {5, new Tuple<double, double>(1.6, .0) },
+                {6, new Tuple<double, double>(2.0, .1) },
+                {7, new Tuple<double, double>(2.3, .2) },
+                {8, new Tuple<double, double>(2.6, .3) },
+                {9, new Tuple<double, double>(2.9, .4) },
+                {10,new Tuple<double, double>(3.2, .5) }
+            }
+            },
+            {"F5-F9",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(0.5,-.4) },
+                {2, new Tuple<double, double>(1.0,-.3) },
+                {3, new Tuple<double, double>(1.5,-.2) },
+                {4, new Tuple<double, double>(2.0,-.1) },
+                {5, new Tuple<double, double>(2.5, .0) },
+                {6, new Tuple<double, double>(3.0, .1) },
+                {7, new Tuple<double, double>(3.5, .2) },
+                {8, new Tuple<double, double>(4.0, .3) },
+                {9, new Tuple<double, double>(4.5, .4) },
+                {10,new Tuple<double, double>(5.0, .5) }
+            }
+            },
+            {"G0-G4",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(1.0,-.4) },
+                {2, new Tuple<double, double>(2.0,-.3) },
+                {3, new Tuple<double, double>(3.0,-.2) },
+                {4, new Tuple<double, double>(4.0,-.1) },
+                {5, new Tuple<double, double>(5.0, .0) },
+                {6, new Tuple<double, double>(6.0, .1) },
+                {7, new Tuple<double, double>(7.0, .2) },
+                {8, new Tuple<double, double>(8.0, .3) },
+                {9, new Tuple<double, double>(9.0, .4) },
+                {10,new Tuple<double, double>(10.0,.5) }
+            }
+            },
+            {"G5-G9",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(1.0,-.4) },
+                {2, new Tuple<double, double>(2.0,-.3) },
+                {3, new Tuple<double, double>(3.0,-.2) },
+                {4, new Tuple<double, double>(4.0,-.1) },
+                {5, new Tuple<double, double>(5.0, .0) },
+                {6, new Tuple<double, double>(6.0, .0) },
+                {7, new Tuple<double, double>(7.0, .0) },
+                {8, new Tuple<double, double>(8.0, .1) },
+                {9, new Tuple<double, double>(9.0, .2) },
+                {10,new Tuple<double, double>(10.0,.3) }
+            }
+            },
+            {"K0-K4",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(1.0,-.2) },
+                {2, new Tuple<double, double>(2.0,-.15) },
+                {3, new Tuple<double, double>(3.0,-.1) },
+                {4, new Tuple<double, double>(4.0,-.05) },
+                {5, new Tuple<double, double>(5.0, .0) },
+                {6, new Tuple<double, double>(6.0, .0) },
+                {7, new Tuple<double, double>(7.0, .0) },
+                {8, new Tuple<double, double>(8.0, .0) },
+                {9, new Tuple<double, double>(9.0, .0) },
+                {10,new Tuple<double, double>(10.0,.05) }
+            }
+            },
+            {"K5-K9",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(1.0,-.1) },
+                {2, new Tuple<double, double>(2.0,-.5) },
+                {3, new Tuple<double, double>(3.0,-.0) },
+                {4, new Tuple<double, double>(4.0,-.0) },
+                {5, new Tuple<double, double>(5.0, .0) },
+                {6, new Tuple<double, double>(6.0, .0) },
+                {7, new Tuple<double, double>(7.0, .0) },
+                {8, new Tuple<double, double>(8.0, .0) },
+                {9, new Tuple<double, double>(9.0, .0) },
+                {10,new Tuple<double, double>(10.0,.0) }
+            }
+            },
+            {"M0-M9",new Dictionary<int, Tuple<double, double>>(){
+                {1, new Tuple<double, double>(1.0, .1) },
+                {2, new Tuple<double, double>(2.0, .0) },
+                {3, new Tuple<double, double>(3.0,-.0) },
+                {4, new Tuple<double, double>(4.0,-.0) },
+                {5, new Tuple<double, double>(5.0, .0) },
+                {6, new Tuple<double, double>(6.0, .0) },
+                {7, new Tuple<double, double>(7.0, .0) },
+                {8, new Tuple<double, double>(8.0, .0) },
+                {9, new Tuple<double, double>(9.0, .0) },
+                {10,new Tuple<double, double>(10.0,.0) }
+            }
+            },
+        };
+
+        /// <summary>
+        /// One astronomical unit in meters
+        /// </summary>
+        public const ulong AU = 149597870700;   // 149'597'870'700 meters
         public const ulong SOL_SIZE = 40 * AU;
         
 
 
         internal Orbital RandLivableWorld()
         {
-            foreach(Orbital o in Childeren)
+            foreach(Orbital o in Planets)
             {
                 if (o.GetType() == typeof(Rock) && ((Rock)o).Habitable)
                     return o;
@@ -133,7 +363,7 @@ namespace Assets.Scripts.Bodies
         public Size size;
         public int specification;
 
-        SpectralClass() { }
+        public SpectralClass() { }
 
         public SpectralClass(SpectralClass clone)
         {

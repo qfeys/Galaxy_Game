@@ -10,7 +10,7 @@ namespace Assets.Scripts.Bodies
 
         public StarSystem starSystem { get; private set; }
         public SpectralClass spc { get; private set; }
-        public OrbitalElements Elements { get; private set; }
+        public OrbitalElements OrbElements { get; private set; }
         public List<Orbital> Planets { get; private set; }
 
         public double Luminosity { get; private set; }
@@ -26,10 +26,56 @@ namespace Assets.Scripts.Bodies
             // Set luminocity
             if(spc.class_ == SpectralClass.Class_.WhiteDwarf)
             {
-                // Wait for now
-            }else if(spc.class_ == SpectralClass.Class_.BrownDwarf)
+                int a = starSystem.rng.D10;
+                if (a == 1) { Mass = 1.3; Radius = 0.004; }
+                if (a == 2) { Mass = 1.1; Radius = 0.007; }
+                if (a == 3) { Mass = 0.9; Radius = 0.009; }
+                if (a == 4) { Mass = 0.7; Radius = 0.010; }
+                if (a == 5) { Mass = 0.6; Radius = 0.011; }
+                if (a == 6) { Mass = .55; Radius = 0.012; }
+                if (a == 7) { Mass = .50; Radius = 0.013; }
+                if (a == 8) { Mass = .45; Radius = 0.014; }
+                if (a == 9) { Mass = .40; Radius = 0.015; }
+                if (a ==10) { Mass = .35; Radius = 0.016; }
+                int b = starSystem.rng.D10 + (int)Math.Round(starSystem.Age - 1) / 2 - 4;
+                if (b <= 1) Temperature = 30000;
+                if (b == 2) Temperature = 25000;
+                if (b == 3) Temperature = 20000;
+                if (b == 4) Temperature = 16000;
+                if (b == 5) Temperature = 14000;
+                if (b == 6) Temperature = 12000;
+                if (b == 7) Temperature = 10000;
+                if (b == 8) Temperature = 8000;
+                if (b == 9) Temperature = 6000;
+                if (b ==10) Temperature = 4000;
+                Luminosity = Radius * Radius * Math.Pow(Temperature / 5800, 4);
+            }
+            else if(spc.class_ == SpectralClass.Class_.BrownDwarf)
             {
-                // Wait for now
+                int a = starSystem.rng.D10;
+                if (a == 1) { Mass = .070; Radius = 0.07; }
+                if (a == 2) { Mass = .064; Radius = 0.08; }
+                if (a == 3) { Mass = .058; Radius = 0.09; }
+                if (a == 4) { Mass = .052; Radius = 0.10; }
+                if (a == 5) { Mass = .046; Radius = 0.11; }
+                if (a == 6) { Mass = .040; Radius = 0.12; }
+                if (a == 7) { Mass = .034; Radius = 0.12; }
+                if (a == 8) { Mass = .026; Radius = 0.12; }
+                if (a == 9) { Mass = .020; Radius = 0.12; }
+                if (a ==10) { Mass = .014; Radius = 0.12; }
+                int b = starSystem.rng.D10 +
+                    (starSystem.Age == 1 ? 0 : starSystem.Age <= 3 ? 1 : starSystem.Age <= 5 ? 2 : (int)starSystem.Age - 3);
+                if (b <= 1) Temperature = 2200;
+                if (b == 2) Temperature = 2000;
+                if (b == 3) Temperature = 1800;
+                if (b == 4) Temperature = 1600;
+                if (b == 5) Temperature = 1400;
+                if (b == 6) Temperature = 1200;
+                if (b == 7) Temperature = 1000;
+                if (b == 8) Temperature = 900;
+                if (b == 9) Temperature = 800;
+                if (b ==10) Temperature = 700;
+                Luminosity = Radius * Radius * Math.Pow(Temperature / 5800, 4);
             }
             else    // all other stars
             {
@@ -53,6 +99,7 @@ namespace Assets.Scripts.Bodies
                     Mass *= mult + 1;
                     Luminosity *= 2 * mult + 1;
                     Radius = Math.Sqrt(Luminosity) * Math.Pow(5800 / Temperature, 2);
+                    Luminosity *= 1.1; // As referenced in the age chart
                 }
                 else if (spc.size <= SpectralClass.Size.III)
                 {
@@ -68,15 +115,40 @@ namespace Assets.Scripts.Bodies
                     if (a == 9) { Mass *= 1.25; Luminosity *= 1.5; }
                     if (a == 10) { Mass *= 1.5; Luminosity *= 2.0; }
                     Radius = Math.Sqrt(Luminosity) * Math.Pow(5800 / Temperature, 2);
+                    Luminosity *= 1.2; // As referenced in the age chart
+                }
+                else
+                {
+                    // Appely luminocity due to age
+                    if (spc.class_ == SpectralClass.Class_.A)
+                        if (spc.specification <= 4) Luminosity *= StarSystem.AgeTable["A0-A4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        else Luminosity *= StarSystem.AgeTable["A5-A9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                    else if (spc.class_ == SpectralClass.Class_.F)
+                        if (spc.specification <= 4) Luminosity *= StarSystem.AgeTable["F0-F4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        else Luminosity *= StarSystem.AgeTable["F5-F9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                    else if (spc.class_ == SpectralClass.Class_.G)
+                        if (spc.specification <= 4) Luminosity *= StarSystem.AgeTable["G0-G4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        else Luminosity *= StarSystem.AgeTable["G5-G9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                    else if (spc.class_ == SpectralClass.Class_.K)
+                        if (spc.specification <= 4) Luminosity *= StarSystem.AgeTable["K0-K4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        else Luminosity *= StarSystem.AgeTable["K5-K9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                    else if (spc.class_ == SpectralClass.Class_.M) Luminosity *= StarSystem.AgeTable["M0-M9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
                 }
             }
 
-            
+
 
         }
 
+        internal void SetElements(OrbitalElements el)
+        {
+            OrbElements = el;
+        }
 
-        static Dictionary<SpectralClass.Class_, Dictionary<SpectralClass.Size, Dictionary<int, Tuple<double, double, int, double>>>> LumAndMassTable =
+        /// <summary>
+        /// Values are: Luminosity, mass, surface Temperature and radius
+        /// </summary>
+        public static readonly Dictionary<SpectralClass.Class_, Dictionary<SpectralClass.Size, Dictionary<int, Tuple<double, double, int, double>>>> LumAndMassTable =
             new Dictionary<SpectralClass.Class_, Dictionary<SpectralClass.Size, Dictionary<int, Tuple<double, double, int, double>>>>() {
                 {SpectralClass.Class_.B, new Dictionary<SpectralClass.Size, Dictionary<int, Tuple<double, double, int, double>>>() {
                     {SpectralClass.Size.V, new Dictionary<int, Tuple<double, double, int, double>>() {
