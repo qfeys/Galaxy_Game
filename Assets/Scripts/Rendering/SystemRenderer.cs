@@ -10,7 +10,7 @@ namespace Assets.Scripts.Rendering
     class SystemRenderer : MonoBehaviour
     {
 
-        Dictionary<GameObject, Orbital> displayedBodies;
+        Dictionary<GameObject, Planet> displayedBodies;
         Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
         Dictionary<Type, GameObject> prototypes;
 
@@ -19,29 +19,28 @@ namespace Assets.Scripts.Rendering
         public void InstantiatePrototypes(GameObject star, GameObject giant, GameObject rock)
         {
             prototypes = new Dictionary<Type, GameObject> {
-                { typeof(Star), star },
-                { typeof(Giant), giant },
-                { typeof(Rock), rock }
+                { typeof(Star), star }
             };
         }
 
         internal void SetSystem(StarSystem syst)
         {
-            displayedBodies = new Dictionary<GameObject, Orbital>();
+            // TODO: needs fixing because transition orbitals to planets
+            displayedBodies = new Dictionary<GameObject, Planet>();
             displayedOrbits = new Dictionary<GameObject, LineRenderer>();
             GameObject star = null;
-            syst.Childeren.ForEach(b =>
+            syst.Planets.ForEach(p =>
             {
-                GameObject go = Instantiate(prototypes[b.GetType()]);
-                go.name = b.ToString();
+                GameObject go = Instantiate(prototypes[p.GetType()]);
+                go.name = p.ToString();
                 go.tag = "Orbital";
-                if (star == null && b.GetType() == typeof(Star)) star = go;
-                displayedBodies.Add(go, b);
-                if (b.GetType() != typeof(Star))
+                if (star == null && p.GetType() == typeof(Star)) star = go;
+                displayedBodies.Add(go, p);
+                if (p.GetType() != typeof(Star))
                 {
                     go.transform.SetParent(star.transform);
 
-                    GameObject orb = new GameObject("Orbit of " + b);
+                    GameObject orb = new GameObject("Orbit of " + p);
                     orb.transform.SetParent(star.transform);
                     LineRenderer lr = orb.AddComponent<LineRenderer>();
                     lr.positionCount = VERTICES_PER_ORBIT;
@@ -59,13 +58,13 @@ namespace Assets.Scripts.Rendering
             foreach(var b in displayedBodies)
             {
                 if (star == null && b.Value.GetType() == typeof(Star)) star = b.Key;
-                VectorS posS = b.Value.Elements.GetPositionSphere(Simulation.God.Time);
+                VectorS posS = b.Value.OrbElements.GetPositionSphere(Simulation.God.Time);
                 float scale = Mathf.Pow(10, -zoom);
                 Vector3 v = (Vector3)posS * scale;
                 b.Key.transform.position = v;
                 if (displayedOrbits.ContainsKey(b.Key))
                 {
-                    displayedOrbits[b.Key].SetPositions(FindPointsOnOrbit(b.Value.Elements, VERTICES_PER_ORBIT));
+                    displayedOrbits[b.Key].SetPositions(FindPointsOnOrbit(b.Value.OrbElements, VERTICES_PER_ORBIT));
                 }
             }
         }
@@ -77,7 +76,7 @@ namespace Assets.Scripts.Rendering
 
         }
 
-        internal Orbital FindOrbital(GameObject obj)
+        internal Planet FindOrbital(GameObject obj)
         {
             if (displayedBodies.ContainsKey(obj))
             {

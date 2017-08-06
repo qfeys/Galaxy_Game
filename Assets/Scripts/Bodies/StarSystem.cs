@@ -473,7 +473,7 @@ namespace Assets.Scripts.Bodies
         
 
 
-        internal Orbital RandLivableWorld()
+        internal Planet RandLivableWorld()
         {
             foreach(Planet o in Planets)
             {

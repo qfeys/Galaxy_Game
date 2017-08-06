@@ -26,7 +26,7 @@ namespace Assets.Scripts.Empires
 
         public bool NextUpdateHasPriority { get; private set; }
 
-        public Empire(string name, Bodies.Orbital capital)
+        public Empire(string name, Bodies.Planet capital)
         {
             this.name = name;
             Populations = new List<Population>();

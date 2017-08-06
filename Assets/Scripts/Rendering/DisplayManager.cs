@@ -90,8 +90,8 @@ namespace Assets.Scripts.Rendering
 
         internal void SetInspector(GameObject obj)
         {
-            Orbital orb = systemrenderer.FindOrbital(obj);
-            inspector.DisplayOrbital(orb);
+            Planet orb = systemrenderer.FindOrbital(obj);
+            inspector.DisplayPlanet(orb);
         }
     }
 }

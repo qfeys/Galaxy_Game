@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Scripts.Empires;
 
 namespace Assets.Scripts.Bodies
 {
@@ -145,5 +146,13 @@ namespace Assets.Scripts.Bodies
         }
 
         public enum Type { Chunk, Terrestial_planet, Gas_Giant, Superjovian, Astroid_Belt, Empty, Interloper, Trojan, Double_Planet, Captured}
+
+
+
+
+        internal void AddPopulation(Population p)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

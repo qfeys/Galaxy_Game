@@ -10,7 +10,7 @@ namespace Assets.Scripts.Empires
     {
 
         public string Name { get; private set; }
-        public Orbital Location { get; private set; }
+        public Planet Location { get; private set; }
         public long Count { get; private set; }
         public double Wealth { get; private set; } // GDP in Milion USD
         double poverty; // part of people living in poverty
@@ -23,7 +23,7 @@ namespace Assets.Scripts.Empires
         Dictionary<Installations.Installation, int> installations;
         Production.Stockpile stockpile;
         
-        public Population(Orbital location, long initPop, string name = null)
+        public Population(Planet location, long initPop, string name = null)
         {
             Name = name ?? location.ToString();
             Location = location;
@@ -39,7 +39,7 @@ namespace Assets.Scripts.Empires
 
         Population() { }
 
-        internal static Population InitCapital(Orbital capital)
+        internal static Population InitCapital(Planet capital)
         {
             var p = new Population() {
                 Name = "Capital",
