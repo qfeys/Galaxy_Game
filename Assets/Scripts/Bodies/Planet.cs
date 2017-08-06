@@ -212,7 +212,7 @@ namespace Assets.Scripts.Bodies
                 else if (b <= 4) AxialTilt = (10 + rng.D10) * Math.PI / 180;
                 else if (b <= 6) AxialTilt = (20 + rng.D10) * Math.PI / 180;
                 else if (b <= 8) AxialTilt = (30 + rng.D10) * Math.PI / 180;
-                else AxialTilt = (40 + rng.D100 * 1.4 * Math.PI / 180;
+                else AxialTilt = (40 + rng.D100 * 1.4) * Math.PI / 180;
                 NorthDirection = rng.Circle;
             }
             else
