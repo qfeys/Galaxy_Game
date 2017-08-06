@@ -164,7 +164,7 @@ namespace Assets.Scripts.Bodies
             return new Star() {
                 starSystem = parent1.starSystem,
                 spc = parent1.spc,
-                OrbElements = parent1.OrbElements,
+                OrbElements = OrbitalElements.Center,
                 Luminosity = parent1.Luminosity + parent2.Luminosity,
                 Mass = parent1.Mass + parent2.Mass,
                 Temperature = parent1.Temperature,

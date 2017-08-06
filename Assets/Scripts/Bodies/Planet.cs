@@ -121,6 +121,7 @@ namespace Assets.Scripts.Bodies
             double rocheLimit = 2.456 * Math.Pow(parentPlanet.Density / Density, 0.33);
             if (semiMajorAxis < rocheLimit)
                 type = Type.Ring;
+            CalculateDay();
         }
 
         void CalculateSize()
@@ -178,7 +179,7 @@ namespace Assets.Scripts.Bodies
 
         public void CalculateDay()
         {
-            double tidalForce = parent.Mass * 26640000 / Math.Pow(OrbElements.SMA * 400, 3);
+            double tidalForce = (isMoon ? (parentPlanet.Mass * Star.SOLAR_MASS / EARTH_MASS) : parent.Mass) * 26640000 / Math.Pow(OrbElements.SMA * 400, 3);
             isTidallyLocked = (0.83 + rng.D10 * 0.03) * tidalForce * parent.starSystem.Age / 6.6 > 1;
             if (isTidallyLocked == false)
             {
@@ -263,6 +264,11 @@ namespace Assets.Scripts.Bodies
             }
 
             orbits.ForEach(o => moons.Add(new Planet(this, o, innerPlanet)));
+        }
+
+        void CalculateGeophisicals()
+        {
+
         }
 
         private Type RollType()
