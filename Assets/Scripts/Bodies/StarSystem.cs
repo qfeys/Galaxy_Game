@@ -10,6 +10,7 @@ namespace Assets.Scripts.Bodies
         public Star Primary { get; private set; }
         public Star Secondary { get; private set; }
         public Star Tertiary { get; private set; }
+        int tertiaryPos = 0; // 1 means orbiting primary, 2 means orbiting secondary, 3 means orbiting both
         public List<Orbital> Planets { get; private set; }
         public double Age { get; private set; } // unit: GY
         public double Abundance { get; private set; }
@@ -162,17 +163,61 @@ namespace Assets.Scripts.Bodies
                 if(r1 < Primary.Radius)     // The baricentrum is inside the primary. Just set the primary as the center of the system
                 {
                     Primary.SetElements(OrbitalElements.Center);
-                    Secondary.SetElements(new OrbitalElements(0, 0, 0, 0, (ulong)(meanSeperation * AU), eccentricity, Primary.Mass));
                 }
                 else // TODO! Test whether the masses used here are correct!
                 {
-                    Primary.SetElements(new OrbitalElements(0, 0, 0, 0, (ulong)(r1 * AU), eccentricity, Secondary.Mass));
-                    Secondary.SetElements(new OrbitalElements(0, 0, Math.PI, 0, (ulong)((meanSeperation - r1) * AU), eccentricity, Primary.Mass));
+                    double apparentParentMassPrimary = Math.Pow(r1, 3) * (Primary.Mass + Secondary.Mass) / Math.Pow(meanSeperation, 3);
+                    double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(Primary.Mass / Secondary.Mass, 3);
+                    Primary.SetElements(new OrbitalElements(0, 0, 0, 0, (ulong)(r1 * AU), eccentricity, apparentParentMassPrimary));
+                    Secondary.SetElements(new OrbitalElements(0, 0, Math.PI, 0, (ulong)((meanSeperation - r1) * AU), eccentricity, apparentParentMassSecondary));
                 }
 
                 if(Tertiary != null)
                 {
+                    double meanSeperationT;  // In AU
+                    double eccentricityT;
+                    double closestSeperationT;
+                    double furthestSeperationT;
 
+                    int j = 0;
+                    do
+                    {
+                        int d = rng.D10;
+                        if (d <= 3) tertiaryPos = 1;       // orbit primary
+                        else if (d <= 6) tertiaryPos = 2;  // orbit secondary
+                        else tertiaryPos = 3;              // orbit both
+                        int i = 0;
+                        do
+                        {
+                            int f = rng.D10 + (Age > 5 ? +1 : 0) + (Age < 1 ? -1 : 0);
+                            bool veryCloseT = false;
+                            bool closeT = false;
+                            if (f <= 3) { meanSeperationT = rng.D10 * 0.05; veryCloseT = true; }
+                            else if (f <= 6) { meanSeperationT = rng.D10 * 0.5; closeT = true; }
+                            else if (f <= 8) meanSeperationT = rng.D10 * 3;
+                            else if (f <= 9) meanSeperationT = rng.D10 * 20;
+                            else meanSeperationT = rng.D100 * 200;
+                            int g = rng.D10 + (veryCloseT ? -2 : 0) + (closeT ? -1 : 0);
+                            if (g <= 2) eccentricityT = rng.D10 * 0.01;
+                            else if (g <= 4) eccentricityT = rng.D10 * 0.01 + 0.1;
+                            else if (g <= 6) eccentricityT = rng.D10 * 0.01 + 0.2;
+                            else if (g <= 8) eccentricityT = rng.D10 * 0.01 + 0.3;
+                            else if (g <= 9) eccentricityT = rng.D10 * 0.01 + 0.4;
+                            else eccentricityT = rng.D10 * 0.04 + 0.5;
+                            closestSeperationT = meanSeperationT * (1 - eccentricityT);
+                            furthestSeperationT = meanSeperationT * (1 + eccentricityT);
+                            i++;
+                        } while (tertiaryPos != 3 ? furthestSeperationT * 3 > closestSeperation : furthestSeperation * 3 > closestSeperationT && i < 5);    // Check for invalid orbits
+                        j++;
+                        if (j > 5) { Tertiary = null; tertiaryPos = 0; break; }      // We tried to much. Just give up.
+                    } while     (tertiaryPos != 3 ? furthestSeperationT * 3 > closestSeperation : furthestSeperation * 3 > closestSeperationT);             // Identical check
+
+                    if (Tertiary != null)
+                    {
+                        double centralMass = tertiaryPos == 1 ? Primary.Mass : tertiaryPos == 2 ? Secondary.Mass : (Primary.Mass + Secondary.Mass);
+                        double r3 = meanSeperation / (1 + centralMass / Tertiary.Mass);
+                        Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, (ulong)(meanSeperation * AU), eccentricity, centralMass));
+                    }
                 }
             }
 

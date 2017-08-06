@@ -21,6 +21,9 @@ namespace Assets.Scripts
         public readonly double e;   // exentricity
         public readonly double parentMass;
         TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
+        /// <summary>
+        /// The gravitational constant
+        /// </summary>
         public const double G = 6.67408e-11;
 
         /// <summary>
