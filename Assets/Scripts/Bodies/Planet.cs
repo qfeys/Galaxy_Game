@@ -36,7 +36,7 @@ namespace Assets.Scripts.Bodies
         /// </summary>
         public double RotationalPeriod { get; private set; }
         /// <summary>
-        /// The axial tilt in radian [0-2Pi]
+        /// The axial tilt in radian [0-2Pi], relative to the ecliptica
         /// </summary>
         public double AxialTilt { get; private set; }
         /// <summary>
@@ -111,8 +111,8 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// Constructor for moons
         /// </summary>
-        /// <param name="planet"></param>
-        /// <param name="o"></param>
+        /// <param name="planet">The parent planet</param>
+        /// <param name="semiMajorAxis">Given in planet diameters</param>
         /// <param name="innerPlanet"></param>
         Planet(Planet planet, double semiMajorAxis, bool innerPlanet)
         {
@@ -221,13 +221,16 @@ namespace Assets.Scripts.Bodies
                 if (type == Type.Gas_Giant && Mass < 50) mod += 2;
                 RotationalPeriod *= 1 + (mod * 0.1);
                 // Axial tilt (table 2.2.3)
-                int b = rng.D10;
-                if (b <= 2) AxialTilt = rng.D10 * Math.PI / 180;
-                else if (b <= 4) AxialTilt = (10 + rng.D10) * Math.PI / 180;
-                else if (b <= 6) AxialTilt = (20 + rng.D10) * Math.PI / 180;
-                else if (b <= 8) AxialTilt = (30 + rng.D10) * Math.PI / 180;
-                else AxialTilt = (40 + rng.D100 * 1.4) * Math.PI / 180;
-                NorthDirection = rng.Circle;
+                if (NorthDirection == 0)    // Double planet dependants will have this already assigned
+                {
+                    int b = rng.D10;
+                    if (b <= 2) AxialTilt = rng.D10 * Math.PI / 180;
+                    else if (b <= 4) AxialTilt = (10 + rng.D10) * Math.PI / 180;
+                    else if (b <= 6) AxialTilt = (20 + rng.D10) * Math.PI / 180;
+                    else if (b <= 8) AxialTilt = (30 + rng.D10) * Math.PI / 180;
+                    else AxialTilt = (40 + rng.D100 * 1.4) * Math.PI / 180;
+                    NorthDirection = rng.Circle;
+                }
             }
             else
             {
@@ -237,8 +240,16 @@ namespace Assets.Scripts.Bodies
                 else if (OrbElements.e < 0.65) RotationalPeriod = 5 / 2 * OrbElements.T.TotalHours;
                 else if (OrbElements.e < 0.80) RotationalPeriod = 3 / 1 * OrbElements.T.TotalHours;
                 else RotationalPeriod = 7 / 2 * OrbElements.T.TotalHours;
-                AxialTilt = 0;
-                NorthDirection = 0;
+                if (isMoon)
+                {
+                    AxialTilt = parentPlanet.AxialTilt;
+                    NorthDirection = parentPlanet.NorthDirection;
+                }
+                else
+                {
+                    AxialTilt = OrbElements.i;
+                    NorthDirection = (OrbElements.MAaE + 3 * Math.PI / 4) % (Math.PI * 2);
+                }
             }
         }
 
@@ -451,7 +462,7 @@ namespace Assets.Scripts.Bodies
             return companion;
         }
 
-        public Planet ResolveDoublePlanet()
+        public void ResolveDoublePlanet()
         {
             if (type != Type.Double_Planet)
                 throw new ArgumentException("You tried to resolve the double planet status of a planet with type: " + type);
@@ -461,7 +472,62 @@ namespace Assets.Scripts.Bodies
             Type secondType = RollType();
             if (secondType != Type.Chunk || secondType != Type.Terrestial_planet || secondType != Type.Gas_Giant || secondType != Type.Superjovian)
                 secondType = Type.Chunk;
-            throw new NotImplementedException();
+
+            // Set axial tilt
+            int a = rng.D10;
+            if (a <= 2) AxialTilt = rng.D10 * Math.PI / 180;
+            else if (a <= 4) AxialTilt = (10 + rng.D10) * Math.PI / 180;
+            else if (a <= 6) AxialTilt = (20 + rng.D10) * Math.PI / 180;
+            else if (a <= 8) AxialTilt = (30 + rng.D10) * Math.PI / 180;
+            else AxialTilt = (40 + rng.D100 * 1.4) * Math.PI / 180;
+            NorthDirection = rng.Circle;
+
+            double seperation;
+            int b = rng.D10;
+            if (b <= 4) seperation = 1 + rng.D10 * 0.5;      // Close
+            else if (b <= 6) seperation = 6 + rng.D10 * 1;   // Average
+            else if (b <= 9) seperation = 16 + rng.D10 * 3;  // Distant
+            else seperation = 45 + rng.D100 * 3;             // Very Distant
+
+            if (firstType < secondType) // switch them around so firstType is the biggest
+            {
+                var temp = firstType;
+                firstType = secondType;
+                secondType = temp;
+            }
+            if(secondType + 1 < firstType) // First type is two classes lower than second. Make second prime and first a moon
+            {
+                type = firstType;
+                Planet moon = new Planet(parent, innerPlanet, secondType, new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, rng.Circle, seperation, 0, Mass * EARTH_MASS)) {
+                    isMoon = true,
+                    parentPlanet = this
+                };
+                moons.Add(moon);
+                CalculateSize();
+                moon.CalculateSize();
+            }
+            else    // The two planets are close in mass, so a double system
+            {
+                Planet prime = new Planet(this.parent, innerPlanet, firstType, new OrbitalElements()) {
+                    isMoon = true,
+                    parentPlanet = this
+                };
+                Planet second = new Planet(this.parent, innerPlanet, firstType, new OrbitalElements()) {
+                    isMoon = true,
+                    parentPlanet = this
+                };
+                prime.CalculateSize();
+                second.CalculateSize();
+                double r1 = seperation / (1 + prime.Mass / second.Mass);
+                double apparentParentMassPrimary = Math.Pow(r1, 3) * (prime.Mass + second.Mass) / Math.Pow(seperation, 3);
+                double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(prime.Mass / second.Mass, 3);
+                prime.OrbElements = new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, 0, r1, 0, apparentParentMassPrimary);
+                second.OrbElements = new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, Math.PI, seperation - r1, 0, apparentParentMassSecondary);
+                prime.isTidallyLocked = true;
+                second.isTidallyLocked = true;
+                prime.RotationalPeriod = prime.OrbElements.T.TotalHours;
+                second.RotationalPeriod = second.OrbElements.T.TotalHours;
+            }
         }
 
         public void ResolveCaptured()

@@ -176,7 +176,7 @@ namespace Assets.Scripts.Bodies
                 {
                     Primary.SetElements(OrbitalElements.Center);
                 }
-                else // TODO! Test whether the masses used here are correct!
+                else // TODO! Test whether the masses used here are correct!, see also binary planets
                 {
                     double apparentParentMassPrimary = Math.Pow(r1, 3) * (Primary.Mass + Secondary.Mass) / Math.Pow(meanSeperation, 3);
                     double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(Primary.Mass / Secondary.Mass, 3);
