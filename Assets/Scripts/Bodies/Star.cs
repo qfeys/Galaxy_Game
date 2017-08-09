@@ -12,6 +12,7 @@ namespace Assets.Scripts.Bodies
         public SpectralClass spc { get; private set; }
         public OrbitalElements OrbElements { get; private set; }
         public List<Orbital> Planets { get; private set; }
+        public bool IsCombinedStar { get; private set; }
 
         /// <summary>
         /// unit is Sol luminocity
@@ -34,6 +35,7 @@ namespace Assets.Scripts.Bodies
         {
             this.starSystem = starSystem;
             this.spc = spc;
+            IsCombinedStar = false;
             
             // Set luminocity
             if(spc.class_ == SpectralClass.Class_.WhiteDwarf)
@@ -168,7 +170,8 @@ namespace Assets.Scripts.Bodies
                 Luminosity = parent1.Luminosity + parent2.Luminosity,
                 Mass = parent1.Mass + parent2.Mass,
                 Temperature = parent1.Temperature,
-                Radius = parent1.Radius
+                Radius = parent1.Radius,
+                IsCombinedStar = true
             };
         }
 

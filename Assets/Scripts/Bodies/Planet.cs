@@ -68,6 +68,9 @@ namespace Assets.Scripts.Bodies
         /// The magnetic field strength of a planet, relative to Earth
         /// </summary>
         public double MagneticFieldStrength { get; private set; }
+
+        AstroidTypes AstroidType = AstroidTypes.NotAnAstroid;
+        enum AstroidTypes { NotAnAstroid, Metallic, Silicate, Carbonaceous, Icy }
         public List<Planet> moons { get; private set; }
         bool innerPlanet;
         bool isMoon;
@@ -429,10 +432,54 @@ namespace Assets.Scripts.Bodies
             else return Type.Captured;
         }
 
-        public List<Planet> ResolveAstroidBelt()
+        public void ResolveAstroidBelt()
         {
             // NOTE: the sol astroid belt contains more then 200 objects larger than 100 km. The chunk minimum size is 200 km
-            throw new NotImplementedException();
+            // Desity
+            {
+                int b = rng.D10 + parent.starSystem.Abundance;
+                if (b < 1) b = 1; else if (b > 11) b = 11;
+                if (innerPlanet)
+                    if (type == Type.Chunk || type == Type.Terrestial_planet) Density = 0.3 + b * 0.127 / Math.Pow(0.4 + OrbElements.SMA / Math.Sqrt(parent.Luminosity), 0.67);
+                    else if (type == Type.Gas_Giant) Density = 0.1 + b * 0.025;
+                    else
+                        if (type == Type.Chunk || type == Type.Terrestial_planet) Density = 0.1 + b * 0.05;
+                    else if (type == Type.Gas_Giant) Density = 0.08 + b * 0.025;
+                if (Density > 1.5) Density = 1.5;
+            }
+            // Type
+            int a = rng.D10 + (innerPlanet ? 0 : +6) + (OrbElements.SMA < 0.47 * Math.Sqrt(parent.Luminosity) ? -2 : 0) +
+                (Density <= 0.6 ? 0 : Density <= 0.8 ? -1 : Density <= 1 ? -2 : Density <= 1.2 ? -3 : -5);
+            if (a <= -2) AstroidType = AstroidTypes.Metallic;
+            else if (a <= 5) AstroidType = AstroidTypes.Silicate;
+            else if (a <= 10) AstroidType = AstroidTypes.Carbonaceous;
+            else AstroidType = AstroidTypes.Icy;
+            // Mass
+            int c = rng.D10 + parent.starSystem.Abundance + (innerPlanet ? -1 : +2) + (Age >= 7 ? -1 : 0) + (parent.IsCombinedStar ? +2 : 0);
+            if (c <= 4) Mass = rng.D10 * 0.0001;
+            else if (c <= 6) Mass = rng.D10 * 0.001;
+            else if (c <= 8) Mass = rng.D10 * 0.01;
+            else if (c <= 10) Mass = rng.D10 * 0.1;
+            else Mass = rng.D10 * 1;
+            // Create major bodies
+            double massToLose = Mass * 0.66;
+            for (int i = 0; i < 5; i++)
+            {
+                Planet astroid = new Planet(parent, innerPlanet, Type.Chunk,
+                    new OrbitalElements(OrbElements.LAN + (rng.D10 - 5) / 2.0, OrbElements.i + (rng.D10 - 5) / 2.0, OrbElements.AOP + (rng.D10 - 5) / 2.0, rng.Circle,
+                        OrbElements.SMA * (1 + (rng.D10 - 5) / 40.0), OrbElements.e, parent.Mass * Star.SOLAR_MASS)) {
+                    isMoon = true,
+                    parentPlanet = this
+                };
+                astroid.CalculateSize();
+                if (massToLose >= astroid.Mass)
+                {
+                    moons.Add(astroid);
+                    i = 0;
+                    massToLose -= astroid.Mass;
+                    Mass -= astroid.Mass;
+                }
+            }
         }
 
         public void ResolveInterloper()
@@ -505,6 +552,7 @@ namespace Assets.Scripts.Bodies
                 moons.Add(moon);
                 CalculateSize();
                 moon.CalculateSize();
+                moon.CalculateDay();
             }
             else    // The two planets are close in mass, so a double system
             {
