@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Empires;
 
 namespace Assets.Scripts.Bodies
@@ -31,7 +32,7 @@ namespace Assets.Scripts.Bodies
         /// </summary>
         public double EscapeVelocity { get { return Math.Sqrt(19600 * SurfaceGravity * Radius) / 11200; } }
         /// <summary>
-        /// The rotational period in hours
+        /// The sidereal rotational period in hours
         /// </summary>
         public double RotationalPeriod { get; private set; }
         /// <summary>
@@ -47,13 +48,26 @@ namespace Assets.Scripts.Bodies
         /// </summary>
         public double SolarDay { get { return 1 / (1 / RotationalPeriod + 1 / OrbElements.T.TotalHours * AxialTilt < 90 ? -1 : +1); } }
         /// <summary>
+        /// The age of this planets system.S
+        /// </summary>
+        public double Age { get { return parent.starSystem.Age; } }
+        /// <summary>
         /// The luminocity of a planet, in Sol equivalents. This is only relevant for superjovians
         /// </summary>
         public double Luminocity { get; private set; }
         /// <summary>
-        /// The surface temperature of a  planet, in Kelvin.
+        /// The surface temperature of a planet, in Kelvin.
         /// </summary>
         public double SurfaceTemperature { get; private set; }
+        /// <summary>
+        /// The tectonic activity of a planet.
+        /// </summary>
+        public Tectonics TectonicActivity { get; private set; }
+        public enum Tectonics { Dead, HotSpot, Plastic, Plates, Platelets, Extreme }
+        /// <summary>
+        /// The magnetic field strength of a planet, relative to Earth
+        /// </summary>
+        public double MagneticFieldStrength { get; private set; }
         public List<Planet> moons { get; private set; }
         bool innerPlanet;
         bool isMoon;
@@ -161,10 +175,10 @@ namespace Assets.Scripts.Bodies
                 else if (a <= 9) Mass = 2000 + rng.D10 * 100;
                 else Mass = 3000 + rng.D10 * 100;
 
-                Radius = (int)(60000 + (rng.D10 - parent.starSystem.Age / 2) * 2000);
+                Radius = (int)(60000 + (rng.D10 - Age / 2) * 2000);
                 Density = Mass * Math.Pow(6380 / Radius, 3);
                 // Luminocity (see chart at the bottom of page 19)
-                int row = (int)Math.Round(Mass / 500 - parent.starSystem.Age);
+                int row = (int)Math.Round(Mass / 500 - Age);
                 if (row < 1) { Luminocity = 1.6e-8 * Math.Pow(0.5, -row + 1); SurfaceTemperature = 200 - 30 * (-row + 1); }
                 else if (row == 1) { Luminocity = 1.6e-8; SurfaceTemperature = 200; }
                 else if (row == 2) { Luminocity = 3.4e-8; SurfaceTemperature = 240; }
@@ -180,11 +194,11 @@ namespace Assets.Scripts.Bodies
         public void CalculateDay()
         {
             double tidalForce = (isMoon ? (parentPlanet.Mass * Star.SOLAR_MASS / EARTH_MASS) : parent.Mass) * 26640000 / Math.Pow(OrbElements.SMA * 400, 3);
-            isTidallyLocked = (0.83 + rng.D10 * 0.03) * tidalForce * parent.starSystem.Age / 6.6 > 1;
+            isTidallyLocked = (0.83 + rng.D10 * 0.03) * tidalForce * Age / 6.6 > 1;
             if (isTidallyLocked == false)
             {
                 // Rotational period (table 2.2.2)
-                int a = rng.D10 + (int)(tidalForce * parent.starSystem.Age);
+                int a = rng.D10 + (int)(tidalForce * Age);
                 if (type == Type.Chunk)
                     if (a <= 5) RotationalPeriod = rng.D10 * 2;
                     else if (a <= 7) RotationalPeriod = rng.D10 * 24;
@@ -202,7 +216,7 @@ namespace Assets.Scripts.Bodies
                     else RotationalPeriod = 26 + rng.D10;
                 else throw new ArgumentException("You tried to calculate the day for an " + type);
 
-                double mod = (int)(tidalForce * parent.starSystem.Age);
+                double mod = (int)(tidalForce * Age);
                 if (type == Type.Terrestial_planet) mod -= Math.Sqrt(Mass);
                 if (type == Type.Gas_Giant && Mass < 50) mod += 2;
                 RotationalPeriod *= 1 + (mod * 0.1);
@@ -268,6 +282,112 @@ namespace Assets.Scripts.Bodies
 
         void CalculateGeophisicals()
         {
+            // Plate tectonics
+            double tectonicActivityFactor = (5 + rng.D10) * Math.Sqrt(Mass) / Age;
+            if (moons.Count != 0)
+            {
+                Planet bestMoon = moons.Find(p => p.Mass / Math.Pow(p.OrbElements.SMA, 3) == moons.Max(m => m.Mass / Math.Pow(m.OrbElements.SMA, 3)));
+                double tidalForce = (bestMoon.Mass * Star.SOLAR_MASS / EARTH_MASS) * 26640000 / Math.Pow(bestMoon.OrbElements.SMA * 400, 3);
+                tectonicActivityFactor *= 1 + 0.25 * tidalForce;
+                // TODO: Verify this is a usefull number
+            }
+            if (innerPlanet == false && Density <= 0.45)
+                tectonicActivityFactor *= Density;
+            if (RotationalPeriod <= 18) tectonicActivityFactor *= 1.25;
+            else if (RotationalPeriod >= 100) tectonicActivityFactor *= 0.75;
+            if (RotationalPeriod >= OrbElements.T.TotalHours || isTidallyLocked == true) tectonicActivityFactor *= 0.5;
+            int a = rng.D10;
+            if (tectonicActivityFactor < 0.5) TectonicActivity = Tectonics.Dead;
+            else if (tectonicActivityFactor < 1.0)
+                if (a <= 7) TectonicActivity = Tectonics.Dead;
+                else if (a <= 9) TectonicActivity = Tectonics.HotSpot;
+                else TectonicActivity = Tectonics.Plastic;
+            else if (tectonicActivityFactor < 2.0)
+                if (a <= 1) TectonicActivity = Tectonics.Dead;
+                else if (a <= 5) TectonicActivity = Tectonics.HotSpot;
+                else if (a <= 9) TectonicActivity = Tectonics.Plastic;
+                else TectonicActivity = Tectonics.Plates;
+            else if (tectonicActivityFactor < 3.0)
+                if (a <= 2) TectonicActivity = Tectonics.HotSpot;
+                else if (a <= 6) TectonicActivity = Tectonics.Plastic;
+                else TectonicActivity = Tectonics.Plates;
+            else if (tectonicActivityFactor < 5.0)
+                if (a <= 1) TectonicActivity = Tectonics.HotSpot;
+                else if (a <= 3) TectonicActivity = Tectonics.Plastic;
+                else if (a <= 8) TectonicActivity = Tectonics.Plates;
+                else TectonicActivity = Tectonics.Platelets;
+            else
+                if (a <= 1) TectonicActivity = Tectonics.Plastic;
+                else if (a <= 2) TectonicActivity = Tectonics.Plates;
+                else if (a <= 7) TectonicActivity = Tectonics.Platelets;
+                else TectonicActivity = Tectonics.Extreme;
+
+            // Magnetic field: 10 * 1/sqrt(hours/24) * density^2 * sqrt(mass) / Age
+            if (type == Type.Terrestial_planet || type == Type.Chunk)
+            {
+                double magneticFieldFactor = 10 * 1 / Math.Sqrt(Math.Min(RotationalPeriod, OrbElements.T.TotalHours) / 24) * Math.Pow(Density, 2) * Math.Sqrt(Mass) / Age;
+                if (innerPlanet == false && Density <= 0.45)
+                    magneticFieldFactor *= 0.5;
+                int b = rng.D10;
+                if (magneticFieldFactor <= 0.05) MagneticFieldStrength = 0;
+                else if (magneticFieldFactor <= 0.5)
+                    if (b <= 5) MagneticFieldStrength = 0;
+                    else if (b <= 7) MagneticFieldStrength = rng.D10 * 0.001;
+                    else if (b <= 9) MagneticFieldStrength = rng.D10 * 0.002;
+                    else MagneticFieldStrength = rng.D10 * 0.01;
+                else if (magneticFieldFactor <= 1.0)
+                    if (b <= 3) MagneticFieldStrength = 0;
+                    else if (b <= 5) MagneticFieldStrength = rng.D10 * 0.001;
+                    else if (b <= 7) MagneticFieldStrength = rng.D10 * 0.002;
+                    else if (b <= 9) MagneticFieldStrength = rng.D10 * 0.01;
+                    else MagneticFieldStrength = rng.D10 * 0.05;
+                else if (magneticFieldFactor <= 2.0)
+                    if (b <= 3) MagneticFieldStrength = rng.D10 * 0.001;
+                    else if (b <= 5) MagneticFieldStrength = rng.D10 * 0.002;
+                    else if (b <= 7) MagneticFieldStrength = rng.D10 * 0.01;
+                    else if (b <= 9) MagneticFieldStrength = rng.D10 * 0.05;
+                    else MagneticFieldStrength = rng.D10 * 0.1;
+                else if (magneticFieldFactor <= 4.0)
+                    if (b <= 3) MagneticFieldStrength = rng.D10 * 0.05;
+                    else if (b <= 5) MagneticFieldStrength = rng.D10 * 0.1;
+                    else if (b <= 7) MagneticFieldStrength = rng.D10 * 0.2;
+                    else if (b <= 9) MagneticFieldStrength = rng.D10 * 0.3;
+                    else MagneticFieldStrength = rng.D10 * 0.5;
+                else
+                    if (b <= 3) MagneticFieldStrength = rng.D10 * 0.1;
+                else if (b <= 5) MagneticFieldStrength = rng.D10 * 0.2;
+                else if (b <= 7) MagneticFieldStrength = rng.D10 * 0.3;
+                else if (b <= 9) MagneticFieldStrength = rng.D10 * 0.5;
+                else MagneticFieldStrength = rng.D10 * 1.0;
+            }
+            else if (type == Type.Gas_Giant || type == Type.Superjovian)
+            {
+                int b = rng.D10;
+                if (Mass <= 50)
+                    if (b <= 1) MagneticFieldStrength = rng.D10 * 0.1;
+                    else if (b <= 4) MagneticFieldStrength = rng.D10 * 0.25;
+                    else if (b <= 7) MagneticFieldStrength = rng.D10 * 0.50;
+                    else if (b <= 9) MagneticFieldStrength = rng.D10 * 0.75;
+                    else MagneticFieldStrength = rng.D10 * 1.00;
+                else if (Mass <= 200)
+                    if (b <= 1) MagneticFieldStrength = rng.D10 * 0.25;
+                    else if (b <= 4) MagneticFieldStrength = rng.D10 * 0.50;
+                    else if (b <= 7) MagneticFieldStrength = rng.D10 * 0.75;
+                    else if (b <= 9) MagneticFieldStrength = rng.D10 * 1.00;
+                    else MagneticFieldStrength = rng.D10 * 1.50;
+                else if (Mass <= 500)
+                    if (b <= 1) MagneticFieldStrength = rng.D10 * 0.50;
+                    else if (b <= 4) MagneticFieldStrength = rng.D10 * 1.00;
+                    else if (b <= 7) MagneticFieldStrength = rng.D10 * 1.50;
+                    else if (b <= 9) MagneticFieldStrength = rng.D10 * 2.00;
+                    else MagneticFieldStrength = rng.D10 * 3.00;
+                else
+                    if (b <= 1) MagneticFieldStrength = rng.D10 * 1.5;
+                else if (b <= 4) MagneticFieldStrength = rng.D10 * 2.5;
+                else if (b <= 7) MagneticFieldStrength = rng.D10 * 5;
+                else if (b <= 9) MagneticFieldStrength = rng.D10 * 10;
+                else MagneticFieldStrength = rng.D10 * 25;
+            }
 
         }
 
