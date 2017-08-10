@@ -54,7 +54,11 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// The luminocity of a planet, in Sol equivalents. This is only relevant for superjovians
         /// </summary>
-        public double Luminocity { get; private set; }
+        public double Luminosity { get; private set; }
+        /// <summary>
+        /// The temperature of a planet, before modifications, in Kelvin.
+        /// </summary>
+        public double BaseTemperature { get; private set; }
         /// <summary>
         /// The surface temperature of a planet, in Kelvin.
         /// </summary>
@@ -182,15 +186,15 @@ namespace Assets.Scripts.Bodies
                 Density = Mass * Math.Pow(6380 / Radius, 3);
                 // Luminocity (see chart at the bottom of page 19)
                 int row = (int)Math.Round(Mass / 500 - Age);
-                if (row < 1) { Luminocity = 1.6e-8 * Math.Pow(0.5, -row + 1); SurfaceTemperature = 200 - 30 * (-row + 1); }
-                else if (row == 1) { Luminocity = 1.6e-8; SurfaceTemperature = 200; }
-                else if (row == 2) { Luminocity = 3.4e-8; SurfaceTemperature = 240; }
-                else if (row == 3) { Luminocity = 6.2e-8; SurfaceTemperature = 280; }
-                else if (row == 4) { Luminocity = 1.4e-7; SurfaceTemperature = 340; }
-                else if (row == 5) { Luminocity = 2.6e-7; SurfaceTemperature = 400; }
-                else if (row == 6) { Luminocity = 4.5e-7; SurfaceTemperature = 460; }
-                else if (row == 7) { Luminocity = 8.0e-7; SurfaceTemperature = 530; }
-                else if (row == 8) { Luminocity = 1.4e-6; SurfaceTemperature = 610; }
+                if (row < 1) { Luminosity = 1.6e-8 * Math.Pow(0.5, -row + 1); BaseTemperature = 200 - 30 * (-row + 1); }
+                else if (row == 1) { Luminosity = 1.6e-8; BaseTemperature = 200; }
+                else if (row == 2) { Luminosity = 3.4e-8; BaseTemperature = 240; }
+                else if (row == 3) { Luminosity = 6.2e-8; BaseTemperature = 280; }
+                else if (row == 4) { Luminosity = 1.4e-7; BaseTemperature = 340; }
+                else if (row == 5) { Luminosity = 2.6e-7; BaseTemperature = 400; }
+                else if (row == 6) { Luminosity = 4.5e-7; BaseTemperature = 460; }
+                else if (row == 7) { Luminosity = 8.0e-7; BaseTemperature = 530; }
+                else if (row == 8) { Luminosity = 1.4e-6; BaseTemperature = 610; }
             }
         }
 
@@ -403,6 +407,16 @@ namespace Assets.Scripts.Bodies
                 else MagneticFieldStrength = rng.D10 * 25;
             }
 
+            // Base Temperature
+            if (isMoon == false)
+                if (type == Type.Chunk || type == Type.Terrestial_planet || type == Type.Gas_Giant)
+                    BaseTemperature = 255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(parent.Luminosity));
+                else if (type == Type.Superjovian)
+                    BaseTemperature = Math.Pow(Math.Pow(BaseTemperature, 4) + Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(parent.Luminosity)), 4), 1 / 4);
+                else { }
+            else
+                BaseTemperature = Math.Pow(Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(parentPlanet.Luminosity)), 4) +
+                    Math.Pow(255 / Math.Sqrt(parentPlanet.OrbElements.SMA / Math.Sqrt(parent.Luminosity)), 4), 1 / 4);
         }
 
         private Type RollType()
