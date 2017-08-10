@@ -72,6 +72,29 @@ namespace Assets.Scripts.Bodies
         /// The magnetic field strength of a planet, relative to Earth
         /// </summary>
         public double MagneticFieldStrength { get; private set; }
+        /// <summary>
+        /// The type of hydrosphere this planet has
+        /// </summary>
+        public HydrosphereType Hydrosphere { get; private set; }
+        public enum HydrosphereType { None, Vapor, Liquid, IceSheet, Crustal }
+        /// <summary>
+        /// The extend of the hydrosphere, in part of the planet surface [0,1]
+        /// </summary>
+        public double HydrosphereExtend { get; private set; }
+        /// <summary>
+        /// The amount of water vapor in the atmosphere
+        /// </summary>
+        public double WatorVaporFactor { get; private set; }
+        /// <summary>
+        /// The composition of the atmosphere. Values are partial pressures given in atm
+        /// Note: frozen gasses are still mentioned in this dict. Check boiling point before using.
+        /// </summary>
+        public Dictionary<Gases,double> AtmosphericComposition { get; private set; }
+        /// <summary>
+        /// The type of life this planet has.
+        /// </summary>
+        public LifeTypes Life { get; private set; }
+        public enum LifeTypes { None, Microbial, Algae, Complex, Thinking, Sapient}
 
         AstroidTypes AstroidType = AstroidTypes.NotAnAstroid;
         enum AstroidTypes { NotAnAstroid, Metallic, Silicate, Carbonaceous, Icy }
@@ -301,44 +324,46 @@ namespace Assets.Scripts.Bodies
         void CalculateGeophisicals()
         {
             // Plate tectonics
-            double tectonicActivityFactor = (5 + rng.D10) * Math.Sqrt(Mass) / Age;
-            if (moons.Count != 0)
             {
-                Planet bestMoon = moons.Find(p => p.Mass / Math.Pow(p.OrbElements.SMA, 3) == moons.Max(m => m.Mass / Math.Pow(m.OrbElements.SMA, 3)));
-                double tidalForce = (bestMoon.Mass * Star.SOLAR_MASS / EARTH_MASS) * 26640000 / Math.Pow(bestMoon.OrbElements.SMA * 400, 3);
-                tectonicActivityFactor *= 1 + 0.25 * tidalForce;
-                // TODO: Verify this is a usefull number
-            }
-            if (innerPlanet == false && Density <= 0.45)
-                tectonicActivityFactor *= Density;
-            if (RotationalPeriod <= 18) tectonicActivityFactor *= 1.25;
-            else if (RotationalPeriod >= 100) tectonicActivityFactor *= 0.75;
-            if (RotationalPeriod >= OrbElements.T.TotalHours || isTidallyLocked == true) tectonicActivityFactor *= 0.5;
-            int a = rng.D10;
-            if (tectonicActivityFactor < 0.5) TectonicActivity = Tectonics.Dead;
-            else if (tectonicActivityFactor < 1.0)
-                if (a <= 7) TectonicActivity = Tectonics.Dead;
-                else if (a <= 9) TectonicActivity = Tectonics.HotSpot;
-                else TectonicActivity = Tectonics.Plastic;
-            else if (tectonicActivityFactor < 2.0)
-                if (a <= 1) TectonicActivity = Tectonics.Dead;
-                else if (a <= 5) TectonicActivity = Tectonics.HotSpot;
-                else if (a <= 9) TectonicActivity = Tectonics.Plastic;
-                else TectonicActivity = Tectonics.Plates;
-            else if (tectonicActivityFactor < 3.0)
-                if (a <= 2) TectonicActivity = Tectonics.HotSpot;
-                else if (a <= 6) TectonicActivity = Tectonics.Plastic;
-                else TectonicActivity = Tectonics.Plates;
-            else if (tectonicActivityFactor < 5.0)
-                if (a <= 1) TectonicActivity = Tectonics.HotSpot;
-                else if (a <= 3) TectonicActivity = Tectonics.Plastic;
-                else if (a <= 8) TectonicActivity = Tectonics.Plates;
-                else TectonicActivity = Tectonics.Platelets;
-            else
-                if (a <= 1) TectonicActivity = Tectonics.Plastic;
+                double tectonicActivityFactor = (5 + rng.D10) * Math.Sqrt(Mass) / Age;
+                if (moons.Count != 0)
+                {
+                    Planet bestMoon = moons.Find(p => p.Mass / Math.Pow(p.OrbElements.SMA, 3) == moons.Max(m => m.Mass / Math.Pow(m.OrbElements.SMA, 3)));
+                    double tidalForce = (bestMoon.Mass * Star.SOLAR_MASS / EARTH_MASS) * 26640000 / Math.Pow(bestMoon.OrbElements.SMA * 400, 3);
+                    tectonicActivityFactor *= 1 + 0.25 * tidalForce;
+                    // TODO: Verify this is a usefull number
+                }
+                if (innerPlanet == false && Density <= 0.45)
+                    tectonicActivityFactor *= Density;
+                if (RotationalPeriod <= 18) tectonicActivityFactor *= 1.25;
+                else if (RotationalPeriod >= 100) tectonicActivityFactor *= 0.75;
+                if (RotationalPeriod >= OrbElements.T.TotalHours || isTidallyLocked == true) tectonicActivityFactor *= 0.5;
+                int a = rng.D10;
+                if (tectonicActivityFactor < 0.5) TectonicActivity = Tectonics.Dead;
+                else if (tectonicActivityFactor < 1.0)
+                    if (a <= 7) TectonicActivity = Tectonics.Dead;
+                    else if (a <= 9) TectonicActivity = Tectonics.HotSpot;
+                    else TectonicActivity = Tectonics.Plastic;
+                else if (tectonicActivityFactor < 2.0)
+                    if (a <= 1) TectonicActivity = Tectonics.Dead;
+                    else if (a <= 5) TectonicActivity = Tectonics.HotSpot;
+                    else if (a <= 9) TectonicActivity = Tectonics.Plastic;
+                    else TectonicActivity = Tectonics.Plates;
+                else if (tectonicActivityFactor < 3.0)
+                    if (a <= 2) TectonicActivity = Tectonics.HotSpot;
+                    else if (a <= 6) TectonicActivity = Tectonics.Plastic;
+                    else TectonicActivity = Tectonics.Plates;
+                else if (tectonicActivityFactor < 5.0)
+                    if (a <= 1) TectonicActivity = Tectonics.HotSpot;
+                    else if (a <= 3) TectonicActivity = Tectonics.Plastic;
+                    else if (a <= 8) TectonicActivity = Tectonics.Plates;
+                    else TectonicActivity = Tectonics.Platelets;
+                else
+                    if (a <= 1) TectonicActivity = Tectonics.Plastic;
                 else if (a <= 2) TectonicActivity = Tectonics.Plates;
                 else if (a <= 7) TectonicActivity = Tectonics.Platelets;
                 else TectonicActivity = Tectonics.Extreme;
+            }
 
             // Magnetic field: 10 * 1/sqrt(hours/24) * density^2 * sqrt(mass) / Age
             if (type == Type.Terrestial_planet || type == Type.Chunk)
@@ -417,6 +442,158 @@ namespace Assets.Scripts.Bodies
             else
                 BaseTemperature = Math.Pow(Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(parentPlanet.Luminosity)), 4) +
                     Math.Pow(255 / Math.Sqrt(parentPlanet.OrbElements.SMA / Math.Sqrt(parent.Luminosity)), 4), 1 / 4);
+            // Parts only for small bodies
+            if (type == Type.Chunk || type == Type.Terrestial_planet)
+            {
+                // Hydrosphere
+                if (innerPlanet)
+                    if (BaseTemperature > 500) Hydrosphere = HydrosphereType.None;
+                    else if (BaseTemperature > 370) Hydrosphere = HydrosphereType.Vapor;
+                    else if (BaseTemperature > 245) Hydrosphere = HydrosphereType.Liquid;
+                    else Hydrosphere = HydrosphereType.IceSheet;
+                else
+                    Hydrosphere = HydrosphereType.Crustal;
+                if (Hydrosphere == HydrosphereType.Liquid || Hydrosphere == HydrosphereType.IceSheet)
+                {
+                    int b = rng.D10 + ((isMoon ? parentPlanet.OrbElements.SMA : OrbElements.SMA) > 1.4 * Math.Sqrt(parent.Luminosity) ? +1 : 0);
+                    if (Radius < 2000)
+                        if (b <= 5) HydrosphereExtend = 0;
+                        else if (b <= 7) HydrosphereExtend = rng.D10;
+                        else if (b <= 8) HydrosphereExtend = 10 + rng.D10;
+                        else if (b <= 9) HydrosphereExtend = rng.nD10(5);
+                        else HydrosphereExtend = 10 + rng.nD10(10);
+                    else if (Radius < 4000)
+                        if (b <= 2) HydrosphereExtend = 0;
+                        else if (b <= 4) HydrosphereExtend = rng.D10;
+                        else if (b <= 9) HydrosphereExtend = (b - 4) * 10 + rng.D10;
+                        else HydrosphereExtend = 10 + rng.nD10(10);
+                    else if (Radius < 7000)
+                        if (b <= 1) HydrosphereExtend = 0;
+                        else if (b <= 2) HydrosphereExtend = rng.nD10(2);
+                        else if (b <= 8) HydrosphereExtend = (b - 1) * 10 + rng.D10;
+                        else if (b <= 9) HydrosphereExtend = 80 + rng.nD10(2);
+                        else HydrosphereExtend = 100;
+                    else
+                        if (b <= 1) HydrosphereExtend = 0;
+                    else if (b <= 2) HydrosphereExtend = rng.nD10(2);
+                    else if (b <= 4) HydrosphereExtend = (b - 2) * 20 + rng.nD10(2);
+                    else if (b <= 8) HydrosphereExtend = (b + 1) * 10 + rng.D10;
+                    else HydrosphereExtend = 100;
+                    HydrosphereExtend *= 0.01;  // Transfer from percentage to parts
+                    WatorVaporFactor = (BaseTemperature - 240) * HydrosphereExtend * rng.D10;
+                    if (WatorVaporFactor < 0) WatorVaporFactor = 0;
+                }
+
+                // Atmospheric composition
+                {
+                    List<Gases> atmGases = new List<Gases>();
+                    int c = rng.D10;
+                    if (c <= 4)
+                        if (BaseTemperature > 150) { atmGases.Add(Gases.N2); atmGases.Add(Gases.CO2); }
+                        else if (BaseTemperature > 50) { atmGases.Add(Gases.N2); atmGases.Add(Gases.CH4); }
+                        else { atmGases.Add(Gases.H2); }
+                    else if (c <= 6)
+                        if (BaseTemperature > 150) atmGases.Add(Gases.CO2);
+                        else if (BaseTemperature > 50) { atmGases.Add(Gases.H2); atmGases.Add(Gases.He); atmGases.Add(Gases.N2); }
+                        else atmGases.Add(Gases.He);
+                    else if (c <= 8)
+                        if (BaseTemperature > 400) { atmGases.Add(Gases.NO2); atmGases.Add(Gases.SO2); }
+                        else if (BaseTemperature > 150) { atmGases.Add(Gases.N2); atmGases.Add(Gases.CH4); }
+                        else if (BaseTemperature > 50) { atmGases.Add(Gases.N2); atmGases.Add(Gases.CO); }
+                        else { atmGases.Add(Gases.He); atmGases.Add(Gases.H2); }
+                    else if (c <= 10) // not using special atmospheres. TODO: Add special atmospheres
+                        if (BaseTemperature > 400) { atmGases.Add(Gases.SO2); }
+                        else if (BaseTemperature > 240) { atmGases.Add(Gases.CO2); atmGases.Add(Gases.CH4); atmGases.Add(Gases.NH3); }
+                        else if (BaseTemperature > 150) { atmGases.Add(Gases.H2); atmGases.Add(Gases.He); }
+                        else if (BaseTemperature > 50) { atmGases.Add(Gases.He); atmGases.Add(Gases.H2); }
+                        else { atmGases.Add(Gases.Ne); }
+
+                    double minWeight = 0.02783 * BaseTemperature / Math.Pow(EscapeVelocity, 2);
+                    bool hasEscapedGas = false;
+                    foreach (var gas in atmGases.ToList())
+                    {
+                        if (GasData[gas].Item1 < minWeight)
+                        {
+                            hasEscapedGas = true;
+                            atmGases.Remove(gas);
+                        }
+                    }
+                    SpectralClass.Class_ primeClass_ = parent.starSystem.Primary.spc.class_;
+                    double primeTemp = parent.starSystem.Primary.Temperature;
+                    bool hasUVInfall = ((primeClass_ == SpectralClass.Class_.B || primeClass_ == SpectralClass.Class_.A) && primeTemp > 150000) ||
+                        (primeClass_ == SpectralClass.Class_.F && primeTemp > 180000) ||
+                        (primeClass_ == SpectralClass.Class_.G && primeTemp > 200000) ||
+                        (primeClass_ == SpectralClass.Class_.K && primeTemp > 230000) ||
+                        (primeClass_ == SpectralClass.Class_.M && primeTemp > 260000);
+                    if (hasUVInfall)
+                    {
+                        if (atmGases.Contains(Gases.NH3)) { atmGases.Remove(Gases.NH3); atmGases.Add(Gases.N2); }
+                        if (atmGases.Contains(Gases.CH4)) { atmGases.Remove(Gases.CH4); hasEscapedGas = true; }
+                        if (atmGases.Contains(Gases.H2S)) { atmGases.Remove(Gases.H2S); hasEscapedGas = true; }
+                        if (atmGases.Contains(Gases.H2O)) { atmGases.Remove(Gases.H2O); hasEscapedGas = true; }
+                    }
+                    if (TectonicActivity == Tectonics.Dead)
+                    {
+                        if (atmGases.Contains(Gases.SO2)) atmGases.Remove(Gases.SO2);
+                        if (atmGases.Contains(Gases.H2S)) atmGases.Remove(Gases.H2S);
+                    }
+
+                    double majorityGasPerc = 0;
+                    int d = rng.D10;
+                    if (d <= 5) majorityGasPerc = 50 + rng.nD10(4);
+                    else if (d <= 8) majorityGasPerc = 75 + rng.nD10(2);
+                    else majorityGasPerc = 95 + rng.D10 / 2.0;
+                    double totalPressure = 0;
+                    int e = rng.D10 + (TectonicActivity == Tectonics.Dead ? -1 : 0) +
+                        (TectonicActivity == Tectonics.Extreme ? +1 : 0) +
+                        (hasEscapedGas ? -1 : 0);
+                    if (e <= 2) totalPressure = rng.D10 * 0.01;
+                    else if (e <= 4) totalPressure = rng.D10 * 0.1;
+                    else if (e <= 7) totalPressure = rng.D10 * 0.2;
+                    else if (e <= 8) totalPressure = rng.D10 * 0.5;
+                    else if (e <= 9) totalPressure = rng.D10 * 2.0;
+                    else totalPressure = rng.D10 * 20.0;
+
+                    AtmosphericComposition = new Dictionary<Gases, double>();
+                    if (atmGases.Count != 0)
+                    {
+                        if (atmGases.Count == 1)
+                            AtmosphericComposition.Add(atmGases[0], totalPressure * 0.01);
+                        else
+                        {
+                            AtmosphericComposition.Add(atmGases[0], totalPressure * majorityGasPerc * 0.01);
+                            for (int i = 1; i < atmGases.Count; i++)
+                            {
+                                AtmosphericComposition.Add(atmGases[i], totalPressure * (1 - majorityGasPerc * 0.01) / (atmGases.Count - 1));
+                            }
+                        }
+                    }
+                }
+                // Albedo
+                {
+                    int c = rng.D10 + 
+                }
+
+                // LIFE
+                if (Hydrosphere == HydrosphereType.Liquid)
+                    if (AtmosphericComposition.ContainsKey(Gases.CO) || AtmosphericComposition.ContainsKey(Gases.CO2) || AtmosphericComposition.ContainsKey(Gases.CH4))
+                        if (rng.D10 <= 3)
+                            if (rng.D10 == 10)
+                                if (rng.D10 == 10)
+                                    if (rng.D10 == 10)
+                                        if (rng.D10 == 10)
+                                            Life = LifeTypes.Sapient;
+                                        else Life = LifeTypes.Thinking;
+                                    else Life = LifeTypes.Complex;
+                                else Life = LifeTypes.Algae;
+                            else Life = LifeTypes.Microbial;
+                if(Life != LifeTypes.None)
+                {
+                    if (AtmosphericComposition.ContainsKey(Gases.CO)) { AtmosphericComposition.Add(Gases.O2, AtmosphericComposition[Gases.CO]); AtmosphericComposition.Remove(Gases.CO); }
+                    if (AtmosphericComposition.ContainsKey(Gases.CO2)) { AtmosphericComposition.Add(Gases.O2, AtmosphericComposition[Gases.CO2]); AtmosphericComposition.Remove(Gases.CO2); }
+                    if (AtmosphericComposition.ContainsKey(Gases.CH4)) { AtmosphericComposition.Add(Gases.O2, AtmosphericComposition[Gases.CH4]); AtmosphericComposition.Remove(Gases.CH4); }
+                }
+            }
         }
 
         private Type RollType()
@@ -601,11 +778,31 @@ namespace Assets.Scripts.Bodies
         }
 
         public enum Type { Chunk, Terrestial_planet, Gas_Giant, Superjovian, Astroid_Belt, Ring, Empty, Interloper, Trojan, Double_Planet, Captured }
+        public enum Gases { H2, He, CH4, NH3, H2O, Ne, N2, CO, NO, O2, H2S, Ar, CO2, NO2, SO2 }
         /// <summary>
         /// The mass of the Earth in kg
         /// </summary>
         public const double EARTH_MASS = 5.972e24;
-
+        /// <summary>
+        /// Gasses with their molecular weight and boiling point at 1 atm.
+        /// </summary>
+        public Dictionary<Gases, Tuple<double, double>> GasData = new Dictionary<Gases, Tuple<double, double>>() {
+            {Gases.H2, new Tuple<double, double>(2,20) },
+            {Gases.He, new Tuple<double, double>(4,4) },
+            {Gases.CH4, new Tuple<double, double>(16,109) },
+            {Gases.NH3, new Tuple<double, double>(17,240) },
+            {Gases.H2O, new Tuple<double, double>(18,373) },
+            {Gases.Ne, new Tuple<double, double>(20,27) },
+            {Gases.N2, new Tuple<double, double>(28,77) },
+            {Gases.CO, new Tuple<double, double>(28,82) },
+            {Gases.NO, new Tuple<double, double>(30,121) },
+            {Gases.O2, new Tuple<double, double>(32,90) },
+            {Gases.H2S, new Tuple<double, double>(34,212) },
+            {Gases.Ar, new Tuple<double, double>(40,87) },
+            {Gases.CO2, new Tuple<double, double>(44,195) },
+            {Gases.NO2, new Tuple<double, double>(46,294) },
+            {Gases.SO2, new Tuple<double, double>(64,263) }
+        };
 
 
         internal void AddPopulation(Population p)

@@ -166,6 +166,16 @@ namespace Assets.Scripts
         public int D100 { get { return irand.Next(1, 101); } }
         public int D1000 { get { return irand.Next(1, 1001); } }
 
+        public int nD10(int n)
+        {
+            int s = 0;
+            for (int i = 0; i < n; i++)
+            {
+                s += D10;
+            }
+            return s;
+        }
+
         /// <summary>
         /// A random number between 0 and 2 Pi
         /// </summary>
