@@ -42,14 +42,14 @@ namespace Assets.Scripts.Bodies
             spcP.specification = rng.D10;
             // Determine system Age
             {
-                if (Primary.spc.size <= SpectralClass.Size.IV)       // subgiants & giants
+                if (spcP.size <= SpectralClass.Size.IV)       // subgiants & giants
                 {
                     SpectralClass comparedSpc = new SpectralClass() {
                         size = SpectralClass.Size.IV,
                         class_ = Star.LumAndMassTable.Aggregate((s, t) => s.Value[SpectralClass.Size.IV].Min(
-                            k => Math.Abs(k.Value.Item2 - Star.LumAndMassTable[Primary.spc.class_][Primary.spc.size][Primary.spc.specification].Item2)
+                            k => Math.Abs(k.Value.Item2 - Star.LumAndMassTable[spcP.class_][spcP.size][spcP.specification].Item2)
                             ) < t.Value[SpectralClass.Size.IV].Min(
-                                k => Math.Abs(k.Value.Item2 - Star.LumAndMassTable[Primary.spc.class_][Primary.spc.size][Primary.spc.specification].Item2)
+                                k => Math.Abs(k.Value.Item2 - Star.LumAndMassTable[spcP.class_][spcP.size][spcP.specification].Item2)
                                 ) ? s : t).Key         // New record for the most complex LINQ command ! The above function seaches for the spectral class of size 4 that has the closest  
                                                        // matching mass to our primary
                     };
@@ -135,7 +135,7 @@ namespace Assets.Scripts.Bodies
 
             // Determine System Abundance
             {
-                int a = rng.D10 + rng.D10 + (int)Age;
+                int a = rng.nD10(2) + (int)Age;
                 if (a <= 9) Abundance = +2;
                 else if (a <= 12) Abundance = +1;
                 else if (a <= 18) Abundance = +0;
@@ -170,7 +170,7 @@ namespace Assets.Scripts.Bodies
 
                 closestSeperation = meanSeperation * (1 - eccentricity);
                 furthestSeperation = meanSeperation * (1 + eccentricity);
-                double orbitalPeriod = Math.Sqrt(Math.Pow(meanSeperation, 3) / (Primary.Mass + Secondary.Mass));
+                double orbitalPeriod = Math.Sqrt(Math.Pow(meanSeperation, 3) / (Primary.Mass + Secondary.Mass)); // In years?
                 double r1 = meanSeperation / (1 + Primary.Mass / Secondary.Mass);
                 if(r1 < Primary.Radius)     // The baricentrum is inside the primary. Just set the primary as the center of the system
                 {
@@ -225,8 +225,8 @@ namespace Assets.Scripts.Bodies
                     if (Tertiary != null)
                     {
                         double centralMass = tertiaryPos == 1 ? Primary.Mass : tertiaryPos == 2 ? Secondary.Mass : (Primary.Mass + Secondary.Mass);
-                        double r3 = meanSeperation / (1 + centralMass / Tertiary.Mass);
-                        Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, meanSeperation, eccentricity, centralMass));
+                        double r3 = meanSeperationT / (1 + Tertiary.Mass / centralMass);    // Distance from tertiary to barycentrum
+                        Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, r3, eccentricityT, centralMass));
                     }
                 }
             }
@@ -245,6 +245,7 @@ namespace Assets.Scripts.Bodies
                 if (Secondary != null)   // Repeat for secondary
                 {
                     List<double> orbitSizesS = GenerateOrbits(Secondary);
+
                     // Destroy invalid orbits due to binaries
                     orbitSizesS.RemoveAll(o => 
                         (o * 3 > closestSeperation) ||
@@ -254,27 +255,29 @@ namespace Assets.Scripts.Bodies
                     if (Tertiary != null) // repeat for tertiary
                     {
                         List<double> orbitSizesT = GenerateOrbits(Secondary);
+
                         // Destroy invalid orbits due to binaries
-                        orbitSizesT.RemoveAll(o =>
-                            ((tertiaryPos == 1 || tertiaryPos == 2) && (o * 3 > closestSeperationT || o * 3 > furthestSeperationT + closestSeperation  )) ||
-                            (tertiaryPos == 3 && o * 3 > closestSeperationT)
-                        );
+                        orbitSizesT.RemoveAll(o => 3 > closestSeperationT);
                         // Generate planets
-                        orbitSizesT.ForEach(o => Planets.Add(new Planet(Tertiary, o, o < 4 * Math.Sqrt(Tertiary.Luminosity))));
+                        orbitSizesT.ForEach(or => Planets.Add(new Planet(Tertiary, or, or < 4 * Math.Sqrt(Tertiary.Luminosity))));
                     }
-                    orbitSizesS.ForEach(o => Planets.Add(new Planet(Secondary, o, o < 4 * Math.Sqrt(Secondary.Luminosity))));
-                    orbitSizes.FindAll(o => o > furthestSeperation).ForEach(o => Planets.Add(new Planet(Star.Combine(Primary,Secondary), o, o < 4 * Math.Sqrt(Secondary.Luminosity))));
+                    orbitSizesS.ForEach(or => Planets.Add(new Planet(Secondary, or, or < 4 * Math.Sqrt(Secondary.Luminosity))));
+                    orbitSizes.FindAll(or => or > furthestSeperation).ForEach(o =>
+                        Planets.Add(new Planet(Star.Combine(Primary, Secondary), o, o < 4 * Math.Sqrt(Primary.Luminosity + Secondary.Luminosity))));
                     orbitSizes.RemoveAll(o => o > furthestSeperation);
                 }
                 orbitSizes.ForEach(o => Planets.Add(new Planet(Primary, o, o < 4 * Math.Sqrt(Secondary.Luminosity))));
 
+                Planets.RemoveAll(p => p.type == Planet.Type.Empty);
                 Planets.FindAll(p => p.type == Planet.Type.Astroid_Belt).ForEach(p => p.ResolveAstroidBelt());
                 Planets.FindAll(p => p.type == Planet.Type.Interloper).ForEach(p => p.ResolveInterloper());
-                Planets.FindAll(p => p.type == Planet.Type.Trojan).ForEach(p => p.ResolveTrojan());
+                Planets.FindAll(p => p.type == Planet.Type.Trojan).ForEach(p => Planets.Add(p.ResolveTrojan()));
                 Planets.FindAll(p => p.type == Planet.Type.Double_Planet).ForEach(p => p.ResolveDoublePlanet());
                 Planets.FindAll(p => p.type == Planet.Type.Captured).ForEach(p => p.ResolveCaptured());
 
                 Planets.ForEach(p => p.CalculateDay());
+                Planets.ForEach(p => p.CalculateMoons());
+                Planets.ForEach(p => p.CalculateGeophisicals());
             }
 
 
@@ -290,8 +293,6 @@ namespace Assets.Scripts.Bodies
         /// <returns></returns>
         List<double> GenerateOrbits(Star star)
         {
-            int numberOfOrbits;
-            List<double> orbitSizes;
             int a = rng.D10;
             if (star.spc.size == SpectralClass.Size.V)
                 if (star.spc.class_ == SpectralClass.Class_.K && star.spc.specification >= 5)
@@ -302,24 +303,24 @@ namespace Assets.Scripts.Bodies
             if (star.spc.class_ == SpectralClass.Class_.BrownDwarf)
                 a += 5;
             a += (-Abundance);
-            numberOfOrbits = 0;
+            int numberOfOrbits = 0;
             if (a == 1) numberOfOrbits = rng.D10 + 10;
             else if (a <= 5) numberOfOrbits = rng.D10 + 5;
             else if (a <= 7) numberOfOrbits = rng.D10;
             else if (a <= 9) numberOfOrbits = rng.D10 / 2;
-            else numberOfOrbits = 0;
+            else { numberOfOrbits = 0; return new List<double>(); }
 
-            orbitSizes = new List<double>();
+            List<double> orbitSizes = new List<double>();
             orbitSizes.Add(0.05 * Math.Pow(star.Mass, 2) * rng.D10);
             for (int i = 1; i < numberOfOrbits; i++)
             {
                 orbitSizes.Add(orbitSizes[i - 1] * (1.1 + rng.D10 * 0.1) + 0.1);
             }
             // Destroy orbits inside schorching radius
-            double schorchingRadius = 0.025 * Math.Sqrt(Primary.Luminosity); // unit: AU
-            if (Primary.spc.class_ == SpectralClass.Class_.WhiteDwarf)
+            double schorchingRadius = 0.025 * Math.Sqrt(star.Luminosity); // unit: AU
+            if (star.spc.class_ == SpectralClass.Class_.WhiteDwarf)
             {
-                int b = rng.D10 + (Primary.Mass > 0.6 ? 2 : 0) + (Primary.Mass > 0.9 ? 2 : 0);
+                int b = rng.D10 + (star.Mass > 0.6 ? star.Mass > 0.9 ? +4 : +2 : 0);
                 if (b <= 4) schorchingRadius = Math.Max(schorchingRadius, 2);
                 else if (b <= 8) schorchingRadius = Math.Max(schorchingRadius, 4);
                 else if (b <= 11) schorchingRadius = Math.Max(schorchingRadius, 6);
@@ -486,7 +487,7 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// One astronomical unit in meters
         /// </summary>
-        public const ulong AU = 149597870700;   // 149'597'870'700 meters
+        public const ulong AU = 149597871;   // 149'597'870,700 kilometers
         public const ulong SOL_SIZE = 40 * AU;
         
 

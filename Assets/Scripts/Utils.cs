@@ -19,7 +19,7 @@ namespace Assets.Scripts
         public readonly double MAaE;// Mean anomaly at epoch
         public readonly double SMA;  // Semi-major axis
         public readonly double e;   // exentricity
-        public readonly double parentMass;
+        public readonly double parentMass; // in kg
         // TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
         public TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass))); } }
         /// <summary>
@@ -40,7 +40,7 @@ namespace Assets.Scripts
         /// <param name="MAaE">Mean anomaly at epoch, between 0 and 2*PI</param>
         /// <param name="SMA">Semi-Major axis, in AU</param>
         /// <param name="e">Eccentricity, 0 for circles, 1 for parabolas</param>
-        /// <param name="parent"></param>
+        /// <param name="parent">The mass of the parent object, in kg</param>
         public OrbitalElements(double LAN, double i, double AOP, double MAaE, double SMA, double e, double parentMass)
         {
             this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parentMass = parentMass;

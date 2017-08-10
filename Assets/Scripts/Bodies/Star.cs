@@ -149,9 +149,6 @@ namespace Assets.Scripts.Bodies
                     else if (spc.class_ == SpectralClass.Class_.M) Luminosity *= StarSystem.AgeTable["M0-M9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
                 }
             }
-
-
-
         }
 
         Star() { }
