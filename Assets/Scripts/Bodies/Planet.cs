@@ -91,10 +91,18 @@ namespace Assets.Scripts.Bodies
         /// </summary>
         public Dictionary<Gases,double> AtmosphericComposition { get; private set; }
         /// <summary>
+        /// The pressure at sea level, in atm
+        /// </summary>
+        public double PressureAtSeaLevel { get { return AtmosphericComposition.Sum(g => g.Value); } }
+        /// <summary>
         /// The type of life this planet has.
         /// </summary>
         public LifeTypes Life { get; private set; }
         public enum LifeTypes { None, Microbial, Algae, Complex, Thinking, Sapient}
+        /// <summary>
+        /// The albedo of the planet, relative to Earth. A lower factor represents a higher reflectivity
+        /// </summary>
+        public double AlbedoFactor { get; private set; }
 
         AstroidTypes AstroidType = AstroidTypes.NotAnAstroid;
         enum AstroidTypes { NotAnAstroid, Metallic, Silicate, Carbonaceous, Icy }
@@ -446,7 +454,7 @@ namespace Assets.Scripts.Bodies
             if (type == Type.Chunk || type == Type.Terrestial_planet)
             {
                 // Hydrosphere
-                if (innerPlanet)
+                if (innerPlanet || (isMoon && parentPlanet.Mass > 200))
                     if (BaseTemperature > 500) Hydrosphere = HydrosphereType.None;
                     else if (BaseTemperature > 370) Hydrosphere = HydrosphereType.Vapor;
                     else if (BaseTemperature > 245) Hydrosphere = HydrosphereType.Liquid;
@@ -571,7 +579,34 @@ namespace Assets.Scripts.Bodies
                 }
                 // Albedo
                 {
-                    int c = rng.D10 + 
+                    int c = rng.D10;
+                    if (innerPlanet || (isMoon && parentPlanet.Mass > 200))
+                        c += (AtmosphericComposition.Count == 0 ? +2 : 0) +
+                            Math.Min((PressureAtSeaLevel > 5 ? PressureAtSeaLevel < 50 ? -4 : -2 : 0),
+                            (Hydrosphere == HydrosphereType.IceSheet && HydrosphereExtend > 0.5 ? HydrosphereExtend > 0.9 ? -4 : -2 : 0));
+                    else c += (PressureAtSeaLevel > 1 ? +1 : 0);
+                    
+                    if(innerPlanet || (isMoon && parentPlanet.Mass > 200))
+                        if (c <= 1) AlbedoFactor = 0.75 * rng.D10 * 0.01;
+                        else if (c <= 3) AlbedoFactor = 0.85 + rng.D10 * 0.01;
+                        else if (c <= 6) AlbedoFactor = 0.95 + rng.D10 * 0.01;
+                        else if (c <= 9) AlbedoFactor = 1.05 + rng.D10 * 0.01;
+                        else AlbedoFactor = 1.15 + rng.D10 * 0.01;
+                    else
+                        if (c <= 3) AlbedoFactor = 0.75 * rng.D10 * 0.01;
+                        else if (c <= 5) AlbedoFactor = 0.85 + rng.D10 * 0.01;
+                        else if (c <= 7) AlbedoFactor = 0.95 + rng.D10 * 0.01;
+                        else if (c <= 9) AlbedoFactor = 1.05 + rng.D10 * 0.01;
+                        else AlbedoFactor = 1.15 + rng.D10 * 0.01;
+                }
+
+                // Surface temperature
+                {
+                    double greenhousPressure = AtmosphericComposition.Sum(g =>
+                        (g.Key == Gases.CO2 || g.Key == Gases.CH4 || g.Key == Gases.SO2 || g.Key == Gases.NO2) ? g.Value : 0);
+                    double greenhouseFactor = 1 + Math.Sqrt(PressureAtSeaLevel) * 0.01 * rng.D10 + Math.Sqrt(greenhousPressure) * 0.1 + WatorVaporFactor * 0.1;
+                    SurfaceTemperature = BaseTemperature * AlbedoFactor * greenhouseFactor;
+                    // TODO: Check back with the hydrosphere, etc
                 }
 
                 // LIFE
