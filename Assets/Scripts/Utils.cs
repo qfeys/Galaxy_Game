@@ -46,6 +46,12 @@ namespace Assets.Scripts
             this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parentMass = parentMass;
         }
 
+        /// <summary>
+        /// The position of this object in spherical coordinates, with r in AU,
+        /// with zero at the place of the barycentrum of this orbit
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
         public VectorS GetPositionSphere(DateTime time)
         {
             if (SMA == 0) return new VectorS(0, 0, 0);
@@ -57,6 +63,11 @@ namespace Assets.Scripts
             ret.u = LAN + (AOP + EA) * Math.Sin(i);
             ret.v = i * Math.Sin(AOP + EA);
             return ret;
+        }
+
+        public UnityEngine.Vector3 GetPosition(DateTime time)
+        {
+            return (UnityEngine.Vector3)GetPositionSphere(time);
         }
 
         double EccentricAnomaly(double meanAnomaly, double guess = double.NaN)
@@ -96,7 +107,7 @@ namespace Assets.Scripts
     /// </summary>
     struct VectorS
     {
-        // Radius
+        // Radius, recomended to be in AU
         public ulong r;
         // Angle on the ecliptica [0, 2xPi] [rad]
         public double u;

@@ -7,8 +7,17 @@ namespace Assets.Scripts.Bodies
 {
     internal class Planet
     {
-        Star parent;
-        Planet parentPlanet;
+        /// <summary>
+        /// The parent star
+        /// </summary>
+        public Star Parent { get; private set; }
+        /// <summary>
+        /// The parent planet if this is a moon
+        /// </summary>
+        public Planet ParentPlanet { get; private set; }
+        /// <summary>
+        /// The type of planet this planet is
+        /// </summary>
         public Type type { get; private set; }
         public OrbitalElements OrbElements { get; private set; }
         /// <summary>
@@ -50,7 +59,7 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// The age of this planets system.S
         /// </summary>
-        public double Age { get { return parent.starSystem.Age; } }
+        public double Age { get { return Parent.starSystem.Age; } }
         /// <summary>
         /// The luminocity of a planet, in Sol equivalents. This is only relevant for superjovians
         /// </summary>
@@ -112,11 +121,11 @@ namespace Assets.Scripts.Bodies
         bool isCaptured = false;
         bool isTidallyLocked;
         Tuple<Planet, Planet> doubleChilderen;
-        public RNG rng { get { return parent.starSystem.rng; } }
+        public RNG rng { get { return Parent.starSystem.rng; } }
 
         public Planet(Star parent, double meanDistance, bool InnerPlanet)
         {
-            this.parent = parent;
+            this.Parent = parent;
             innerPlanet = InnerPlanet;
             type = RollType();
             // Calculate orbital elements
@@ -148,7 +157,7 @@ namespace Assets.Scripts.Bodies
         /// <param name="orbitalElements"></param>
         Planet(Star parent, bool innerPlanet, Type type, OrbitalElements orbitalElements)
         {
-            this.parent = parent;
+            this.Parent = parent;
             this.innerPlanet = innerPlanet;
             this.type = type;
             OrbElements = orbitalElements;
@@ -165,12 +174,12 @@ namespace Assets.Scripts.Bodies
         {
             this.innerPlanet = innerPlanet;
             isMoon = true;
-            parentPlanet = planet;
-            parent = parentPlanet.parent;
-            double sma = semiMajorAxis * parentPlanet.Radius / StarSystem.AU;
-            OrbElements = new OrbitalElements(parentPlanet.NorthDirection + Math.PI / 2, parentPlanet.AxialTilt, 0, rng.Circle, sma, 0, parentPlanet.Mass * EARTH_MASS);
+            ParentPlanet = planet;
+            Parent = ParentPlanet.Parent;
+            double sma = semiMajorAxis * ParentPlanet.Radius / StarSystem.AU;
+            OrbElements = new OrbitalElements(ParentPlanet.NorthDirection + Math.PI / 2, ParentPlanet.AxialTilt, 0, rng.Circle, sma, 0, ParentPlanet.Mass * EARTH_MASS);
             // Radius
-            int a = rng.D100 + parent.starSystem.Abundance * (parent.starSystem.Abundance < 0 ? 2 : 1);
+            int a = rng.D100 + Parent.starSystem.Abundance * (Parent.starSystem.Abundance < 0 ? 2 : 1);
             if (a <= 64) { Radius = rng.D10 * 10; type = Type.Chunk; }
             else if (a <= 84) { Radius = rng.D10 * 100; type = Type.Chunk; }
             else if (a <= 94) { Radius = rng.D10 * 100 + 1000; type = Type.Chunk; }
@@ -179,7 +188,7 @@ namespace Assets.Scripts.Bodies
             Density = innerPlanet ? 0.3 + rng.D10 * 0.1 : 0.1 + rng.D10 * 0.05;
             Mass = Math.Pow(Radius / 6380, 3) * Density;
             // Test for rings
-            double rocheLimit = 2.456 * Math.Pow(parentPlanet.Density / Density, 0.33);
+            double rocheLimit = 2.456 * Math.Pow(ParentPlanet.Density / Density, 0.33);
             if (semiMajorAxis < rocheLimit)
                 type = Type.Ring;
             CalculateDay();
@@ -193,19 +202,19 @@ namespace Assets.Scripts.Bodies
                 if (type == Type.Chunk) Radius = 200 * a;
                 else if (type == Type.Terrestial_planet)
                     if (a == 1) Radius = 2000 + rng.D10 * 100;
-                    else if (a + parent.starSystem.Abundance <= 2) Radius = 2000 + rng.D10 * 100;
-                    else if (a + parent.starSystem.Abundance <= 4) Radius = 3000 + rng.D10 * 100;
-                    else if (a + parent.starSystem.Abundance <= 8) Radius = (a - 1) * 1000 + rng.D10 * 100;
-                    else if (a + parent.starSystem.Abundance <= 9) Radius = 8000 + rng.D10 * 200;
+                    else if (a + Parent.starSystem.Abundance <= 2) Radius = 2000 + rng.D10 * 100;
+                    else if (a + Parent.starSystem.Abundance <= 4) Radius = 3000 + rng.D10 * 100;
+                    else if (a + Parent.starSystem.Abundance <= 8) Radius = (a - 1) * 1000 + rng.D10 * 100;
+                    else if (a + Parent.starSystem.Abundance <= 9) Radius = 8000 + rng.D10 * 200;
                     else Radius = 10000 + rng.D10 * 500;
                 else if (type == Type.Gas_Giant)
                     if (a <= 5) Radius = (a + 4) * 3000 + rng.D10 * 300;
                     else Radius = (a - 3) * 10000 + rng.D10 * 1000;
 
-                int b = rng.D10 + parent.starSystem.Abundance;
+                int b = rng.D10 + Parent.starSystem.Abundance;
                 if (b < 1) b = 1; else if (b > 11) b = 11;
                 if (innerPlanet)
-                    if (type == Type.Chunk || type == Type.Terrestial_planet) Density = 0.3 + b * 0.127 / Math.Pow(0.4 + OrbElements.SMA / Math.Sqrt(parent.Luminosity), 0.67);
+                    if (type == Type.Chunk || type == Type.Terrestial_planet) Density = 0.3 + b * 0.127 / Math.Pow(0.4 + OrbElements.SMA / Math.Sqrt(Parent.Luminosity), 0.67);
                     else if (type == Type.Gas_Giant) Density = 0.1 + b * 0.025;
                     else { }
                 else
@@ -242,7 +251,7 @@ namespace Assets.Scripts.Bodies
         public void CalculateDay()
         {
             if (type == Type.Double_Planet || type == Type.Astroid_Belt || type == Type.Ring) return; // These have nothing that has to be resolved here.
-            double tidalForce = (isMoon ? (parentPlanet.Mass * Star.SOLAR_MASS / EARTH_MASS) : parent.Mass) * 26640000 / Math.Pow(OrbElements.SMA * 400, 3);
+            double tidalForce = (isMoon ? (ParentPlanet.Mass * Star.SOLAR_MASS / EARTH_MASS) : Parent.Mass) * 26640000 / Math.Pow(OrbElements.SMA * 400, 3);
             isTidallyLocked = (0.83 + rng.D10 * 0.03) * tidalForce * Age / 6.6 > 1;
             if (isTidallyLocked == false)
             {
@@ -446,18 +455,18 @@ namespace Assets.Scripts.Bodies
             // Base Temperature
             if (isMoon == false)
                 if (type == Type.Chunk || type == Type.Terrestial_planet || type == Type.Gas_Giant)
-                    BaseTemperature = 255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(parent.Luminosity));
+                    BaseTemperature = 255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(Parent.Luminosity));
                 else if (type == Type.Superjovian)
-                    BaseTemperature = Math.Pow(Math.Pow(BaseTemperature, 4) + Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(parent.Luminosity)), 4), 1 / 4);
+                    BaseTemperature = Math.Pow(Math.Pow(BaseTemperature, 4) + Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(Parent.Luminosity)), 4), 1 / 4);
                 else { }
             else
-                BaseTemperature = Math.Pow(Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(parentPlanet.Luminosity)), 4) +
-                    Math.Pow(255 / Math.Sqrt(parentPlanet.OrbElements.SMA / Math.Sqrt(parent.Luminosity)), 4), 1 / 4);
+                BaseTemperature = Math.Pow(Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(ParentPlanet.Luminosity)), 4) +
+                    Math.Pow(255 / Math.Sqrt(ParentPlanet.OrbElements.SMA / Math.Sqrt(Parent.Luminosity)), 4), 1 / 4);
             // Parts only for small bodies
             if (type == Type.Chunk || type == Type.Terrestial_planet)
             {
                 // Hydrosphere
-                if (innerPlanet || (isMoon && parentPlanet.Mass > 200))
+                if (innerPlanet || (isMoon && ParentPlanet.Mass > 200))
                     if (BaseTemperature > 500) Hydrosphere = HydrosphereType.None;
                     else if (BaseTemperature > 370) Hydrosphere = HydrosphereType.Vapor;
                     else if (BaseTemperature > 245) Hydrosphere = HydrosphereType.Liquid;
@@ -466,7 +475,7 @@ namespace Assets.Scripts.Bodies
                     Hydrosphere = HydrosphereType.Crustal;
                 if (Hydrosphere == HydrosphereType.Liquid || Hydrosphere == HydrosphereType.IceSheet)
                 {
-                    int b = rng.D10 + ((isMoon ? parentPlanet.OrbElements.SMA : OrbElements.SMA) > 1.4 * Math.Sqrt(parent.Luminosity) ? +1 : 0);
+                    int b = rng.D10 + ((isMoon ? ParentPlanet.OrbElements.SMA : OrbElements.SMA) > 1.4 * Math.Sqrt(Parent.Luminosity) ? +1 : 0);
                     if (Radius < 2000)
                         if (b <= 5) HydrosphereExtend = 0;
                         else if (b <= 7) HydrosphereExtend = rng.D10;
@@ -529,8 +538,8 @@ namespace Assets.Scripts.Bodies
                             atmGases.Remove(gas);
                         }
                     }
-                    SpectralClass.Class_ primeClass_ = parent.starSystem.Primary.spc.class_;
-                    double primeTemp = parent.starSystem.Primary.Temperature;
+                    SpectralClass.Class_ primeClass_ = Parent.starSystem.Primary.spc.class_;
+                    double primeTemp = Parent.starSystem.Primary.Temperature;
                     bool hasUVInfall = ((primeClass_ == SpectralClass.Class_.B || primeClass_ == SpectralClass.Class_.A) && primeTemp > 150000) ||
                         (primeClass_ == SpectralClass.Class_.F && primeTemp > 180000) ||
                         (primeClass_ == SpectralClass.Class_.G && primeTemp > 200000) ||
@@ -583,13 +592,13 @@ namespace Assets.Scripts.Bodies
                 // Albedo
                 {
                     int c = rng.D10;
-                    if (innerPlanet || (isMoon && parentPlanet.Mass > 200))
+                    if (innerPlanet || (isMoon && ParentPlanet.Mass > 200))
                         c += (AtmosphericComposition.Count == 0 ? +2 : 0) +
                             Math.Min((PressureAtSeaLevel > 5 ? PressureAtSeaLevel < 50 ? -4 : -2 : 0),
                             (Hydrosphere == HydrosphereType.IceSheet && HydrosphereExtend > 0.5 ? HydrosphereExtend > 0.9 ? -4 : -2 : 0));
                     else c += (PressureAtSeaLevel > 1 ? +1 : 0);
                     
-                    if(innerPlanet || (isMoon && parentPlanet.Mass > 200))
+                    if(innerPlanet || (isMoon && ParentPlanet.Mass > 200))
                         if (c <= 1) AlbedoFactor = 0.75 * rng.D10 * 0.01;
                         else if (c <= 3) AlbedoFactor = 0.85 + rng.D10 * 0.01;
                         else if (c <= 6) AlbedoFactor = 0.95 + rng.D10 * 0.01;
@@ -670,21 +679,21 @@ namespace Assets.Scripts.Bodies
                 throw new ArgumentException("You tried to resolve the astroid belt status of a planet with type: " + type);
             // Desity
             {
-                int b = rng.D10 + parent.starSystem.Abundance;
+                int b = rng.D10 + Parent.starSystem.Abundance;
                 if (b < 1) b = 1; else if (b > 11) b = 11;
-                if (innerPlanet) Density = 0.3 + b * 0.127 / Math.Pow(0.4 + OrbElements.SMA / Math.Sqrt(parent.Luminosity), 0.67);                 
+                if (innerPlanet) Density = 0.3 + b * 0.127 / Math.Pow(0.4 + OrbElements.SMA / Math.Sqrt(Parent.Luminosity), 0.67);                 
                 else Density = 0.1 + b * 0.05;
                 if (Density > 1.5) Density = 1.5;
             }
             // Type
-            int a = rng.D10 + (innerPlanet ? 0 : +6) + (OrbElements.SMA < 0.47 * Math.Sqrt(parent.Luminosity) ? -2 : 0) +
+            int a = rng.D10 + (innerPlanet ? 0 : +6) + (OrbElements.SMA < 0.47 * Math.Sqrt(Parent.Luminosity) ? -2 : 0) +
                 (Density <= 0.6 ? 0 : Density <= 0.8 ? -1 : Density <= 1 ? -2 : Density <= 1.2 ? -3 : -5);
             if (a <= -2) AstroidType = AstroidTypes.Metallic;
             else if (a <= 5) AstroidType = AstroidTypes.Silicate;
             else if (a <= 10) AstroidType = AstroidTypes.Carbonaceous;
             else AstroidType = AstroidTypes.Icy;
             // Mass
-            int c = rng.D10 + parent.starSystem.Abundance + (innerPlanet ? -1 : +2) + (Age >= 7 ? -1 : 0) + (parent.IsCombinedStar ? +2 : 0);
+            int c = rng.D10 + Parent.starSystem.Abundance + (innerPlanet ? -1 : +2) + (Age >= 7 ? -1 : 0) + (Parent.IsCombinedStar ? +2 : 0);
             if (c <= 4) Mass = rng.D10 * 0.0001;
             else if (c <= 6) Mass = rng.D10 * 0.001;
             else if (c <= 8) Mass = rng.D10 * 0.01;
@@ -695,11 +704,11 @@ namespace Assets.Scripts.Bodies
             for (int i = 0; i < 5; i++)
             {
                 double d2r = Math.PI / 180;
-                Planet astroid = new Planet(parent, innerPlanet, Type.Chunk,
+                Planet astroid = new Planet(Parent, innerPlanet, Type.Chunk,
                     new OrbitalElements(OrbElements.LAN + (rng.D10 - 5) / 2.0 * d2r, OrbElements.i + (rng.D10 - 5) / 2.0 * d2r, OrbElements.AOP + (rng.D10 - 5) / 2.0 * d2r, rng.Circle,
-                        OrbElements.SMA * (1 + (rng.D10 - 5) / 40.0), OrbElements.e, parent.Mass * Star.SOLAR_MASS)) {
+                        OrbElements.SMA * (1 + (rng.D10 - 5) / 40.0), OrbElements.e, Parent.Mass * Star.SOLAR_MASS)) {
                     isMoon = true,
-                    parentPlanet = this
+                    ParentPlanet = this
                 };
                 astroid.CalculateSize();
                 if (massToLose >= astroid.Mass)
@@ -733,7 +742,7 @@ namespace Assets.Scripts.Bodies
             OrbitalElements companionElements = new OrbitalElements(OrbElements.LAN, OrbElements.i, OrbElements.AOP,
                 OrbElements.MAaE + Math.PI / 3 * rng.D10 > 5 ? +1 : -1,
                 OrbElements.SMA, OrbElements.e, OrbElements.parentMass);
-            Planet companion = new Planet(parent, innerPlanet, rng.D10 <= 9 ? Type.Chunk : Type.Terrestial_planet, companionElements);
+            Planet companion = new Planet(Parent, innerPlanet, rng.D10 <= 9 ? Type.Chunk : Type.Terrestial_planet, companionElements);
             CalculateSize();
             companion.CalculateSize();
             return companion;
@@ -776,9 +785,9 @@ namespace Assets.Scripts.Bodies
             {
                 type = firstType;
                 CalculateSize();
-                Planet moon = new Planet(parent, innerPlanet, secondType, new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, rng.Circle, seperation * Radius / StarSystem.AU, 0, Mass * EARTH_MASS)) {
+                Planet moon = new Planet(Parent, innerPlanet, secondType, new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, rng.Circle, seperation * Radius / StarSystem.AU, 0, Mass * EARTH_MASS)) {
                     isMoon = true,
-                    parentPlanet = this
+                    ParentPlanet = this
                 };
                 moons.Add(moon);
                 moon.CalculateSize();
@@ -786,13 +795,13 @@ namespace Assets.Scripts.Bodies
             }
             else    // The two planets are close in mass, so a double system
             {
-                Planet prime = new Planet(this.parent, innerPlanet, firstType, new OrbitalElements()) {
+                Planet prime = new Planet(this.Parent, innerPlanet, firstType, new OrbitalElements()) {
                     isMoon = true,
-                    parentPlanet = this
+                    ParentPlanet = this
                 };
-                Planet second = new Planet(this.parent, innerPlanet, firstType, new OrbitalElements()) {
+                Planet second = new Planet(this.Parent, innerPlanet, firstType, new OrbitalElements()) {
                     isMoon = true,
-                    parentPlanet = this
+                    ParentPlanet = this
                 };
                 prime.CalculateSize();
                 second.CalculateSize();
@@ -847,7 +856,7 @@ namespace Assets.Scripts.Bodies
 
         internal void AddPopulation(Population p)
         {
-            throw new NotImplementedException();
+            // TODO
         }
     }
 }

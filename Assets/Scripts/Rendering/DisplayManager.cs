@@ -11,7 +11,6 @@ namespace Assets.Scripts.Rendering
     public class DisplayManager : MonoBehaviour
     {
         static public DisplayManager TheOne;
-        SystemRenderer systemrenderer;
         Inspector inspector;
         InputManager inputManager;
 
@@ -28,8 +27,7 @@ namespace Assets.Scripts.Rendering
         {
             if (TheOne != null) throw new Exception("A second display manager is created");
             TheOne = this;
-            systemrenderer = gameObject.AddComponent<SystemRenderer>();
-            systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
+            SystemRenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
             inspector = inspectorWindow.GetComponent<Inspector>();
             inputManager = gameObject.AddComponent<InputManager>();
         }
@@ -71,26 +69,26 @@ namespace Assets.Scripts.Rendering
 
         internal void DisplaySystem(Bodies.StarSystem syst)
         {
-            systemrenderer.SetSystem(syst);
-            systemrenderer.Render();
+            SystemRenderer.SetSystem(syst);
+            SystemRenderer.Render();
         }
 
         internal void RerenderSystem()
         {
-            systemrenderer.Render();
+            SystemRenderer.Render();
         }
 
         internal void ChangeZoom(float delta)
         {
-            systemrenderer.zoom += delta;
-            systemrenderer.Render();
+            SystemRenderer.zoom += delta;
+            SystemRenderer.Render();
         }
 
         #endregion
 
         internal void SetInspector(GameObject obj)
         {
-            Planet orb = systemrenderer.FindOrbital(obj);
+            Planet orb = SystemRenderer.FindOrbital(obj);
             inspector.DisplayPlanet(orb);
         }
     }

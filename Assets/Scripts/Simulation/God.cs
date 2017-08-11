@@ -80,10 +80,11 @@ namespace Assets.Scripts.Simulation
             Bodies.Galaxy.Create(1, 22);
 
             Debug.Log("Initialising Empires");
-            PlayerEmpire = new Empire("TyroTech Empire", Bodies.Galaxy.systems[0].RandLivableWorld());
+            //PlayerEmpire = new Empire("TyroTech Empire", Bodies.Galaxy.systems[0].RandLivableWorld());
+            PlayerEmpire = new Empire("TyroTech Empire", Bodies.Galaxy.systems[0].Planets[0]);
 
             Rendering.DisplayManager.TheOne.Init();
-            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Galaxy.systems[0]);
+            Rendering.DisplayManager.TheOne.DisplaySystem(Bodies.Galaxy.systems[0]);
         }
 
         private static void RunTime()
