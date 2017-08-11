@@ -29,7 +29,7 @@ namespace Assets.Scripts
         /// <summary>
         /// The gravitational constant, normalised to use AU instead of meters. unit: 1 / (kg s)
         /// </summary>
-        public const double G_AU = 4.46134e-22;
+        public const double G_AU = 1.9942614e-41;
 
         /// <summary>
         /// 
@@ -57,9 +57,9 @@ namespace Assets.Scripts
             if (SMA == 0) return new VectorS(0, 0, 0);
             VectorS ret = new VectorS();
             double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep
-            double meanAnomaly = MAaE + n * time.Second;
+            double meanAnomaly = MAaE + n * (time - EPOCH).TotalSeconds;
             double EA = EccentricAnomaly(meanAnomaly);
-            ret.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
+            ret.r = SMA * (1 - e * Math.Cos(EA));
             ret.u = LAN + (AOP + EA) * Math.Sin(i);
             ret.v = i * Math.Sin(AOP + EA);
             return ret;
@@ -72,6 +72,8 @@ namespace Assets.Scripts
 
         double EccentricAnomaly(double meanAnomaly, double guess = double.NaN)
         {
+            if (meanAnomaly == 0)
+                return 0;
             if (double.IsNaN(guess))
                 guess = meanAnomaly;
             double newGuess = meanAnomaly + e * Math.Sin(guess);
@@ -89,7 +91,7 @@ namespace Assets.Scripts
                 double meanAnomaly = MAaE + j * 2 * Math.PI / number;
                 double EA = EccentricAnomaly(meanAnomaly);
                 VectorS point = new VectorS() {
-                    r = (ulong)(SMA * (1 - e * Math.Cos(EA))),
+                    r = SMA * (1 - e * Math.Cos(EA)),
                     u = LAN + (AOP + EA) * Math.Cos(i),
                     v = i * Math.Sin(AOP + EA)
                 };
@@ -100,6 +102,7 @@ namespace Assets.Scripts
         }
 
         public static OrbitalElements Center { get { return new OrbitalElements(0, 0, 0, 0, 0, 0, 0); } }
+        public static readonly DateTime EPOCH = new DateTime(2100, 1, 1);
     }
 
     /// <summary>
@@ -108,7 +111,7 @@ namespace Assets.Scripts
     struct VectorS
     {
         // Radius, recomended to be in AU
-        public ulong r;
+        public double r;
         // Angle on the ecliptica [0, 2xPi] [rad]
         public double u;
         // Angle away from the ecliptica [-Pi/2, Pi/2] [rad]
@@ -117,10 +120,10 @@ namespace Assets.Scripts
         /// <summary>
         /// A vector for spherical coordinates
         /// </summary>
-        /// <param name="r">Radius</param>
+        /// <param name="r">Radius, recommended in AU</param>
         /// <param name="u">Angle on the ecliptica [0, 2xPi] [rad]</param>
         /// <param name="v">Angle away from the ecliptica [-Pi/2, Pi/2] [rad]</param>
-        public VectorS(ulong r, double u, double v)
+        public VectorS(double r, double u, double v)
         {
             this.r = r;
             this.u = u % (2 * Math.PI);
@@ -136,7 +139,7 @@ namespace Assets.Scripts
 
         public override string ToString()
         {
-            return "{" + r.ToString("e2") + "," + u.ToString("0.00") + "," + v.ToString("0.00") + "}";
+            return "{" + r.ToString("0.00") + "," + u.ToString("0.00") + "," + v.ToString("0.00") + "}";
         }
     }
 
