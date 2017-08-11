@@ -13,6 +13,7 @@ namespace Assets.Scripts.Bodies
         public static void Create(int size, int seed)
         {
             Random rand = new Random(seed);
+            systems = new List<StarSystem>();
             for (int i = 0; i < size; i++)
             {
                 systems.Add(new StarSystem(rand.Next()));
