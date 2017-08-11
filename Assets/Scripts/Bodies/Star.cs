@@ -135,18 +135,18 @@ namespace Assets.Scripts.Bodies
                 {
                     // Appely luminocity due to age
                     if (spc.class_ == SpectralClass.Class_.A)
-                        if (spc.specification <= 4) Luminosity *= StarSystem.AgeTable["A0-A4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
-                        else Luminosity *= StarSystem.AgeTable["A5-A9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        if (spc.specification <= 4) Luminosity *= 1 + StarSystem.AgeTable["A0-A4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        else Luminosity *= 1 + StarSystem.AgeTable["A5-A9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
                     else if (spc.class_ == SpectralClass.Class_.F)
-                        if (spc.specification <= 4) Luminosity *= StarSystem.AgeTable["F0-F4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
-                        else Luminosity *= StarSystem.AgeTable["F5-F9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        if (spc.specification <= 4) Luminosity *= 1 + StarSystem.AgeTable["F0-F4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        else Luminosity *= 1 + StarSystem.AgeTable["F5-F9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
                     else if (spc.class_ == SpectralClass.Class_.G)
-                        if (spc.specification <= 4) Luminosity *= StarSystem.AgeTable["G0-G4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
-                        else Luminosity *= StarSystem.AgeTable["G5-G9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        if (spc.specification <= 4) Luminosity *= 1 + StarSystem.AgeTable["G0-G4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        else Luminosity *= 1 + StarSystem.AgeTable["G5-G9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
                     else if (spc.class_ == SpectralClass.Class_.K)
-                        if (spc.specification <= 4) Luminosity *= StarSystem.AgeTable["K0-K4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
-                        else Luminosity *= StarSystem.AgeTable["K5-K9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
-                    else if (spc.class_ == SpectralClass.Class_.M) Luminosity *= StarSystem.AgeTable["M0-M9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        if (spc.specification <= 4) Luminosity *= 1 + StarSystem.AgeTable["K0-K4"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                        else Luminosity *= 1 + StarSystem.AgeTable["K5-K9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
+                    else if (spc.class_ == SpectralClass.Class_.M) Luminosity *= 1 + StarSystem.AgeTable["M0-M9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
                 }
             }
         }

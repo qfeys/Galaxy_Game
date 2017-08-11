@@ -18,7 +18,8 @@ namespace Assets.Scripts.Bodies
             {
                 systems.Add(new StarSystem(rand.Next()));
             }
-            Parallel.ForEach(systems, sys => sys.Generate());
+            systems.ForEach(sys => sys.Generate());
+            //Parallel.ForEach(systems, sys => sys.Generate());
         }
 
         const double MILKY_WAY_MASS = Star.SOLAR_MASS * 1e12;

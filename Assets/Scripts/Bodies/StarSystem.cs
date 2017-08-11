@@ -72,21 +72,21 @@ namespace Assets.Scripts.Bodies
                 }
                 else        // The other stars
                 {
-                    if (Primary.spc.class_ == SpectralClass.Class_.B) Age = 0.1;
-                    else if (Primary.spc.class_ == SpectralClass.Class_.A)
-                        if (Primary.spc.specification <= 4) Age = AgeTable["A0-A4"][rng.D10].Item1;
+                    if (spcP.class_ == SpectralClass.Class_.B) Age = 0.1;
+                    else if (spcP.class_ == SpectralClass.Class_.A)
+                        if (spcP.specification <= 4) Age = AgeTable["A0-A4"][rng.D10].Item1;
                         else Age = AgeTable["A5-A9"][rng.D10].Item1;
-                    else if (Primary.spc.class_ == SpectralClass.Class_.F)
-                        if (Primary.spc.specification <= 4) Age = AgeTable["F0-F4"][rng.D10].Item1;
+                    else if (spcP.class_ == SpectralClass.Class_.F)
+                        if (spcP.specification <= 4) Age = AgeTable["F0-F4"][rng.D10].Item1;
                         else Age = AgeTable["F5-F9"][rng.D10].Item1;
-                    else if (Primary.spc.class_ == SpectralClass.Class_.G)
-                        if (Primary.spc.specification <= 4) Age = AgeTable["G0-G4"][rng.D10].Item1;
+                    else if (spcP.class_ == SpectralClass.Class_.G)
+                        if (spcP.specification <= 4) Age = AgeTable["G0-G4"][rng.D10].Item1;
                         else Age = AgeTable["G5-G9"][rng.D10].Item1;
-                    else if (Primary.spc.class_ == SpectralClass.Class_.K)
-                        if (Primary.spc.specification <= 4) Age = AgeTable["K0-K4"][rng.D10].Item1;
+                    else if (spcP.class_ == SpectralClass.Class_.K)
+                        if (spcP.specification <= 4) Age = AgeTable["K0-K4"][rng.D10].Item1;
                         else Age = AgeTable["K5-K9"][rng.D10].Item1;
-                    else if (Primary.spc.class_ == SpectralClass.Class_.M) Age = AgeTable["M0-M9"][rng.D10].Item1;
-                    else if (Primary.spc.class_ == SpectralClass.Class_.WhiteDwarf) Age = rng.D10;
+                    else if (spcP.class_ == SpectralClass.Class_.M) Age = AgeTable["M0-M9"][rng.D10].Item1;
+                    else if (spcP.class_ == SpectralClass.Class_.WhiteDwarf) Age = rng.D10;
                 }
             }
 
@@ -232,6 +232,7 @@ namespace Assets.Scripts.Bodies
             }
 
             // Generate Planets
+            Planets = new List<Planet>();
             {
                 List<double> orbitSizes = GenerateOrbits(Primary);
 

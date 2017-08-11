@@ -121,13 +121,13 @@ namespace Assets.Scripts.Bodies
             type = RollType();
             // Calculate orbital elements
             double eccentricity = 0;
-            int a = rng.D10 + type == Type.Captured ? +3 : 0;
+            int a = rng.D10 + (type == Type.Captured ? +3 : 0);
             if (a <= 5) eccentricity = rng.D10 * 0.005;
             else if (a <= 7) eccentricity = rng.D10 * 0.01 + 0.05;
             else if (a <= 9) eccentricity = rng.D10 * 0.01 + 0.15;
             else eccentricity = rng.D10 * 0.04 + 0.25;
             double inclination = 0;         // Inclination is not in the paper, except for a small mention on page 16
-            int b = rng.D10 + type == Type.Captured ? +2 : 0;
+            int b = rng.D10 + (type == Type.Captured ? +2 : 0);
             if (b <= 3) inclination = rng.D10 * 0.3 * Math.PI / 180;
             else if (b <= 6) inclination = rng.D10 * -0.3 * Math.PI / 180;
             else if (b <= 8) inclination = (rng.D10 * 0.6 + 0.3) * Math.PI / 180;
@@ -213,7 +213,7 @@ namespace Assets.Scripts.Bodies
                     else if (type == Type.Gas_Giant) Density = 0.08 + b * 0.025;
                 if (Density > 1.5) Density = 1.5;
 
-                Mass = Math.Pow(Radius / 6380, 3) * Density;
+                Mass = Math.Pow(Radius / 6380.0, 3) * Density;
             }
             else if (type == Type.Superjovian)
             {
@@ -638,7 +638,7 @@ namespace Assets.Scripts.Bodies
 
         private Type RollType()
         {
-            int a = rng.D10;
+            int a = rng.D100;
             if (innerPlanet)
                 if (a <= 18) return Type.Astroid_Belt;
                 else if (a <= 62) return Type.Terrestial_planet;
@@ -826,7 +826,7 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// Gasses with their molecular weight and boiling point at 1 atm.
         /// </summary>
-        public Dictionary<Gases, Tuple<double, double>> GasData = new Dictionary<Gases, Tuple<double, double>>() {
+        static public Dictionary<Gases, Tuple<double, double>> GasData = new Dictionary<Gases, Tuple<double, double>>() {
             {Gases.H2, new Tuple<double, double>(2,20) },
             {Gases.He, new Tuple<double, double>(4,4) },
             {Gases.CH4, new Tuple<double, double>(16,109) },
