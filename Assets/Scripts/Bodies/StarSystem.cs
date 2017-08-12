@@ -180,8 +180,8 @@ namespace Assets.Scripts.Bodies
                 {
                     double apparentParentMassPrimary = Math.Pow(r1, 3) * (Primary.Mass + Secondary.Mass) / Math.Pow(meanSeperation, 3);
                     double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(Primary.Mass / Secondary.Mass, 3);
-                    Primary.SetElements(new OrbitalElements(0, 0, 0, 0, r1, eccentricity, apparentParentMassPrimary));
-                    Secondary.SetElements(new OrbitalElements(0, 0, Math.PI, 0, meanSeperation - r1, eccentricity, apparentParentMassSecondary));
+                    Primary.SetElements(new OrbitalElements(0, 0, 0, 0, r1, eccentricity, apparentParentMassPrimary * Star.SOLAR_MASS));
+                    Secondary.SetElements(new OrbitalElements(0, 0, Math.PI, 0, meanSeperation - r1, eccentricity, apparentParentMassSecondary * Star.SOLAR_MASS));
                 }
 
                 if(Tertiary != null)
