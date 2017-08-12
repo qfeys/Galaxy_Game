@@ -267,7 +267,7 @@ namespace Assets.Scripts.Bodies
                         Planets.Add(new Planet(Star.Combine(Primary, Secondary), o, o < 4 * Math.Sqrt(Primary.Luminosity + Secondary.Luminosity))));
                     orbitSizes.RemoveAll(o => o > furthestSeperation);
                 }
-                orbitSizes.ForEach(o => Planets.Add(new Planet(Primary, o, o < 4 * Math.Sqrt(Secondary.Luminosity))));
+                orbitSizes.ForEach(o => Planets.Add(new Planet(Primary, o, o < 4 * Math.Sqrt(Primary.Luminosity))));
 
                 Planets.RemoveAll(p => p.type == Planet.Type.Empty);
                 Planets.FindAll(p => p.type == Planet.Type.Astroid_Belt).ForEach(p => p.ResolveAstroidBelt());
