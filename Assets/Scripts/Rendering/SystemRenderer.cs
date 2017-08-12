@@ -61,6 +61,7 @@ namespace Assets.Scripts.Rendering
                 float scale = Mathf.Pow(10, -zoom);
                 Vector3 v = posTrue * scale;
                 p.Key.transform.position = v;
+                p.Key.transform.localScale = Vector3.one * p.Value.Radius * scale / StarSystem.AU;
                 if (displayedOrbits.ContainsKey(p.Key))
                 {
                     Vector3[] points = FindPointsOnOrbit(p.Value.OrbElements, VERTICES_PER_ORBIT);
