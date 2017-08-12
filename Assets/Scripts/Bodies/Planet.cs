@@ -346,7 +346,7 @@ namespace Assets.Scripts.Bodies
             // Plate tectonics
             {
                 double tectonicActivityFactor = (5 + rng.D10) * Math.Sqrt(Mass) / Age;
-                if (moons.Count != 0)
+                if (moons != null && moons.Count != 0)
                 {
                     Planet bestMoon = moons.Find(p => p.Mass / Math.Pow(p.OrbElements.SMA, 3) == moons.Max(m => m.Mass / Math.Pow(m.OrbElements.SMA, 3)));
                     double tidalForce = (bestMoon.Mass * Star.SOLAR_MASS / EARTH_MASS) * 26640000 / Math.Pow(bestMoon.OrbElements.SMA * 400, 3);
@@ -642,7 +642,8 @@ namespace Assets.Scripts.Bodies
                 }
             }
 
-            moons.ForEach(m => m.CalculateGeophisicals());
+            if (moons != null)
+                moons.ForEach(m => m.CalculateGeophisicals());
         }
 
         private Type RollType()
