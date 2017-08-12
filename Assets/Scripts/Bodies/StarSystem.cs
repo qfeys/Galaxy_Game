@@ -281,7 +281,8 @@ namespace Assets.Scripts.Bodies
                 Planets.ForEach(p => p.CalculateGeophisicals());
             }
 
-
+            Simulation.God.Log("Star system " + this + " generated with " + (Secondary == null ? 1 : Tertiary == null ? 2 : 3) + " stars and " + Planets.Count + " planets.\n " +
+                "First planet: " + Planets[0]);
         }
 
 
@@ -360,6 +361,11 @@ namespace Assets.Scripts.Bodies
                 throw new NotImplementedException("Trying to make a special star");
             }
             else throw new ArgumentOutOfRangeException("The RNG gave us a number bigger than 100.");
+        }
+
+        public override string ToString()
+        {
+            return Primary.ToString();
         }
 
         /// <summary>
@@ -542,6 +548,6 @@ namespace Assets.Scripts.Bodies
         public static SpectralClass KIII { get { return new SpectralClass() { class_ = Class_.K, size = Size.III }; } }
         public static SpectralClass MIII { get { return new SpectralClass() { class_ = Class_.M, size = Size.III }; } }
         public static SpectralClass WhiteDwarf { get { return new SpectralClass() { class_ = Class_.WhiteDwarf, size = Size.VII }; } }
-        public static SpectralClass BrownDwarf { get { return new SpectralClass() { class_ = Class_.BrownDwarf }; } }
+        public static SpectralClass BrownDwarf { get { return new SpectralClass() { class_ = Class_.BrownDwarf, size = Size.VII }; } }
     }
 }

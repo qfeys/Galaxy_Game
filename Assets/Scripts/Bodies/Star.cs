@@ -172,6 +172,11 @@ namespace Assets.Scripts.Bodies
             };
         }
 
+        public override string ToString()
+        {
+            return spc.ToString();
+        }
+
         /// <summary>
         /// Values are: Luminosity, mass, surface Temperature and radius
         /// </summary>
