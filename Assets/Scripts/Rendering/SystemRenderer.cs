@@ -11,6 +11,7 @@ namespace Assets.Scripts.Rendering
     {
 
         static Dictionary<GameObject, Planet> displayedPlanets;
+        static Dictionary<GameObject, Star> displayedStars;
         static Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
         static Dictionary<Type, GameObject> prototypes;
 
@@ -25,35 +26,37 @@ namespace Assets.Scripts.Rendering
 
         internal static void SetSystem(StarSystem syst)
         {
-            // TODO: needs fixing because transition orbitals to planets
             displayedPlanets = new Dictionary<GameObject, Planet>();
+            displayedStars = new Dictionary<GameObject, Star>();
             displayedOrbits = new Dictionary<GameObject, LineRenderer>();
-            GameObject star = null;
+            GameObject prim = CreateStar(syst.Primary);
+            displayedStars.Add(prim, syst.Primary);
+            if (syst.Primary.OrbElements.SMA != 0) CreateOrbit(syst.Primary.OrbElements, prim);
+            if (syst.Secondary != null)
+            {
+                GameObject sec = CreateStar(syst.Secondary);
+                displayedStars.Add(sec, syst.Secondary);
+                CreateOrbit(syst.Secondary.OrbElements, sec);
+                if (syst.Tertiary != null)
+                {
+                    GameObject ter = CreateStar(syst.Tertiary);
+                    displayedStars.Add(ter, syst.Tertiary);
+                    CreateOrbit(syst.Tertiary.OrbElements, ter);
+                }
+            }
+
             syst.Planets.ForEach(p =>
             {
                 GameObject go = CreatePlanet(p);
-                go.tag = "Orbital";
-                if (star == null && p.GetType() == typeof(Star)) star = go;
                 displayedPlanets.Add(go, p);
-                if (p.GetType() != typeof(Star))
-                {
-                    GameObject orb = new GameObject("Orbit of " + p);
-                    LineRenderer lr = orb.AddComponent<LineRenderer>();
-                    lr.positionCount = VERTICES_PER_ORBIT + 1;
-                    lr.startWidth = 0.03f;
-                    lr.endWidth = 0.2f;
-                    lr.material = DisplayManager.TheOne.lineMaterial;
-                    displayedOrbits.Add(go, lr);
-                }
+                CreateOrbit(p.OrbElements, go);
             });
         }
 
         public static void Render()
         {
-            GameObject star = null;
             foreach(var p in displayedPlanets)
             {
-                if (star == null && p.Value.GetType() == typeof(Star)) star = p.Key;
                 VectorS posS = p.Value.OrbElements.GetPositionSphere(Simulation.God.Time);
                 Vector3 posPar = p.Value.ParentPlanet == null ?
                     p.Value.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.Value.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
@@ -98,8 +101,34 @@ namespace Assets.Scripts.Rendering
             PlanetScript ps = go.AddComponent<PlanetScript>();
             ps.parent = pl;
             go.name = pl.ToString();
-
+            go.tag = "Orbital";
             return go;
+        }
+
+        static GameObject CreateStar(Star st)
+        {
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            go.name = st.ToString();
+            StarScript ss = go.AddComponent<StarScript>();
+            ss.parent = st;
+            Light sl = go.AddComponent<Light>();
+            sl.type = LightType.Point;
+            sl.range = 100;
+            sl.intensity = 1;
+            sl.shadows = LightShadows.Hard;
+            go.tag = "Orbital";
+            return go;
+        }
+
+        private static void CreateOrbit(OrbitalElements el, GameObject go)
+        {
+            GameObject orb = new GameObject("Orbit of " + el);
+            LineRenderer lr = orb.AddComponent<LineRenderer>();
+            lr.positionCount = VERTICES_PER_ORBIT + 1;
+            lr.startWidth = 0.03f;
+            lr.endWidth = 0.2f;
+            lr.material = DisplayManager.TheOne.lineMaterial;
+            displayedOrbits.Add(go, lr);
         }
 
         const int VERTICES_PER_ORBIT = 40;
@@ -108,6 +137,12 @@ namespace Assets.Scripts.Rendering
         class PlanetScript : MonoBehaviour
         {
             public Planet parent;
+
+        }
+
+        class StarScript : MonoBehaviour
+        {
+            public Star parent;
 
         }
     }
