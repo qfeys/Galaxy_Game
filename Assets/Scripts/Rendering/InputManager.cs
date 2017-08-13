@@ -31,7 +31,7 @@ namespace Assets.Scripts.Rendering
 
             if(Input.mouseScrollDelta.y != 0)
             {
-                DisplayManager.TheOne.ChangeZoom(Input.mouseScrollDelta.y * scrollSensitivity);
+                DisplayManager.TheOne.ChangeZoom(-Input.mouseScrollDelta.y * scrollSensitivity);
             }
 
         }

@@ -11,7 +11,6 @@ namespace Assets.Scripts.Rendering
     public class DisplayManager : MonoBehaviour
     {
         static public DisplayManager TheOne;
-        SystemRenderer systemrenderer;
         Inspector inspector;
         InputManager inputManager;
 
@@ -22,14 +21,12 @@ namespace Assets.Scripts.Rendering
 
         public GameObject inspectorWindow;
         public GameObject clock;
-        public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()
         {
             if (TheOne != null) throw new Exception("A second display manager is created");
             TheOne = this;
-            systemrenderer = gameObject.AddComponent<SystemRenderer>();
-            systemrenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
+            SystemRenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
             inspector = inspectorWindow.GetComponent<Inspector>();
             inputManager = gameObject.AddComponent<InputManager>();
         }
@@ -50,6 +47,7 @@ namespace Assets.Scripts.Rendering
         void Update()
         {
             clock.transform.GetChild(0).GetComponent<Text>().text = God.Time.ToString("yyyy.MM.dd HH:mm:ss");
+            SystemRenderer.Render();
         }
 
         private void SetTimeControls()
@@ -71,27 +69,27 @@ namespace Assets.Scripts.Rendering
 
         internal void DisplaySystem(Bodies.StarSystem syst)
         {
-            systemrenderer.SetSystem(syst);
-            systemrenderer.Render();
+            SystemRenderer.SetSystem(syst);
+            SystemRenderer.Render();
         }
 
         internal void RerenderSystem()
         {
-            systemrenderer.Render();
+            SystemRenderer.Render();
         }
 
         internal void ChangeZoom(float delta)
         {
-            systemrenderer.zoom += delta;
-            systemrenderer.Render();
+            SystemRenderer.zoom += delta;
+            SystemRenderer.Render();
         }
 
         #endregion
 
         internal void SetInspector(GameObject obj)
         {
-            Orbital orb = systemrenderer.FindOrbital(obj);
-            inspector.DisplayOrbital(orb);
+            Planet orb = SystemRenderer.FindOrbital(obj);
+            inspector.DisplayPlanet(orb);
         }
     }
 }

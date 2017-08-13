@@ -14,6 +14,7 @@ namespace Assets.Scripts.Rendering
         List<Tuple<GameObject,GameObject>> windows;
         bool isMinimised = false;
         Vector2 size;
+        int tabFontSize;
 
         GameObject go;
         public GameObject gameobject { get { return go; } }
@@ -25,6 +26,7 @@ namespace Assets.Scripts.Rendering
             go.transform.SetParent(parent, false);
             this.size = size;
             this.canBeMinimised = canBeMinimised;
+            this.tabFontSize = tabFontSize;
             ((RectTransform)go.transform).sizeDelta = size;
             var VLayGr = go.AddComponent<VerticalLayoutGroup>();
             VLayGr.childForceExpandHeight = false;
@@ -99,10 +101,16 @@ namespace Assets.Scripts.Rendering
                 window.SetActive(false);
                 windows.Add(new Tuple<GameObject, GameObject>(tab, window));
             }
-            SetTab(0);
+            if (canBeMinimised) MinimiseWindow();
+            else SetTab(0);
         }
 
-        private void SetTab(int n)
+        /// <summary>
+        /// Sets the tab of the window on the page with the given rank. If the window is minimised, 
+        /// this will also maximise the window.
+        /// </summary>
+        /// <param name="n"></param>
+        public void SetTab(int n)
         {
             for (int i = 0; i < windows.Count; i++)
             {
@@ -123,14 +131,18 @@ namespace Assets.Scripts.Rendering
 
         }
 
-        private void MinimiseWindow()
+        /// <summary>
+        /// This will minimise the window
+        /// </summary>
+        public void MinimiseWindow()
         {
             if(isMinimised == false)
             {
                 ((RectTransform)go.transform).sizeDelta = new Vector2(
                     ((RectTransform)go.transform).rect.width,
-                    ((RectTransform)go.transform.GetChild(0).transform).rect.height);
+                     tabFontSize * 3 / 2.0f + 6);
                 isMinimised = true;
+                SetTab(windows.Count - 1);
             }
         }
 

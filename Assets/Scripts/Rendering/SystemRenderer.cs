@@ -7,85 +7,144 @@ using UnityEngine;
 
 namespace Assets.Scripts.Rendering
 {
-    class SystemRenderer : MonoBehaviour
+    static class SystemRenderer
     {
 
-        Dictionary<GameObject, Orbital> displayedBodies;
-        Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
-        Dictionary<Type, GameObject> prototypes;
+        static Dictionary<GameObject, Planet> displayedPlanets;
+        static Dictionary<GameObject, Star> displayedStars;
+        static Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
+        static Dictionary<Type, GameObject> prototypes;
 
-        public float zoom = 10.8f; // log scale - high values are zoomed in
+        public static float zoom = 0.0f; // log scale - high values are zoomed in
 
-        public void InstantiatePrototypes(GameObject star, GameObject giant, GameObject rock)
+        public static void InstantiatePrototypes(GameObject star, GameObject giant, GameObject rock)
         {
             prototypes = new Dictionary<Type, GameObject> {
-                { typeof(Star), star },
-                { typeof(Giant), giant },
-                { typeof(Rock), rock }
+                { typeof(Star), star }
             };
         }
 
-        internal void SetSystem(StarSystem syst)
+        internal static void SetSystem(StarSystem syst)
         {
-            displayedBodies = new Dictionary<GameObject, Orbital>();
+            displayedPlanets = new Dictionary<GameObject, Planet>();
+            displayedStars = new Dictionary<GameObject, Star>();
             displayedOrbits = new Dictionary<GameObject, LineRenderer>();
-            GameObject star = null;
-            syst.Childeren.ForEach(b =>
+            GameObject prim = CreateStar(syst.Primary);
+            displayedStars.Add(prim, syst.Primary);
+            if (syst.Primary.OrbElements.SMA != 0) CreateOrbit(syst.Primary.OrbElements, prim);
+            if (syst.Secondary != null)
             {
-                GameObject go = Instantiate(prototypes[b.GetType()]);
-                go.name = b.ToString();
-                go.tag = "Orbital";
-                if (star == null && b.GetType() == typeof(Star)) star = go;
-                displayedBodies.Add(go, b);
-                if (b.GetType() != typeof(Star))
+                GameObject sec = CreateStar(syst.Secondary);
+                displayedStars.Add(sec, syst.Secondary);
+                CreateOrbit(syst.Secondary.OrbElements, sec);
+                if (syst.Tertiary != null)
                 {
-                    go.transform.SetParent(star.transform);
-
-                    GameObject orb = new GameObject("Orbit of " + b);
-                    orb.transform.SetParent(star.transform);
-                    LineRenderer lr = orb.AddComponent<LineRenderer>();
-                    lr.positionCount = VERTICES_PER_ORBIT;
-                    lr.startWidth = 0.1f;
-                    lr.endWidth = 0.2f;
-                    lr.material = DisplayManager.TheOne.lineMaterial;
-                    displayedOrbits.Add(go, lr);
+                    GameObject ter = CreateStar(syst.Tertiary);
+                    displayedStars.Add(ter, syst.Tertiary);
+                    CreateOrbit(syst.Tertiary.OrbElements, ter);
                 }
+            }
+
+            syst.Planets.ForEach(p =>
+            {
+                GameObject go = CreatePlanet(p);
+                displayedPlanets.Add(go, p);
+                CreateOrbit(p.OrbElements, go);
             });
         }
 
-        public void Render()
+        public static void Render()
         {
-            GameObject star = null;
-            foreach(var b in displayedBodies)
+            foreach(var p in displayedPlanets)
             {
-                if (star == null && b.Value.GetType() == typeof(Star)) star = b.Key;
-                VectorS posS = b.Value.Elements.GetPositionSphere(Simulation.God.Time);
+                VectorS posS = p.Value.OrbElements.GetPositionSphere(Simulation.God.Time);
+                Vector3 posPar = p.Value.ParentPlanet == null ?
+                    p.Value.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.Value.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
+                Vector3 posTrue = (Vector3)posS + posPar;
                 float scale = Mathf.Pow(10, -zoom);
-                Vector3 v = (Vector3)posS * scale;
-                b.Key.transform.position = v;
-                if (displayedOrbits.ContainsKey(b.Key))
+                Vector3 v = posTrue * scale;
+                p.Key.transform.position = v;
+                float size = p.Value.Radius * scale / StarSystem.AU;
+                p.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
+                if (displayedOrbits.ContainsKey(p.Key))
                 {
-                    displayedOrbits[b.Key].SetPositions(FindPointsOnOrbit(b.Value.Elements, VERTICES_PER_ORBIT));
+                    Vector3[] points = FindPointsOnOrbit(p.Value.OrbElements, VERTICES_PER_ORBIT);
+                    for (int i = 0; i < points.Length; i++)
+                    {
+                        points[i] += posPar;
+                        points[i] *= scale;
+                    }
+                    displayedOrbits[p.Key].SetPositions(points);
                 }
             }
         }
 
-        private Vector3[] FindPointsOnOrbit(OrbitalElements elements, int number)
+        private static Vector3[] FindPointsOnOrbit(OrbitalElements elements, int number)
         {
             //elements.FindPointsOnOrbit(20).ToList().ForEach(vs => Debug.Log(vs));
-            return elements.FindPointsOnOrbit(number).Select(vs => (Vector3)vs * Mathf.Pow(10, -zoom)).ToArray();
+            return elements.FindPointsOnOrbit(number, Simulation.God.Time).Select(vs => (Vector3)vs).ToArray();
 
         }
 
-        internal Orbital FindOrbital(GameObject obj)
+        internal static Planet FindOrbital(GameObject obj)
         {
-            if (displayedBodies.ContainsKey(obj))
+            if (displayedPlanets.ContainsKey(obj))
             {
-                return displayedBodies[obj];
+                return displayedPlanets[obj];
             }
             throw new ArgumentException(obj.ToString() + " could not be found in the dictionary 'DisplayedBodies'.");
         }
 
+        static GameObject CreatePlanet(Planet pl)
+        {
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            PlanetScript ps = go.AddComponent<PlanetScript>();
+            ps.parent = pl;
+            go.name = pl.ToString();
+            go.tag = "Orbital";
+            return go;
+        }
+
+        static GameObject CreateStar(Star st)
+        {
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            go.name = st.ToString();
+            StarScript ss = go.AddComponent<StarScript>();
+            ss.parent = st;
+            Light sl = go.AddComponent<Light>();
+            sl.type = LightType.Point;
+            sl.range = 100;
+            sl.intensity = 1;
+            sl.shadows = LightShadows.Hard;
+            sl.color = Data.Graphics.Color_.FromTemperature(st.Temperature);
+            go.tag = "Orbital";
+            return go;
+        }
+
+        private static void CreateOrbit(OrbitalElements el, GameObject go)
+        {
+            GameObject orb = new GameObject("Orbit of " + el);
+            LineRenderer lr = orb.AddComponent<LineRenderer>();
+            lr.positionCount = VERTICES_PER_ORBIT + 1;
+            lr.startWidth = 0.03f;
+            lr.endWidth = 0.2f;
+            lr.material = DisplayManager.TheOne.lineMaterial;
+            displayedOrbits.Add(go, lr);
+        }
+
         const int VERTICES_PER_ORBIT = 40;
+        const float MIN_SIZE = 1.0f;
+
+        class PlanetScript : MonoBehaviour
+        {
+            public Planet parent;
+
+        }
+
+        class StarScript : MonoBehaviour
+        {
+            public Star parent;
+
+        }
     }
 }

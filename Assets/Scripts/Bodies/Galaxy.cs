@@ -2,30 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Assets.Scripts.Bodies
 {
-    class Core : Orbital
+    static class Galaxy
     {
-        public static Core Instance { get; private set; }
+        public static List<StarSystem> systems;
 
         public static void Create(int size, int seed)
         {
-            if (Instance != null) throw new Exception("A core has already been created");
-            Instance = new Core();
             Random rand = new Random(seed);
-            Instance.Generate(sizeMap[size], rand);
-        }
-
-        public Core() : base(null, 0, new OrbitalElements())
-        {
-
-        }
-
-        public override void Generate(double mass, Random rand)
-        {
-            StarSystem ss = new StarSystem(this, new OrbitalElements());
-            ss.Generate(Star.SOLAR_MASS, rand);
+            systems = new List<StarSystem>();
+            for (int i = 0; i < size; i++)
+            {
+                systems.Add(new StarSystem(rand.Next()));
+            }
+            systems.ForEach(sys => sys.Generate());
+            //Parallel.ForEach(systems, sys => sys.Generate());
         }
 
         const double MILKY_WAY_MASS = Star.SOLAR_MASS * 1e12;

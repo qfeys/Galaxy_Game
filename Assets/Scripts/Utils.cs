@@ -17,11 +17,19 @@ namespace Assets.Scripts
         public readonly double i;   // inclination
         public readonly double AOP; // Argument of periapsis
         public readonly double MAaE;// Mean anomaly at epoch
-        public readonly ulong SMA;  // Semi-major axis
+        public readonly double SMA;  // Semi-major axis
         public readonly double e;   // exentricity
-        public readonly Orbital parent;
-        TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parent.Mass))); } }
+        public readonly double parentMass; // in kg
+        // TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
+        public TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass))); } }
+        /// <summary>
+        /// The gravitational constant, unit: m^3 / (kg s)
+        /// </summary>
         public const double G = 6.67408e-11;
+        /// <summary>
+        /// The gravitational constant, normalised to use AU instead of meters. unit: 1 / (kg s)
+        /// </summary>
+        public const double G_AU = 1.9942614e-41;
 
         /// <summary>
         /// 
@@ -30,29 +38,42 @@ namespace Assets.Scripts
         /// <param name="i">inclenation, between 0 and 2*PI</param>
         /// <param name="AOP">Argument of pereapsis, between 0 and 2*PI</param>
         /// <param name="MAaE">Mean anomaly at epoch, between 0 and 2*PI</param>
-        /// <param name="SMA">Semi-Major axis</param>
+        /// <param name="SMA">Semi-Major axis, in AU</param>
         /// <param name="e">Eccentricity, 0 for circles, 1 for parabolas</param>
-        /// <param name="parent"></param>
-        public OrbitalElements(double LAN, double i, double AOP, double MAaE, ulong SMA, double e, Orbital parent)
+        /// <param name="parent">The mass of the parent object, in kg</param>
+        public OrbitalElements(double LAN, double i, double AOP, double MAaE, double SMA, double e, double parentMass)
         {
-            this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parent = parent;
+            this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parentMass = parentMass;
         }
 
+        /// <summary>
+        /// The position of this object in spherical coordinates, with r in AU,
+        /// with zero at the place of the barycentrum of this orbit
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
         public VectorS GetPositionSphere(DateTime time)
         {
             if (SMA == 0) return new VectorS(0, 0, 0);
             VectorS ret = new VectorS();
-            double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep
-            double meanAnomaly = MAaE + n * time.Second;
+            double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
+            double meanAnomaly = MAaE + (time - EPOCH).TotalSeconds / n;
             double EA = EccentricAnomaly(meanAnomaly);
-            ret.r = (ulong)(SMA * (1 - e * Math.Cos(EA)));
-            ret.u = LAN + (AOP + EA) * Math.Sin(i);
+            ret.r = SMA * (1 - e * Math.Cos(EA));
+            ret.u = LAN + (AOP + EA) * Math.Cos(i);
             ret.v = i * Math.Sin(AOP + EA);
             return ret;
         }
 
+        public UnityEngine.Vector3 GetPosition(DateTime time)
+        {
+            return (UnityEngine.Vector3)GetPositionSphere(time);
+        }
+
         double EccentricAnomaly(double meanAnomaly, double guess = double.NaN)
         {
+            if (meanAnomaly == 0)
+                return 0;
             if (double.IsNaN(guess))
                 guess = meanAnomaly;
             double newGuess = meanAnomaly + e * Math.Sin(guess);
@@ -61,16 +82,17 @@ namespace Assets.Scripts
             return EccentricAnomaly(meanAnomaly, newGuess);
         }
 
-        internal VectorS[] FindPointsOnOrbit(int number)
+        internal VectorS[] FindPointsOnOrbit(int number, DateTime time)
         {
             if (SMA == 0) throw new Exception("Cant find points of this orbit because this is not an orbit (sma = 0)");
-            VectorS[] ret = new VectorS[number];
-            for (int j = 0; j < number; j++)
+            VectorS[] ret = new VectorS[number + 1];
+            double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
+            for (int j = 0; j <= number; j++)
             {
-                double meanAnomaly = MAaE + j * 2 * Math.PI / number;
+                double meanAnomaly = MAaE + j * 2 * Math.PI / number + (time - EPOCH).TotalSeconds / n;
                 double EA = EccentricAnomaly(meanAnomaly);
                 VectorS point = new VectorS() {
-                    r = (ulong)(SMA * (1 - e * Math.Cos(EA))),
+                    r = SMA * (1 - e * Math.Cos(EA)),
                     u = LAN + (AOP + EA) * Math.Cos(i),
                     v = i * Math.Sin(AOP + EA)
                 };
@@ -79,6 +101,9 @@ namespace Assets.Scripts
             }
             return ret;
         }
+
+        public static OrbitalElements Center { get { return new OrbitalElements(0, 0, 0, 0, 0, 0, 0); } }
+        public static readonly DateTime EPOCH = new DateTime(2100, 1, 1);
     }
 
     /// <summary>
@@ -86,8 +111,8 @@ namespace Assets.Scripts
     /// </summary>
     struct VectorS
     {
-        // Radius
-        public ulong r;
+        // Radius, recomended to be in AU
+        public double r;
         // Angle on the ecliptica [0, 2xPi] [rad]
         public double u;
         // Angle away from the ecliptica [-Pi/2, Pi/2] [rad]
@@ -96,10 +121,10 @@ namespace Assets.Scripts
         /// <summary>
         /// A vector for spherical coordinates
         /// </summary>
-        /// <param name="r">Radius</param>
+        /// <param name="r">Radius, recommended in AU</param>
         /// <param name="u">Angle on the ecliptica [0, 2xPi] [rad]</param>
         /// <param name="v">Angle away from the ecliptica [-Pi/2, Pi/2] [rad]</param>
-        public VectorS(ulong r, double u, double v)
+        public VectorS(double r, double u, double v)
         {
             this.r = r;
             this.u = u % (2 * Math.PI);
@@ -115,7 +140,7 @@ namespace Assets.Scripts
 
         public override string ToString()
         {
-            return "{" + r.ToString("e2") + "," + u.ToString("0.00") + "," + v.ToString("0.00") + "}";
+            return "{" + r.ToString("0.00") + "," + u.ToString("0.00") + "," + v.ToString("0.00") + "}";
         }
     }
 
@@ -129,8 +154,9 @@ namespace Assets.Scripts
         }
     }
 
-    public static class RNG
+    public class RNG
     {
+        // Static functions
         static Random rand = new Random();
         public static bool Chance(double chance)
         {
@@ -143,7 +169,34 @@ namespace Assets.Scripts
         {
             return new TimeSpan((long)(mtth.Ticks * -Math.Log(rand.NextDouble(), 2)));
         }
+
+        // instance functions
+        Random irand;
+        public RNG(int seed)
+        {
+            irand = new Random(seed);
+        }
+
+        public int D10 { get { return irand.Next(1, 11); } }
+        public int D100 { get { return irand.Next(1, 101); } }
+        public int D1000 { get { return irand.Next(1, 1001); } }
+
+        public int nD10(int n)
+        {
+            int s = 0;
+            for (int i = 0; i < n; i++)
+            {
+                s += D10;
+            }
+            return s;
+        }
+
+        /// <summary>
+        /// A random number between 0 and 2 Pi
+        /// </summary>
+        public double Circle { get { return irand.NextDouble() * 2 * Math.PI; } }
     }
+
 
     public class SortedList<T> : ICollection<T>
     {

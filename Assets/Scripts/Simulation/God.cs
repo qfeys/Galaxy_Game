@@ -16,7 +16,7 @@ namespace Assets.Scripts.Simulation
                                                                                                                 { "20s", TimeSpan.FromSeconds(30) },
                                                                                                                 { "1m", TimeSpan.FromMinutes(1) },
                                                                                                                 { "5m", TimeSpan.FromMinutes(5) },
-                                                                                                                { "20m", TimeSpan.FromMinutes(1) },
+                                                                                                                { "20m", TimeSpan.FromMinutes(20) },
                                                                                                                 { "1h", TimeSpan.FromHours(1) },
                                                                                                                 { "4h", TimeSpan.FromHours(4) },
                                                                                                                 { "12h", TimeSpan.FromHours(12) },
@@ -77,13 +77,14 @@ namespace Assets.Scripts.Simulation
             Localisation.Load();
 
             Debug.Log("Initialising galaxy");
-            Bodies.Core.Create(1, 22);
+            Bodies.Galaxy.Create(1, 21);
 
             Debug.Log("Initialising Empires");
-            PlayerEmpire = new Empire("TyroTech Empire", ((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]).RandLivableWorld());
+            //PlayerEmpire = new Empire("TyroTech Empire", Bodies.Galaxy.systems[0].RandLivableWorld());
+            PlayerEmpire = new Empire("TyroTech Empire", Bodies.Galaxy.systems[0].Planets[0]);
 
             Rendering.DisplayManager.TheOne.Init();
-            Rendering.DisplayManager.TheOne.DisplaySystem((Bodies.StarSystem)Bodies.Core.Instance.Childeren[0]);
+            Rendering.DisplayManager.TheOne.DisplaySystem(Bodies.Galaxy.systems[0]);
         }
 
         private static void RunTime()
