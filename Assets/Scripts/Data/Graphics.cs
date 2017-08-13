@@ -50,6 +50,37 @@ namespace Assets.Scripts.Data
 
         public static class Color_ {
              public static Color text { get { return new Color(1, 1, 0.8f); } }
+
+            /// <summary>
+            /// Transforms a temperature in K to its black body color
+            /// </summary>
+            /// <param name="temperature"></param>
+            /// <returns></returns>
+            internal static Color FromTemperature(int temperature)
+            {
+                float red = 0;
+                if (temperature <= 6600)
+                    red = 1;
+                else
+                    red = Mathf.Clamp01((float)(2.38774 * Math.Pow(temperature - 6000, 0.133205)));
+
+                float green = 0;
+                if (temperature <= 6600)
+                    green = Mathf.Clamp01((float)(0.39008157 * Math.Log(temperature) - 2.4282335));
+                else
+                    green = Mathf.Clamp01((float)(1.5998 * Math.Pow(temperature, -0.0755148)));
+
+                float blue = 0;
+                if (temperature <= 19)
+                    blue = 0;
+                else if (temperature <= 6600)
+                    blue = Mathf.Clamp01((float)(0.5432067 * Math.Log(temperature - 1000) - 1.196254));
+                else
+                    blue = 1;
+
+                Debug.Log("Temperature: " + temperature + ", color: " + red + ", " + green + ", " + blue);
+                return new Color(red, green, blue);
+            }
         }
     }
 }

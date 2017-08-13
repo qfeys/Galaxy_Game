@@ -116,6 +116,7 @@ namespace Assets.Scripts.Rendering
             sl.range = 100;
             sl.intensity = 1;
             sl.shadows = LightShadows.Hard;
+            sl.color = Data.Graphics.Color_.FromTemperature(st.Temperature);
             go.tag = "Orbital";
             return go;
         }
