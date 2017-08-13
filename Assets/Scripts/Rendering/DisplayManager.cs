@@ -21,7 +21,6 @@ namespace Assets.Scripts.Rendering
 
         public GameObject inspectorWindow;
         public GameObject clock;
-        public float zoom = 12; // log scale - high values are zoomed in
 
         public void Awake()
         {
@@ -48,6 +47,7 @@ namespace Assets.Scripts.Rendering
         void Update()
         {
             clock.transform.GetChild(0).GetComponent<Text>().text = God.Time.ToString("yyyy.MM.dd HH:mm:ss");
+            SystemRenderer.Render();
         }
 
         private void SetTimeControls()

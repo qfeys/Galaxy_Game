@@ -56,11 +56,11 @@ namespace Assets.Scripts
         {
             if (SMA == 0) return new VectorS(0, 0, 0);
             VectorS ret = new VectorS();
-            double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep
-            double meanAnomaly = MAaE + n * (time - EPOCH).TotalSeconds;
+            double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
+            double meanAnomaly = MAaE + (time - EPOCH).TotalSeconds / n;
             double EA = EccentricAnomaly(meanAnomaly);
             ret.r = SMA * (1 - e * Math.Cos(EA));
-            ret.u = LAN + (AOP + EA) * Math.Sin(i);
+            ret.u = LAN + (AOP + EA) * Math.Cos(i);
             ret.v = i * Math.Sin(AOP + EA);
             return ret;
         }
@@ -82,13 +82,14 @@ namespace Assets.Scripts
             return EccentricAnomaly(meanAnomaly, newGuess);
         }
 
-        internal VectorS[] FindPointsOnOrbit(int number)
+        internal VectorS[] FindPointsOnOrbit(int number, DateTime time)
         {
             if (SMA == 0) throw new Exception("Cant find points of this orbit because this is not an orbit (sma = 0)");
             VectorS[] ret = new VectorS[number];
+            double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
             for (int j = 0; j < number; j++)
             {
-                double meanAnomaly = MAaE + j * 2 * Math.PI / number;
+                double meanAnomaly = MAaE + j * 2 * Math.PI / number + (time - EPOCH).TotalSeconds / n;
                 double EA = EccentricAnomaly(meanAnomaly);
                 VectorS point = new VectorS() {
                     r = SMA * (1 - e * Math.Cos(EA)),

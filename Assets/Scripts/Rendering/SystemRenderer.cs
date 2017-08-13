@@ -14,7 +14,7 @@ namespace Assets.Scripts.Rendering
         static Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
         static Dictionary<Type, GameObject> prototypes;
 
-        public static float zoom = 1.8f; // log scale - high values are zoomed in
+        public static float zoom = 0.0f; // log scale - high values are zoomed in
 
         public static void InstantiatePrototypes(GameObject star, GameObject giant, GameObject rock)
         {
@@ -61,7 +61,8 @@ namespace Assets.Scripts.Rendering
                 float scale = Mathf.Pow(10, -zoom);
                 Vector3 v = posTrue * scale;
                 p.Key.transform.position = v;
-                p.Key.transform.localScale = Vector3.one * p.Value.Radius * scale / StarSystem.AU;
+                float size = p.Value.Radius * scale / StarSystem.AU;
+                p.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
                 if (displayedOrbits.ContainsKey(p.Key))
                 {
                     Vector3[] points = FindPointsOnOrbit(p.Value.OrbElements, VERTICES_PER_ORBIT);
@@ -78,7 +79,7 @@ namespace Assets.Scripts.Rendering
         private static Vector3[] FindPointsOnOrbit(OrbitalElements elements, int number)
         {
             //elements.FindPointsOnOrbit(20).ToList().ForEach(vs => Debug.Log(vs));
-            return elements.FindPointsOnOrbit(number).Select(vs => (Vector3)vs * Mathf.Pow(10, -zoom)).ToArray();
+            return elements.FindPointsOnOrbit(number, Simulation.God.Time).Select(vs => (Vector3)vs).ToArray();
 
         }
 
@@ -102,6 +103,7 @@ namespace Assets.Scripts.Rendering
         }
 
         const int VERTICES_PER_ORBIT = 40;
+        const float MIN_SIZE = 1.0f;
 
         class PlanetScript : MonoBehaviour
         {
