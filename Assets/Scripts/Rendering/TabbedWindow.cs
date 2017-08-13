@@ -58,10 +58,10 @@ namespace Assets.Scripts.Rendering
                 img.fillCenter = true;
 
                 TextBox text = new TextBox(tab.transform, tabs[i].Item1,null,tabFontSize);
-                ((RectTransform)text.gameObject.transform).anchoredPosition += new Vector2(5, 0);
+                text.transform.anchoredPosition += new Vector2(5, 0);
 
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
-                tab.GetComponent<LayoutElement>().preferredWidth = text.gameObject.GetComponent<Text>().preferredWidth + tabFontSize;
+                tab.GetComponent<LayoutElement>().preferredWidth = text.Width + tabFontSize;
 
                 int j = i;
                 if (canBeMinimised)

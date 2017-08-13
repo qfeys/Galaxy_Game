@@ -15,10 +15,18 @@ namespace Assets.Scripts.Rendering
         public Func<object> Data_ { get { return _data; } set { _data = value; } }
         public Func<object> _data;
 
+        public float Width { get { return text.preferredWidth / 2; } }
+
         bool isData;
 
         GameObject go;
         Text text;
+
+        /// <summary>
+        /// The gameobject that contains the text.
+        /// WARNING: Do not attach a layout element to this gameobjet. If you need one, use a container
+        /// as parent for the TextBox.
+        /// </summary>
         public GameObject gameObject { get { return go; } }
         public RectTransform transform { get { return go.transform as RectTransform; } }
 
@@ -49,25 +57,33 @@ namespace Assets.Scripts.Rendering
         {
             go.transform.SetParent(parent, false);
             RectTransform tr = (RectTransform)go.transform;
-            tr.anchorMin = new Vector2(0, 0.5f);
-            tr.anchorMax = new Vector2(0, 0.5f);
-            tr.pivot = new Vector2(0, 0.5f);
+            float anchX = 0; float anchY = 0;
+            switch (allignment)
+            {
+            case TextAnchor.LowerLeft: anchX = 0; anchY = 0; break;
+            case TextAnchor.MiddleLeft: anchX = 0; anchY = 0.5f; break;
+            case TextAnchor.UpperLeft: anchX = 0; anchY = 1; break;
+            case TextAnchor.LowerCenter: anchX = 0.5f; anchY = 0; break;
+            case TextAnchor.MiddleCenter: anchX = 0.5f; anchY = 0.5f; break;
+            case TextAnchor.UpperCenter: anchX = 0.5f; anchY = 1; break;
+            case TextAnchor.LowerRight: anchX = 1; anchY = 0; break;
+            case TextAnchor.MiddleRight: anchX = 1; anchY = 0.5f; break;
+            case TextAnchor.UpperRight: anchX = 1; anchY = 1; break;
+
+            }
+            tr.anchorMin = new Vector2(anchX, anchY);
+            tr.anchorMax = new Vector2(anchX, anchY);
+            tr.pivot = new Vector2(anchX, anchY);
             tr.anchoredPosition = new Vector2(0, 0);
+            tr.localScale = new Vector3(0.5f, 0.5f, 1);
             text = go.AddComponent<Text>();
             text.font = Data.Graphics.GetStandardFont();
-            text.fontSize = size;
+            text.fontSize = size * 2;
             text.alignment = allignment;
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
             TextBoxScript tbs = go.AddComponent<TextBoxScript>();
             tbs.parent = this;
             tbs.hasMouseover = MousoverID != null;
-        }
-
-        public void SetFlexibleWidth(float width)
-        {
-            if (go.GetComponent<LayoutElement>() == null)
-                go.AddComponent<LayoutElement>();
-            go.GetComponent<LayoutElement>().flexibleWidth = width;
         }
 
         public void SetColor(Color col)

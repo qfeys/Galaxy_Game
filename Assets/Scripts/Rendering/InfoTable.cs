@@ -61,21 +61,29 @@ namespace Assets.Scripts.Rendering
             if (info.Count == 0)        // no data - place a dummy line
             {
                 GameObject line = CreateLine();
+                GameObject nameCont = new GameObject("Name Container", typeof(RectTransform));
+                nameCont.transform.SetParent(line.transform);
+                TextBox name = new TextBox(nameCont.transform, "#####", "#####", fontSize, TextAnchor.MiddleLeft);
+                nameCont.AddComponent<LayoutElement>().flexibleWidth = 1;
 
-                TextBox name = new TextBox(line.transform, "#####", "#####", fontSize, TextAnchor.MiddleLeft);
-                name.SetFlexibleWidth(1);
 
-                TextBox data = new TextBox(line.transform, "#####", "#####", fontSize, TextAnchor.MiddleRight);
+                GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
+                dataCont.transform.SetParent(line.transform);
+                TextBox data = new TextBox(dataCont.transform, "#####", "#####", fontSize, TextAnchor.MiddleRight);
             }
             else
             {
                 for (int i = 0; i < info.Count; i++)       ///TODO: OPTIMISATION - DO ONLY REDRAW IF THE LINES ARE NOT THE SAME
                 {
                     GameObject line = CreateLine();
-                    TextBox name = new TextBox(line.transform, info[i].Item1, "#####", fontSize, TextAnchor.MiddleLeft);
-                    name.SetFlexibleWidth(1);
+                    GameObject nameCont = new GameObject("Name Container", typeof(RectTransform));
+                    nameCont.transform.SetParent(line.transform);
+                    TextBox name = new TextBox(nameCont.transform, info[i].Item1, "#####", fontSize, TextAnchor.MiddleLeft);
+                    nameCont.AddComponent<LayoutElement>().flexibleWidth = 1;
 
-                    TextBox data = new TextBox(line.transform, info[i].Item2, "#####", fontSize, TextAnchor.MiddleRight);
+                    GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
+                    dataCont.transform.SetParent(line.transform);
+                    TextBox data = new TextBox(dataCont.transform, info[i].Item2, "#####", fontSize, TextAnchor.MiddleRight);
                 }
             }
         }
