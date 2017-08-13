@@ -39,8 +39,8 @@ namespace Assets.Scripts.Rendering
                 {
                     GameObject orb = new GameObject("Orbit of " + p);
                     LineRenderer lr = orb.AddComponent<LineRenderer>();
-                    lr.positionCount = VERTICES_PER_ORBIT;
-                    lr.startWidth = 0.1f;
+                    lr.positionCount = VERTICES_PER_ORBIT + 1;
+                    lr.startWidth = 0.03f;
                     lr.endWidth = 0.2f;
                     lr.material = DisplayManager.TheOne.lineMaterial;
                     displayedOrbits.Add(go, lr);

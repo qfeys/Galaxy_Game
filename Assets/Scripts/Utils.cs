@@ -85,9 +85,9 @@ namespace Assets.Scripts
         internal VectorS[] FindPointsOnOrbit(int number, DateTime time)
         {
             if (SMA == 0) throw new Exception("Cant find points of this orbit because this is not an orbit (sma = 0)");
-            VectorS[] ret = new VectorS[number];
+            VectorS[] ret = new VectorS[number + 1];
             double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
-            for (int j = 0; j < number; j++)
+            for (int j = 0; j <= number; j++)
             {
                 double meanAnomaly = MAaE + j * 2 * Math.PI / number + (time - EPOCH).TotalSeconds / n;
                 double EA = EccentricAnomaly(meanAnomaly);

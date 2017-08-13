@@ -16,7 +16,7 @@ namespace Assets.Scripts.Simulation
                                                                                                                 { "20s", TimeSpan.FromSeconds(30) },
                                                                                                                 { "1m", TimeSpan.FromMinutes(1) },
                                                                                                                 { "5m", TimeSpan.FromMinutes(5) },
-                                                                                                                { "20m", TimeSpan.FromMinutes(1) },
+                                                                                                                { "20m", TimeSpan.FromMinutes(20) },
                                                                                                                 { "1h", TimeSpan.FromHours(1) },
                                                                                                                 { "4h", TimeSpan.FromHours(4) },
                                                                                                                 { "12h", TimeSpan.FromHours(12) },
