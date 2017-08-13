@@ -7,14 +7,32 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.Rendering
 {
-    class Inspector : MonoBehaviour
+    static class Inspector
     {
-        public void Start()
+        static GameObject go;
+
+        enum Modes { EmptyPlanet, PopulatedPlanet, Star}
+
+        internal static void Create(GameObject canvas)
         {
+            go = new GameObject("Inspector", typeof(RectTransform));
+            go.transform.SetParent(canvas.transform);
+            RectTransform tr = (RectTransform)go.transform;
+            tr.sizeDelta = new Vector2(400, 400);
+            tr.anchorMin = new Vector2(0, 0);
+            tr.anchorMax = new Vector2(0, 0);
+            tr.pivot = new Vector2(0, 0);
+            tr.anchoredPosition = new Vector2(0, 0);
+            Image im = go.AddComponent<Image>();
+            im.sprite = Data.Graphics.GetSprite("overview_window_bg");
+            im.type = Image.Type.Sliced;
+            TextBox title = new TextBox(go.transform, "test", null, 24, TextAnchor.MiddleCenter);
         }
 
-        public void DisplayPlanet(Bodies.Planet o) // TODO: needs fixing because of transition of orbitals to planets
+
+        public static void DisplayPlanet(Bodies.Planet p) // TODO: needs fixing because of transition of orbitals to planets
         {
+            TextBox title = new TextBox(go.transform, () => p, null, 24, TextAnchor.MiddleCenter);
             //transform.GetChild(0).GetComponent<Text>().text = o.ToString();
             //string[] info = string.Join(";", new[] { o.Information(), "####", "####" }).Split(';');
             //int i;

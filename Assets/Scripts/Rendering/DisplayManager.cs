@@ -11,15 +11,13 @@ namespace Assets.Scripts.Rendering
     public class DisplayManager : MonoBehaviour
     {
         static public DisplayManager TheOne;
-        Inspector inspector;
         InputManager inputManager;
 
         public GameObject protoStar;
         public GameObject protoGiant;
         public GameObject protoRock;
         public Material lineMaterial;
-
-        public GameObject inspectorWindow;
+        
         public GameObject clock;
 
         public void Awake()
@@ -27,7 +25,6 @@ namespace Assets.Scripts.Rendering
             if (TheOne != null) throw new Exception("A second display manager is created");
             TheOne = this;
             SystemRenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
-            inspector = inspectorWindow.GetComponent<Inspector>();
             inputManager = gameObject.AddComponent<InputManager>();
         }
 
@@ -40,6 +37,7 @@ namespace Assets.Scripts.Rendering
         {
             SetTimeControls();
             OverviewWindow.Create(GameObject.FindWithTag("MainCanvas"));
+            Inspector.Create(GameObject.FindWithTag("MainCanvas"));
             MouseOver.Create();
         }
 
@@ -89,7 +87,7 @@ namespace Assets.Scripts.Rendering
         internal void SetInspector(GameObject obj)
         {
             Planet orb = SystemRenderer.FindOrbital(obj);
-            inspector.DisplayPlanet(orb);
+            Inspector.DisplayPlanet(orb);
         }
     }
 }
