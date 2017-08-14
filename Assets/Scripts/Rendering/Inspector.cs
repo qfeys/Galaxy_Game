@@ -27,8 +27,31 @@ namespace Assets.Scripts.Rendering
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
             TextBox title = new TextBox(go.transform, "test", null, 24, TextAnchor.MiddleCenter);
+
+            GameObject close = new GameObject("Tab", typeof(RectTransform));
+            close.transform.SetParent(go.transform);
+            RectTransform trcl = (RectTransform)close.transform;
+            trcl.sizeDelta = new Vector2(15, 15);
+            trcl.anchorMin = new Vector2(1, 1);
+            trcl.anchorMax = new Vector2(1, 1);
+            trcl.pivot = new Vector2(1, 1);
+            trcl.anchoredPosition = new Vector2(-10, -10);
+            Image img = close.AddComponent<Image>();
+            img.sprite = Data.Graphics.GetSprite("tab_image_low");
+            img.raycastTarget = true;
+            img.type = Image.Type.Sliced;
+            img.fillCenter = true;
+
+            TextBox text = new TextBox(close.transform, "X", null, 8,TextAnchor.MiddleCenter);
+            
+            close.AddComponent<Button>().onClick.AddListener(() => { CloseInspector(); });
+
         }
 
+        private static void CloseInspector()
+        {
+            throw new NotImplementedException();
+        }
 
         public static void DisplayPlanet(Bodies.Planet p) // TODO: needs fixing because of transition of orbitals to planets
         {
