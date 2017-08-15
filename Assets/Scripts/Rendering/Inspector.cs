@@ -57,9 +57,20 @@ namespace Assets.Scripts.Rendering
             go.SetActive(false);
         }
 
+        private static void Clear()
+        {
+            for (int i = 1; i < go.transform.childCount; i++)
+            {
+                GameObject.Destroy(go.transform.GetChild(i).gameObject);
+            }
+        }
+
         public static void DisplayPlanet(Bodies.Planet p) // TODO: needs fixing because of transition of orbitals to planets
         {
-            TextBox title = new TextBox(go.transform, () => p, null, 24, TextAnchor.UpperCenter);
+            Clear();
+            OpenInspector();
+            TextBox title = new TextBox(go.transform, () => p, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
+            title.transform.anchoredPosition = new Vector2(20, -20);
             //transform.GetChild(0).GetComponent<Text>().text = o.ToString();
             //string[] info = string.Join(";", new[] { o.Information(), "####", "####" }).Split(';');
             //int i;
