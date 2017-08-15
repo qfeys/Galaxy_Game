@@ -71,6 +71,11 @@ namespace Assets.Scripts.Rendering
             OpenInspector();
             TextBox title = new TextBox(go.transform, () => p, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
+
+            InfoTable info = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>() {
+                new Tuple<string, Func<object>>("Mass", ()=>p.Mass),
+                new Tuple<string, Func<object>>("Temperature",()=>p.SurfaceTemperature)
+            });
             //transform.GetChild(0).GetComponent<Text>().text = o.ToString();
             //string[] info = string.Join(";", new[] { o.Information(), "####", "####" }).Split(';');
             //int i;
