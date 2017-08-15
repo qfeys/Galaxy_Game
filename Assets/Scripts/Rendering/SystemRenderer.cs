@@ -101,7 +101,7 @@ namespace Assets.Scripts.Rendering
             PlanetScript ps = go.AddComponent<PlanetScript>();
             ps.parent = pl;
             go.name = pl.ToString();
-            go.tag = "Orbital";
+            go.tag = "Inspectable";
             return go;
         }
 
@@ -117,7 +117,7 @@ namespace Assets.Scripts.Rendering
             sl.intensity = 1;
             sl.shadows = LightShadows.Hard;
             sl.color = Data.Graphics.Color_.FromTemperature(st.Temperature);
-            go.tag = "Orbital";
+            go.tag = "Inspectable";
             return go;
         }
 
@@ -135,13 +135,13 @@ namespace Assets.Scripts.Rendering
         const int VERTICES_PER_ORBIT = 40;
         const float MIN_SIZE = 1.0f;
 
-        class PlanetScript : MonoBehaviour
+        public class PlanetScript : MonoBehaviour
         {
             public Planet parent;
 
         }
 
-        class StarScript : MonoBehaviour
+        public class StarScript : MonoBehaviour
         {
             public Star parent;
 

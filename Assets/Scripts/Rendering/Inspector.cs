@@ -59,7 +59,7 @@ namespace Assets.Scripts.Rendering
 
         public static void DisplayPlanet(Bodies.Planet p) // TODO: needs fixing because of transition of orbitals to planets
         {
-            TextBox title = new TextBox(go.transform, () => p, null, 24, TextAnchor.MiddleCenter);
+            TextBox title = new TextBox(go.transform, () => p, null, 24, TextAnchor.UpperCenter);
             //transform.GetChild(0).GetComponent<Text>().text = o.ToString();
             //string[] info = string.Join(";", new[] { o.Information(), "####", "####" }).Split(';');
             //int i;

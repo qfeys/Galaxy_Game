@@ -22,9 +22,10 @@ namespace Assets.Scripts.Rendering
                 {
                     GameObject objectWeHit = hitInfo.collider.gameObject;
 
-                    if(objectWeHit.tag == "Orbital")
+                    if(objectWeHit.tag == "Inspectable")
                     {
-                        DisplayManager.TheOne.SetInspector(objectWeHit);
+                        if (objectWeHit.GetComponent<SystemRenderer.PlanetScript>() != null)
+                            Inspector.DisplayPlanet(objectWeHit.GetComponent<SystemRenderer.PlanetScript>().parent);
                     }
                 }
             }
