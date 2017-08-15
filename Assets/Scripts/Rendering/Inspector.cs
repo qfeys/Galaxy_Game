@@ -26,7 +26,6 @@ namespace Assets.Scripts.Rendering
             Image im = go.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
-            TextBox title = new TextBox(go.transform, "test", null, 24, TextAnchor.MiddleCenter);
 
             GameObject close = new GameObject("Tab", typeof(RectTransform));
             close.transform.SetParent(go.transform);
@@ -48,9 +47,14 @@ namespace Assets.Scripts.Rendering
 
         }
 
+        private static void OpenInspector()
+        {
+            go.SetActive(true);
+        }
+
         private static void CloseInspector()
         {
-            throw new NotImplementedException();
+            go.SetActive(false);
         }
 
         public static void DisplayPlanet(Bodies.Planet p) // TODO: needs fixing because of transition of orbitals to planets
