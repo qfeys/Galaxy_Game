@@ -17,6 +17,14 @@ namespace Assets.Scripts.Rendering
         public RectTransform transform { get { return go.transform as RectTransform; } }
         int fontSize;
 
+        /// <summary>
+        /// Use this constructor if you want to make a table where the number of elements is fixed
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="info">The tuples in this list are the entries. The second item is the ToString() of whatever object is returned by the second function.</param>
+        /// <param name="width"></param>
+        /// <param name="fontSize"></param>
+        /// <param name="title"></param>
         public InfoTable(Transform parent, List<Tuple<string, Func<object>>> info, int width = 200, int fontSize = 12, string title = null) :
             this(parent, width, fontSize, title)
         {
@@ -24,6 +32,15 @@ namespace Assets.Scripts.Rendering
             Redraw();
         }
 
+        /// <summary>
+        /// Use this constructor if the number of elements in the table is variable.
+        /// BEWARE: this is badly optimised at the moment.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="script">This function must return the list with entries. The tuples in this list are the entries. The second item is the ToString() of whatever object is returned by the second function.</param>
+        /// <param name="width"></param>
+        /// <param name="fontSize"></param>
+        /// <param name="title"></param>
         public InfoTable(Transform parent, Func<List<Tuple<string, Func<object>>>> script, int width = 200, int fontSize = 12, string title = null) :
             this(parent, width, fontSize, title)
         {
