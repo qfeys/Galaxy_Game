@@ -126,6 +126,7 @@ namespace Assets.Scripts.Bodies
         public Planet(Star parent, double meanDistance, bool InnerPlanet)
         {
             this.Parent = parent;
+            Parent.AddPlanet(this);
             innerPlanet = InnerPlanet;
             type = RollType();
             // Calculate orbital elements
@@ -158,6 +159,7 @@ namespace Assets.Scripts.Bodies
         Planet(Star parent, bool innerPlanet, Type type, OrbitalElements orbitalElements)
         {
             this.Parent = parent;
+            Parent.AddPlanet(this);
             this.innerPlanet = innerPlanet;
             this.type = type;
             OrbElements = orbitalElements;
@@ -854,6 +856,15 @@ namespace Assets.Scripts.Bodies
             {Gases.SO2, new Tuple<double, double>(64,263) }
         };
 
+        public override string ToString()
+        {
+            string rt = type.ToString() + " " + Parent.ToString();
+            if (isMoon == false)
+                rt += (char)(Parent.Planets.IndexOf(this) + 'b');
+            else
+                rt += (char)(Parent.Planets.IndexOf(ParentPlanet) + 'b') + ParentPlanet.moons.IndexOf(this).ToString();
+            return rt;
+        }
 
         internal void AddPopulation(Population p)
         {

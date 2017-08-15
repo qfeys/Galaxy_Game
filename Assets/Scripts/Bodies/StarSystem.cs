@@ -20,8 +20,6 @@ namespace Assets.Scripts.Bodies
         /// </summary>
         public double Age { get; private set; }
         public int Abundance { get; private set; }
-        ulong id;
-        static ulong idCounter = 0;
 
         int seed;
         public RNG rng { get; private set; }

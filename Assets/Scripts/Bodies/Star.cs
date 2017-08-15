@@ -11,7 +11,7 @@ namespace Assets.Scripts.Bodies
         public StarSystem starSystem { get; private set; }
         public SpectralClass spc { get; private set; }
         public OrbitalElements OrbElements { get; private set; }
-        public List<Orbital> Planets { get; private set; }
+        public List<Planet> Planets { get; private set; }
         public bool IsCombinedStar { get; private set; }
 
         /// <summary>
@@ -36,6 +36,7 @@ namespace Assets.Scripts.Bodies
             this.starSystem = starSystem;
             this.spc = spc;
             IsCombinedStar = false;
+            Planets = new List<Planet>();
             
             // Set luminocity
             if(spc.class_ == SpectralClass.Class_.WhiteDwarf)
@@ -149,6 +150,11 @@ namespace Assets.Scripts.Bodies
                     else if (spc.class_ == SpectralClass.Class_.M) Luminosity *= 1 + StarSystem.AgeTable["M0-M9"].First(t => t.Value.Item1 == starSystem.Age).Value.Item2;
                 }
             }
+        }
+
+        internal void AddPlanet(Planet planet)
+        {
+            Planets.Add(planet);
         }
 
         Star() { }
