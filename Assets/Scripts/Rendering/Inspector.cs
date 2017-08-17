@@ -72,32 +72,24 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, () => p, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
 
-            InfoTable info = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>() {
-                new Tuple<string, Func<object>>("Mass", ()=>p.Mass),
-                new Tuple<string, Func<object>>("Temperature",()=>p.SurfaceTemperature)
-            });
-            //transform.GetChild(0).GetComponent<Text>().text = o.ToString();
-            //string[] info = string.Join(";", new[] { o.Information(), "####", "####" }).Split(';');
-            //int i;
-            //for(i = 0; i<info.Length/2; i++)
-            //{
-            //    if (transform.GetChild(1).childCount <= i)
-            //    {
-            //        Transform tr = Instantiate(transform.GetChild(1).GetChild(0).gameObject).transform;
-            //        tr.SetParent(transform.GetChild(1));
-            //        tr.SetAsLastSibling();
-            //    }
-            //    transform.GetChild(1).GetChild(i).GetChild(0).GetComponent<Text>().text = info[2 * i];
-            //    transform.GetChild(1).GetChild(i).GetChild(1).GetComponent<Text>().text = info[2 * i + 1];
-            //    transform.GetChild(1).GetChild(i).gameObject.SetActive(true);
-            //}
-            //while(transform.GetChild(1).childCount < i)
-            //{
-            //    transform.GetChild(1).GetChild(i).gameObject.SetActive(false);
-            //    i++;
-            //}
-            
-            //gameObject.SetActive(true);
+            InfoTable info = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>());
+            if (p.type == Bodies.Planet.Type.Chunk || p.type == Bodies.Planet.Type.Terrestial_planet)
+                info.SetInfo(new List<Tuple<string, Func<object>>>() {
+                    new Tuple<string, Func<object>>("Mass", ()=>p.Mass),
+                    new Tuple<string, Func<object>>("Temperature",()=>p.SurfaceTemperature),
+                    new Tuple<string, Func<object>>("Pressure",()=>p.PressureAtSeaLevel),
+                    new Tuple<string, Func<object>>("Day (hours)",()=>p.SolarDay),
+                    new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays)
+                });
+            else if (p.type == Bodies.Planet.Type.Gas_Giant || p.type == Bodies.Planet.Type.Superjovian)
+                info.SetInfo(new List<Tuple<string, Func<object>>>() {
+                    new Tuple<string, Func<object>>("Mass", ()=>p.Mass),
+                    new Tuple<string, Func<object>>("Temperature",()=>p.BaseTemperature),
+                    new Tuple<string, Func<object>>("Day (hours)",()=>p.SolarDay),
+                    new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays)
+                });
+            info.Redraw();
+        }
         }
     }
 }
