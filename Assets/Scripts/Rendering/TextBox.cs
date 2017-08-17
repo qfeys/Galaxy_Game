@@ -97,10 +97,37 @@ namespace Assets.Scripts.Rendering
             {
                 object d = Data_();
                 if (d.GetType() == typeof(double))
-                    text.text = ((double)d).ToString("0.##");
+                        text.text = ToSI((double)d,"0.##");
                 else
                     text.text = Data_().ToString();
             }
+        }
+
+        /// <summary>
+        /// Found on stackoverflow
+        /// https://stackoverflow.com/questions/12181024/formatting-a-number-with-a-metric-prefix
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        string ToSI(double d, string format = null)
+        {
+            if (d == 0 || (d >= 0.1 && d < 10000)) return d.ToString(format);
+
+            char[] incPrefixes = new[] { 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' };
+            char[] decPrefixes = new[] { 'm', '\u03bc', 'n', 'p', 'f', 'a', 'z', 'y' };
+
+            int degree = (int)Math.Floor(Math.Log10(Math.Abs(d)) / 3);
+            double scaled = d * Math.Pow(1000, -degree);
+
+            char? prefix = null;
+            switch (Math.Sign(degree))
+            {
+            case 1: prefix = incPrefixes[degree - 1]; break;
+            case -1: prefix = decPrefixes[-degree - 1]; break;
+            }
+
+            return scaled.ToString(format) + prefix;
         }
 
         class TextBoxScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
