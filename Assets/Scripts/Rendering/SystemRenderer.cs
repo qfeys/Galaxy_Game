@@ -50,6 +50,12 @@ namespace Assets.Scripts.Rendering
                 GameObject go = CreatePlanet(p);
                 displayedPlanets.Add(go, p);
                 CreateOrbit(p.OrbElements, go);
+                p.moons.ForEach(m =>
+                {
+                    GameObject gom = CreatePlanet(m);
+                    displayedPlanets.Add(gom, m);
+                    CreateOrbit(m.OrbElements, gom);
+                });
             });
         }
 
@@ -76,7 +82,6 @@ namespace Assets.Scripts.Rendering
                     }
                     displayedOrbits[p.Key].SetPositions(points);
                 }
-                // TODO: display moons
             }
         }
 
