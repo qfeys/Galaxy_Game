@@ -38,6 +38,7 @@ namespace Assets.Scripts.Rendering
             SetTimeControls();
             OverviewWindow.Create(GameObject.FindWithTag("MainCanvas"));
             Inspector.Create(GameObject.FindWithTag("MainCanvas"));
+            Clock.Create(GameObject.FindWithTag("MainCanvas"));
             MouseOver.Create();
         }
 

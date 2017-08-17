@@ -27,7 +27,7 @@ namespace Assets.Scripts.Rendering
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
 
-            GameObject close = new GameObject("Tab", typeof(RectTransform));
+            GameObject close = new GameObject("Close", typeof(RectTransform));
             close.transform.SetParent(go.transform);
             RectTransform trcl = (RectTransform)close.transform;
             trcl.sizeDelta = new Vector2(15, 15);
