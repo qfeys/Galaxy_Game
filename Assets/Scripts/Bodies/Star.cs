@@ -90,7 +90,7 @@ namespace Assets.Scripts.Bodies
                 if (b == 8) Temperature = 900;
                 if (b == 9) Temperature = 800;
                 if (b ==10) Temperature = 700;
-                Luminosity = Radius * Radius * Math.Pow(Temperature / 5800, 4);
+                Luminosity = Radius * Radius * Math.Pow(Temperature / 5800.0, 4);
             }
             else    // all other stars
             {

@@ -55,7 +55,7 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// The solar day in hours
         /// </summary>
-        public double SolarDay { get { return 1 / (1 / RotationalPeriod + 1 / OrbElements.T.TotalHours * AxialTilt < 90 ? -1 : +1); } }
+        public double SolarDay { get { return 1 / (1 / RotationalPeriod + 1 / OrbElements.T.TotalHours * (AxialTilt < 90 ? -1 : +1)); } }
         /// <summary>
         /// The age of this planets system.S
         /// </summary>
@@ -102,7 +102,7 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// The pressure at sea level, in atm
         /// </summary>
-        public double PressureAtSeaLevel { get { return AtmosphericComposition.Sum(g => g.Value); } }
+        public double PressureAtSeaLevel { get { return (AtmosphericComposition == null || AtmosphericComposition.Count == 0) ? 0 : AtmosphericComposition.Sum(g => g.Value); } }
         /// <summary>
         /// The type of life this planet has.
         /// </summary>
@@ -459,11 +459,11 @@ namespace Assets.Scripts.Bodies
                 if (type == Type.Chunk || type == Type.Terrestial_planet || type == Type.Gas_Giant)
                     BaseTemperature = 255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(Parent.Luminosity));
                 else if (type == Type.Superjovian)
-                    BaseTemperature = Math.Pow(Math.Pow(BaseTemperature, 4) + Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(Parent.Luminosity)), 4), 1 / 4);
+                    BaseTemperature = Math.Pow(Math.Pow(BaseTemperature, 4) + Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(Parent.Luminosity)), 4), 0.25);
                 else { }
             else
                 BaseTemperature = Math.Pow(Math.Pow(255 / Math.Sqrt(OrbElements.SMA / Math.Sqrt(ParentPlanet.Luminosity)), 4) +
-                    Math.Pow(255 / Math.Sqrt(ParentPlanet.OrbElements.SMA / Math.Sqrt(Parent.Luminosity)), 4), 1 / 4);
+                    Math.Pow(255 / Math.Sqrt(ParentPlanet.OrbElements.SMA / Math.Sqrt(Parent.Luminosity)), 4), 0.25);
             // Parts only for small bodies
             if (type == Type.Chunk || type == Type.Terrestial_planet)
             {
@@ -620,6 +620,7 @@ namespace Assets.Scripts.Bodies
                         (g.Key == Gases.CO2 || g.Key == Gases.CH4 || g.Key == Gases.SO2 || g.Key == Gases.NO2) ? g.Value : 0);
                     double greenhouseFactor = 1 + Math.Sqrt(PressureAtSeaLevel) * 0.01 * rng.D10 + Math.Sqrt(greenhousPressure) * 0.1 + WatorVaporFactor * 0.1;
                     SurfaceTemperature = BaseTemperature * AlbedoFactor * greenhouseFactor;
+                    Simulation.God.Log("Surface Temp = " + SurfaceTemperature);
                     // TODO: Check back with the hydrosphere, etc
                 }
 
