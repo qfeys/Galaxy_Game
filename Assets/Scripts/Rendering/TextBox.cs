@@ -49,8 +49,8 @@ namespace Assets.Scripts.Rendering
             Data_ = data;
             go = new GameObject("dataText", typeof(RectTransform));
             StandardConstructor(parent, size, allignment);
-            text.text = data().ToString();
             text.color = color ?? Color.red;
+            Update();
         }
 
         private void StandardConstructor(Transform parent, int size, TextAnchor allignment)
@@ -95,7 +95,11 @@ namespace Assets.Scripts.Rendering
         {
             if (isData)
             {
-                text.text = Data_().ToString();
+                object d = Data_();
+                if (d.GetType() == typeof(double))
+                    text.text = ((double)d).ToString("0.##");
+                else
+                    text.text = Data_().ToString();
             }
         }
 
