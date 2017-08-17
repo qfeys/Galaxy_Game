@@ -81,6 +81,16 @@ namespace Assets.Scripts.Rendering
                         points[i] *= scale;
                     }
                     displayedOrbits[p.Key].SetPositions(points);
+                    if(Vector3.Distance(points[0],points[VERTICES_PER_ORBIT/2]) < MIN_SIZE) // The orbit is smaller than the minimum object size, so do not display it
+                    {
+                        p.Key.SetActive(false);
+                        displayedOrbits[p.Key].gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        p.Key.SetActive(true);
+                        displayedOrbits[p.Key].gameObject.SetActive(true);
+                    }
                 }
             }
         }
