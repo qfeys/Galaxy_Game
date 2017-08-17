@@ -59,7 +59,7 @@ namespace Assets.Scripts.Simulation
             {
                 if (nextSimTimeTickReady)
                 {
-                    Debug.Log("Next real time tick:"+ Time.ToString("yyyy.MM.dd HH:mm:ss"));
+                    // Debug.Log("Next real time tick:"+ Time.ToString("yyyy.MM.dd HH:mm:ss"));
                     nextRealTimeTickReady = true;
                     realTimeSindsLastTick = 0;
                 }
@@ -109,7 +109,7 @@ namespace Assets.Scripts.Simulation
                 nextSimTimeTickReady = true;
                 sw.Stop();
                 long mils = sw.ElapsedMilliseconds;
-                ExcicuteOnUnityThread(() => Debug.Log("Main loop processed " + loops + " events in " + mils + " ms"));
+                // ExcicuteOnUnityThread(() => Debug.Log("Main loop processed " + loops + " events in " + mils + " ms"));
                 while (nextRealTimeTickReady == false && abort != true)
                 {
                     Thread.Sleep(100);

@@ -125,14 +125,12 @@ namespace Assets.Scripts.Rendering
 
             public void OnPointerEnter(PointerEventData eventData)
             {
-                Debug.Log("POINTER ENTER:" + parent.TextID);
                 mouseActive = true;
                 mouseTimeActive = 0;
             }
 
             public void OnPointerExit(PointerEventData eventData)
             {
-                Debug.Log("POINTER EXIT");
                 mouseActive = false;
                 mouseTimeActive = 0;
                 MouseOver.Deactivate();
