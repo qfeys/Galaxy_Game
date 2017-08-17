@@ -279,7 +279,8 @@ namespace Assets.Scripts.Bodies
                 Planets.ForEach(p => p.CalculateGeophisicals());
             }
 
-            Simulation.God.Log("Star system " + this + " generated with " + (Secondary == null ? 1 : Tertiary == null ? 2 : 3) + " stars and " + Planets.Count + " planets.\n " +
+            Simulation.God.Log("Star system " + this + " generated with " + (Secondary == null ? 1 : Tertiary == null ? 2 : 3) + " stars, " + Planets.Count + " planets and "
+                + Planets.Sum(p => p.moons.Count) + " moons\n " +
                 "First planet: " + Planets[0]);
         }
 

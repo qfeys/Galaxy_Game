@@ -76,6 +76,7 @@ namespace Assets.Scripts.Rendering
                     }
                     displayedOrbits[p.Key].SetPositions(points);
                 }
+                // TODO: display moons
             }
         }
 

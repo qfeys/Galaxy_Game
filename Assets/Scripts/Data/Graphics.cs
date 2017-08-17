@@ -77,8 +77,6 @@ namespace Assets.Scripts.Data
                     blue = Mathf.Clamp01((float)(0.5432067 * Math.Log(temperature - 1000) - 1.196254));
                 else
                     blue = 1;
-
-                Debug.Log("Temperature: " + temperature + ", color: " + red + ", " + green + ", " + blue);
                 return new Color(red, green, blue);
             }
         }

@@ -131,6 +131,11 @@ namespace Assets.Scripts.Rendering
             return line;
         }
 
+        /// <summary>
+        /// Removes the info from the table and sets new info.
+        /// BEWARE: make sure to call Redraw() after setting the info
+        /// </summary>
+        /// <param name="newInfo"></param>
         public void SetInfo(List<Tuple<string, Func<object>>> newInfo)
         {
             info = newInfo;
