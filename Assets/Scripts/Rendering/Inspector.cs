@@ -44,7 +44,7 @@ namespace Assets.Scripts.Rendering
             TextBox text = new TextBox(close.transform, "X", null, 8,TextAnchor.MiddleCenter);
             
             close.AddComponent<Button>().onClick.AddListener(() => { CloseInspector(); });
-
+            CloseInspector();
         }
 
         private static void OpenInspector()
