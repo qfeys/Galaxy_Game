@@ -339,7 +339,21 @@ namespace Assets.Scripts.Bodies
                 else orbits.Add(45 + rng.D100 * 3);             // Very Distant
                 // Disregarded special orbits TODO: implement special orbits
             }
+            // Check for collisions
+            int n = Parent.Planets.IndexOf(this);
+            double maxDistance = double.PositiveInfinity;
+            if (n == 0 && Parent.Planets.Count > 0)  // closest point of biggest orbit - biggest point of closest orbit.
+                maxDistance = (Parent.Planets[n + 1].OrbElements.SMA * (1 - Parent.Planets[n + 1].OrbElements.e) - OrbElements.SMA * (1 + OrbElements.e)) / 3;
+            else if (n > 0 && Parent.Planets.Count > n + 1)
+                maxDistance = Math.Min(
+                    OrbElements.SMA * (1 - OrbElements.e) - Parent.Planets[n - 1].OrbElements.SMA * (1 + Parent.Planets[n - 1].OrbElements.e),
+                    Parent.Planets[n + 1].OrbElements.SMA * (1 - Parent.Planets[n + 1].OrbElements.e) - OrbElements.SMA * (1 + OrbElements.e)
+                    ) / 3;
+            else if (n != 0 && Parent.Planets.Count == n + 1)
+                maxDistance = (OrbElements.SMA * (1 - OrbElements.e) - Parent.Planets[n - 1].OrbElements.SMA * (1 + Parent.Planets[n - 1].OrbElements.e)) / 3;
+            else Simulation.God.Log("The index of this planet is " + n + " and the number of planets around this star is " + Parent.Planets.Count + ". Is this alright?");
 
+            orbits.RemoveAll(o => o * Radius / StarSystem.AU > maxDistance);
             orbits.ForEach(o => moons.Add(new Planet(this, o, innerPlanet)));
         }
 
