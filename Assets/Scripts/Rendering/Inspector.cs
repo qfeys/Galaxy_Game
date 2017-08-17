@@ -65,7 +65,7 @@ namespace Assets.Scripts.Rendering
             }
         }
 
-        public static void DisplayPlanet(Bodies.Planet p) // TODO: needs fixing because of transition of orbitals to planets
+        public static void DisplayPlanet(Bodies.Planet p)
         {
             Clear();
             OpenInspector();
@@ -90,6 +90,23 @@ namespace Assets.Scripts.Rendering
                 });
             info.Redraw();
         }
+
+        public static void DisplayStar(Bodies.Star s)
+        {
+            Clear();
+            OpenInspector();
+            TextBox title = new TextBox(go.transform, () => s, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
+            title.transform.anchoredPosition = new Vector2(20, -20);
+
+            InfoTable info = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>());
+                info.SetInfo(new List<Tuple<string, Func<object>>>() {
+                    new Tuple<string, Func<object>>("Mass", ()=>s.Mass),
+                    new Tuple<string, Func<object>>("Temperature",()=>s.Temperature),
+                    new Tuple<string, Func<object>>("Pressure",()=>s.Radius),
+                    new Tuple<string, Func<object>>("Luminocity",()=>s.Luminosity),
+                    new Tuple<string, Func<object>>("Orbit (hours)",()=>s.OrbElements.T.TotalHours)
+                });
+            info.Redraw();
         }
     }
 }
