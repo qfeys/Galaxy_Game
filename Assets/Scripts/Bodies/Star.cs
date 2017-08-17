@@ -63,7 +63,7 @@ namespace Assets.Scripts.Bodies
                 if (b == 8) Temperature = 8000;
                 if (b == 9) Temperature = 6000;
                 if (b ==10) Temperature = 4000;
-                Luminosity = Radius * Radius * Math.Pow(Temperature / 5800, 4);
+                Luminosity = Radius * Radius * Math.Pow(Temperature / 5800.0, 4);
             }
             else if(spc.class_ == SpectralClass.Class_.BrownDwarf)
             {
@@ -113,7 +113,7 @@ namespace Assets.Scripts.Bodies
                     if (a == 10) mult = .4;
                     Mass *= mult + 1;
                     Luminosity *= 2 * mult + 1;
-                    Radius = Math.Sqrt(Luminosity) * Math.Pow(5800 / Temperature, 2);
+                    Radius = Math.Sqrt(Luminosity) * Math.Pow(5800.0 / Temperature, 2);
                     Luminosity *= 1.1; // As referenced in the age chart
                 }
                 else if (spc.size <= SpectralClass.Size.III)
@@ -129,7 +129,7 @@ namespace Assets.Scripts.Bodies
                     if (a == 8) { Mass *= 1.0; Luminosity *= 1.0; }
                     if (a == 9) { Mass *= 1.25; Luminosity *= 1.5; }
                     if (a == 10) { Mass *= 1.5; Luminosity *= 2.0; }
-                    Radius = Math.Sqrt(Luminosity) * Math.Pow(5800 / Temperature, 2);
+                    Radius = Math.Sqrt(Luminosity) * Math.Pow(5800.0 / Temperature, 2);
                     Luminosity *= 1.2; // As referenced in the age chart
                 }
                 else

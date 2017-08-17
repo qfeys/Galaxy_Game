@@ -102,7 +102,7 @@ namespace Assets.Scripts.Rendering
                 info.SetInfo(new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("Mass", ()=>s.Mass),
                     new Tuple<string, Func<object>>("Temperature",()=>s.Temperature),
-                    new Tuple<string, Func<object>>("Pressure",()=>s.Radius),
+                    new Tuple<string, Func<object>>("Radius",()=>s.Radius),
                     new Tuple<string, Func<object>>("Luminocity",()=>s.Luminosity),
                     new Tuple<string, Func<object>>("Orbit (hours)",()=>s.OrbElements.T.TotalHours)
                 });

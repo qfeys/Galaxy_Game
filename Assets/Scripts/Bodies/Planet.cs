@@ -620,7 +620,6 @@ namespace Assets.Scripts.Bodies
                         (g.Key == Gases.CO2 || g.Key == Gases.CH4 || g.Key == Gases.SO2 || g.Key == Gases.NO2) ? g.Value : 0);
                     double greenhouseFactor = 1 + Math.Sqrt(PressureAtSeaLevel) * 0.01 * rng.D10 + Math.Sqrt(greenhousPressure) * 0.1 + WatorVaporFactor * 0.1;
                     SurfaceTemperature = BaseTemperature * AlbedoFactor * greenhouseFactor;
-                    Simulation.God.Log("Surface Temp = " + SurfaceTemperature);
                     // TODO: Check back with the hydrosphere, etc
                 }
 
