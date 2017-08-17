@@ -10,6 +10,7 @@ namespace Assets.Scripts.Rendering
     {
         public float scrollSensitivity = 0.05f;
 
+        Vector3 lastMousePos;
 
         public void Update()
         {
@@ -30,9 +31,27 @@ namespace Assets.Scripts.Rendering
                             Inspector.DisplayStar(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
                     }
                 }
+                lastMousePos = Input.mousePosition;
             }
 
-            if(Input.mouseScrollDelta.y != 0)
+            if (Input.GetMouseButton(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            {
+                Camera.main.transform.position += (lastMousePos - Input.mousePosition) * 0.1f;
+                lastMousePos = Input.mousePosition;
+            }
+
+            // TODO: camera rotation
+            //if (Input.GetMouseButtonDown(1))
+            //    lastMousePos = Input.mousePosition;
+
+            //if (Input.GetMouseButton(1) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            //{
+            //    Vector3 camPo = Camera.main.transform.position;
+            //    Camera.main.transform.RotateAround(new Vector3(camPo.x, camPo.y, 0), Vector3.right, (lastMousePos - Input.mousePosition).x );
+            //    lastMousePos = Input.mousePosition;
+            //}
+
+            if (Input.mouseScrollDelta.y != 0)
             {
                 DisplayManager.TheOne.ChangeZoom(-Input.mouseScrollDelta.y * scrollSensitivity);
             }
