@@ -26,6 +26,8 @@ namespace Assets.Scripts.Rendering
                     {
                         if (objectWeHit.GetComponent<SystemRenderer.PlanetScript>() != null)
                             Inspector.DisplayPlanet(objectWeHit.GetComponent<SystemRenderer.PlanetScript>().parent);
+                        if (objectWeHit.GetComponent<SystemRenderer.StarScript>() != null)
+                            Inspector.DisplayStar(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
                     }
                 }
             }
