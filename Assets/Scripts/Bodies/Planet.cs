@@ -120,7 +120,6 @@ namespace Assets.Scripts.Bodies
         bool isMoon;
         bool isCaptured = false;
         bool isTidallyLocked;
-        Tuple<Planet, Planet> doubleChilderen;
         public RNG rng { get { return Parent.starSystem.rng; } }
 
         public Planet(Star parent, double meanDistance, bool InnerPlanet)
