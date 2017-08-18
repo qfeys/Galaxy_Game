@@ -170,11 +170,11 @@ namespace Assets.Scripts.Bodies
                 furthestSeperation = meanSeperation * (1 + eccentricity);
                 double orbitalPeriod = Math.Sqrt(Math.Pow(meanSeperation, 3) / (Primary.Mass + Secondary.Mass)); // In years?
                 double r1 = meanSeperation / (1 + Primary.Mass / Secondary.Mass);
-                if(r1 < Primary.Radius)     // The baricentrum is inside the primary. Just set the primary as the center of the system
-                {
-                    Primary.SetElements(OrbitalElements.Center);
-                }
-                else // TODO! Test whether the masses used here are correct!, see also binary planets
+                //if(r1 < Primary.Radius)     // The baricentrum is inside the primary. Just set the primary as the center of the system
+                //{
+                //    Primary.SetElements(OrbitalElements.Center);
+                //}
+                //else // TODO! Test whether the masses used here are correct!, see also binary planets
                 {
                     double apparentParentMassPrimary = Math.Pow(r1, 3) * (Primary.Mass + Secondary.Mass) / Math.Pow(meanSeperation, 3);
                     double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(Primary.Mass / Secondary.Mass, 3);
@@ -281,7 +281,7 @@ namespace Assets.Scripts.Bodies
 
             Simulation.God.Log("Star system " + this + " generated with " + (Secondary == null ? 1 : Tertiary == null ? 2 : 3) + " stars, " + Planets.Count + " planets and "
                 + Planets.Sum(p => p.moons.Count) + " moons\n " +
-                "First planet: " + Planets[0]);
+                "First planet: " + (Planets.Count == 0 ? "nan" : Planets[0].ToString()));
         }
 
 

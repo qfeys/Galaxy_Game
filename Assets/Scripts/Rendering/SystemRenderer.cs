@@ -43,6 +43,7 @@ namespace Assets.Scripts.Rendering
             syst.Planets.ForEach(p =>
             {
                 GameObject go = CreatePlanet(p);
+                if (go == null) return;
                 displayedPlanets.Add(go, p);
                 CreateOrbit(p.OrbElements, go);
                 p.moons.ForEach(m =>
@@ -138,6 +139,8 @@ namespace Assets.Scripts.Rendering
 
         static GameObject CreatePlanet(Planet pl)
         {
+            if (pl.type == Planet.Type.Astroid_Belt) { Debug.Log("Try displaying an astroid belt. Aborting"); return null; }
+            if (pl.type == Planet.Type.Double_Planet) { Debug.Log("Try displaying a double planet. Aborting"); return null; }
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             PlanetScript ps = go.AddComponent<PlanetScript>();
             ps.parent = pl;

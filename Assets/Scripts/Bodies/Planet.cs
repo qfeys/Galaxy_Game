@@ -341,7 +341,7 @@ namespace Assets.Scripts.Bodies
             // Check for collisions
             int n = Parent.Planets.IndexOf(this);
             double maxDistance = double.PositiveInfinity;
-            if (n == 0 && Parent.Planets.Count > 0)  // closest point of biggest orbit - biggest point of closest orbit.
+            if (n == 0 && Parent.Planets.Count > 1)  // closest point of biggest orbit - biggest point of closest orbit.
                 maxDistance = (Parent.Planets[n + 1].OrbElements.SMA * (1 - Parent.Planets[n + 1].OrbElements.e) - OrbElements.SMA * (1 + OrbElements.e)) / 3;
             else if (n > 0 && Parent.Planets.Count > n + 1)
                 maxDistance = Math.Min(
@@ -745,7 +745,7 @@ namespace Assets.Scripts.Bodies
             do
             {
                 type = RollType();
-            } while (type != Type.Chunk || type != Type.Terrestial_planet || type != Type.Gas_Giant);
+            } while (type != Type.Chunk && type != Type.Terrestial_planet && type != Type.Gas_Giant);
             CalculateSize();
         }
 
@@ -824,8 +824,8 @@ namespace Assets.Scripts.Bodies
                 double r1 = seperation / (1 + prime.Mass / second.Mass);
                 double apparentParentMassPrimary = Math.Pow(r1, 3) * (prime.Mass + second.Mass) / Math.Pow(seperation, 3);
                 double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(prime.Mass / second.Mass, 3);
-                prime.OrbElements = new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, 0, r1, 0, apparentParentMassPrimary);
-                second.OrbElements = new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, Math.PI, seperation - r1, 0, apparentParentMassSecondary);
+                prime.OrbElements = new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, 0, r1, 0, apparentParentMassPrimary * EARTH_MASS);
+                second.OrbElements = new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, Math.PI, seperation - r1, 0, apparentParentMassSecondary * EARTH_MASS);
                 prime.isTidallyLocked = true;
                 second.isTidallyLocked = true;
                 prime.RotationalPeriod = prime.OrbElements.T.TotalHours;
