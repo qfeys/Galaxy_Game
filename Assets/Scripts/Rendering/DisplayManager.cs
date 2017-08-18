@@ -17,8 +17,6 @@ namespace Assets.Scripts.Rendering
         public GameObject protoGiant;
         public GameObject protoRock;
         public Material lineMaterial;
-        
-        public GameObject clock;
 
         public void Awake()
         {
@@ -35,7 +33,6 @@ namespace Assets.Scripts.Rendering
 
         internal void Init()
         {
-            SetTimeControls();
             OverviewWindow.Create(GameObject.FindWithTag("MainCanvas"));
             Inspector.Create(GameObject.FindWithTag("MainCanvas"));
             Clock.Create(GameObject.FindWithTag("MainCanvas"));
@@ -45,23 +42,7 @@ namespace Assets.Scripts.Rendering
         // Update is called once per frame
         void Update()
         {
-            clock.transform.GetChild(0).GetComponent<Text>().text = God.Time.ToString("yyyy.MM.dd HH:mm:ss");
             SystemRenderer.Render();
-        }
-
-        private void SetTimeControls()
-        {
-            GameObject prefabControlButton = clock.transform.GetChild(1).GetChild(0).gameObject;
-            foreach(var tc in God.timeSteps)
-            {
-                GameObject newControlButton = Instantiate(prefabControlButton);
-                newControlButton.name = tc.Key;
-                newControlButton.transform.SetParent(clock.transform.GetChild(1));
-                newControlButton.transform.SetSiblingIndex(0);
-                newControlButton.transform.GetChild(0).GetComponent<Text>().text = tc.Key;
-                newControlButton.GetComponent<Button>().onClick.AddListener(()=> God.deltaTime = tc.Value);
-            }
-            Destroy(prefabControlButton);
         }
 
         #region SystemDisplay
