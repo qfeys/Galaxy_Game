@@ -13,6 +13,7 @@ namespace Assets.Scripts.Rendering
         static Dictionary<GameObject, Planet> displayedPlanets;
         static Dictionary<GameObject, Star> displayedStars;
         static Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
+        static bool isActive = true;
 
         public static float zoom = 0.0f; // log scale - high values are zoomed in
         static Vector3 center;
@@ -194,7 +195,27 @@ namespace Assets.Scripts.Rendering
             Camera.main.transform.rotation = Quaternion.Euler(camRot.y * Mathf.Rad2Deg, -camRot.x * Mathf.Rad2Deg, 0);
         }
 
-        const int VERTICES_PER_ORBIT = 40;
+        public static void Disable()
+        {
+            if (isActive == false)
+                return;
+            displayedPlanets.Keys.ToList().ForEach(go => go.SetActive(false));
+            displayedStars.Keys.ToList().ForEach(go => go.SetActive(false));
+            displayedOrbits.Values.ToList().ForEach(lr => lr.gameObject.SetActive(false));
+            isActive = false;
+        }
+
+        public static void Enable()
+        {
+            if (isActive == true)
+                return;
+            displayedPlanets.Keys.ToList().ForEach(go => go.SetActive(true));
+            displayedStars.Keys.ToList().ForEach(go => go.SetActive(true));
+            displayedOrbits.Values.ToList().ForEach(lr => lr.gameObject.SetActive(true));
+            isActive = true;
+        }
+
+        const int VERTICES_PER_ORBIT = 128;
         const float MIN_SIZE = 1.0f;
 
         public class PlanetScript : MonoBehaviour

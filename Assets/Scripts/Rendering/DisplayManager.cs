@@ -14,6 +14,7 @@ namespace Assets.Scripts.Rendering
         InputManager inputManager;
         
         public Material lineMaterial;
+        bool systemViewActive = true;
 
         public void Awake()
         {
@@ -39,7 +40,10 @@ namespace Assets.Scripts.Rendering
         // Update is called once per frame
         void Update()
         {
-            SystemRenderer.Render();
+            if (systemViewActive)
+                SystemRenderer.Render();
+            else
+                StarMap.Render();
         }
 
         #region SystemDisplay
@@ -59,6 +63,21 @@ namespace Assets.Scripts.Rendering
         {
             SystemRenderer.zoom += delta;
             SystemRenderer.Render();
+        }
+        internal void ToggleView()
+        {
+            if (systemViewActive)
+            {
+                SystemRenderer.Disable();
+                StarMap.Enable();
+                systemViewActive = false;
+            }
+            else
+            {
+                StarMap.Disable();
+                SystemRenderer.Enable();
+                systemViewActive = true;
+            }
         }
 
         #endregion
