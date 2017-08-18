@@ -17,14 +17,7 @@ namespace Assets.Scripts.Rendering
         public static float zoom = 0.0f; // log scale - high values are zoomed in
         static Vector3 center;
         public static Vector2 camRot = Vector2.zero;
-
-        public static void InstantiatePrototypes(GameObject star, GameObject giant, GameObject rock)
-        {
-            prototypes = new Dictionary<Type, GameObject> {
-                { typeof(Star), star }
-            };
-        }
-
+        
         internal static void SetSystem(StarSystem syst)
         {
             displayedPlanets = new Dictionary<GameObject, Planet>();
