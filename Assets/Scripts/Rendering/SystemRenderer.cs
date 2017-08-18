@@ -16,6 +16,7 @@ namespace Assets.Scripts.Rendering
         static Dictionary<Type, GameObject> prototypes;
 
         public static float zoom = 0.0f; // log scale - high values are zoomed in
+        static Vector3 center;
 
         public static void InstantiatePrototypes(GameObject star, GameObject giant, GameObject rock)
         {
@@ -57,19 +58,49 @@ namespace Assets.Scripts.Rendering
                     CreateOrbit(m.OrbElements, gom);
                 });
             });
+            center = Vector3.zero;
         }
 
         public static void Render()
         {
-            foreach(var p in displayedPlanets)
+            foreach (var s in displayedStars)
+            {
+                VectorS posS = s.Value.OrbElements.GetPositionSphere(Simulation.God.Time);
+                Vector3 posPar = Vector3.zero;  // TODO: correct position of tertiary planets
+                Vector3 posTrue = (Vector3)posS + posPar;
+                float scale = Mathf.Pow(10, -zoom);
+                s.Key.transform.position = (posTrue - center) * scale;
+                float size = (float)s.Value.Radius * scale / StarSystem.AU; // TODO correct scale radius
+                s.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
+                if (displayedOrbits.ContainsKey(s.Key))
+                {
+                    Vector3[] points = FindPointsOnOrbit(s.Value.OrbElements, VERTICES_PER_ORBIT);
+                    for (int i = 0; i < points.Length; i++)
+                    {
+                        points[i] += posPar - center;
+                        points[i] *= scale;
+                    }
+                    displayedOrbits[s.Key].SetPositions(points);
+                    if (Vector3.Distance(points[0], points[VERTICES_PER_ORBIT / 2]) < MIN_SIZE) // The orbit is smaller than the minimum object size, so do not display it
+                    {
+                        s.Key.SetActive(false);
+                        displayedOrbits[s.Key].gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        s.Key.SetActive(true);
+                        displayedOrbits[s.Key].gameObject.SetActive(true);
+                    }
+                }
+            }
+            foreach (var p in displayedPlanets)
             {
                 VectorS posS = p.Value.OrbElements.GetPositionSphere(Simulation.God.Time);
                 Vector3 posPar = p.Value.ParentPlanet == null ?
                     p.Value.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.Value.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
                 Vector3 posTrue = (Vector3)posS + posPar;
                 float scale = Mathf.Pow(10, -zoom);
-                Vector3 v = posTrue * scale;
-                p.Key.transform.position = v;
+                p.Key.transform.position = (posTrue - center) * scale;
                 float size = p.Value.Radius * scale / StarSystem.AU;
                 p.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
                 if (displayedOrbits.ContainsKey(p.Key))
@@ -77,11 +108,11 @@ namespace Assets.Scripts.Rendering
                     Vector3[] points = FindPointsOnOrbit(p.Value.OrbElements, VERTICES_PER_ORBIT);
                     for (int i = 0; i < points.Length; i++)
                     {
-                        points[i] += posPar;
+                        points[i] += posPar - center;
                         points[i] *= scale;
                     }
                     displayedOrbits[p.Key].SetPositions(points);
-                    if(Vector3.Distance(points[0],points[VERTICES_PER_ORBIT/2]) < MIN_SIZE) // The orbit is smaller than the minimum object size, so do not display it
+                    if (Vector3.Distance(points[0], points[VERTICES_PER_ORBIT / 2]) < MIN_SIZE) // The orbit is smaller than the minimum object size, so do not display it
                     {
                         p.Key.SetActive(false);
                         displayedOrbits[p.Key].gameObject.SetActive(false);
@@ -147,6 +178,17 @@ namespace Assets.Scripts.Rendering
             lr.material = DisplayManager.TheOne.lineMaterial;
             displayedOrbits.Add(go, lr);
         }
+
+        public static void SetCenter(Vector3 c) { center = c; }
+        public static void SetCenter(Planet p) {
+            VectorS posS = p.OrbElements.GetPositionSphere(Simulation.God.Time);
+            Vector3 posPar = p.ParentPlanet == null ?
+                p.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
+            Vector3 posTrue = (Vector3)posS + posPar;
+            SetCenter(posTrue);
+        }
+
+        public static void MoveCenter(Vector2 v) { center += (Vector3)v / Mathf.Pow(10, -zoom) * 0.1f; }
 
         const int VERTICES_PER_ORBIT = 40;
         const float MIN_SIZE = 1.0f;

@@ -26,7 +26,10 @@ namespace Assets.Scripts.Rendering
                     if(objectWeHit.tag == "Inspectable")
                     {
                         if (objectWeHit.GetComponent<SystemRenderer.PlanetScript>() != null)
+                        {
                             Inspector.DisplayPlanet(objectWeHit.GetComponent<SystemRenderer.PlanetScript>().parent);
+                            SystemRenderer.SetCenter(objectWeHit.GetComponent<SystemRenderer.PlanetScript>().parent);
+                        }
                         if (objectWeHit.GetComponent<SystemRenderer.StarScript>() != null)
                             Inspector.DisplayStar(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
                     }
@@ -36,7 +39,7 @@ namespace Assets.Scripts.Rendering
 
             if (Input.GetMouseButton(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                Camera.main.transform.position += (lastMousePos - Input.mousePosition) * 0.1f;
+                SystemRenderer.MoveCenter(lastMousePos - Input.mousePosition);
                 lastMousePos = Input.mousePosition;
             }
 
