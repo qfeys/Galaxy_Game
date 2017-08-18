@@ -11,6 +11,7 @@ namespace Assets.Scripts.Rendering
         public float scrollSensitivity = 0.05f;
 
         Vector3 lastMousePos;
+        Vector2 camRotSys = Vector2.zero;
 
         public void Update()
         {
@@ -44,15 +45,19 @@ namespace Assets.Scripts.Rendering
             }
 
             // TODO: camera rotation
-            //if (Input.GetMouseButtonDown(1))
-            //    lastMousePos = Input.mousePosition;
+            if (Input.GetMouseButtonDown(1))
+                lastMousePos = Input.mousePosition;
 
-            //if (Input.GetMouseButton(1) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-            //{
-            //    Vector3 camPo = Camera.main.transform.position;
-            //    Camera.main.transform.RotateAround(new Vector3(camPo.x, camPo.y, 0), Vector3.right, (lastMousePos - Input.mousePosition).x );
-            //    lastMousePos = Input.mousePosition;
-            //}
+            if (Input.GetMouseButton(1) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            {
+                camRotSys += (Vector2)(lastMousePos - Input.mousePosition) * 0.01f;
+                float x = 40 * Mathf.Sin(camRotSys.x);
+                float y = 40 * Mathf.Sin(camRotSys.y);
+                float z = -40 * Mathf.Cos(camRotSys.x) * Mathf.Cos(camRotSys.y);
+                Camera.main.transform.position = new Vector3(x, y, z);
+                Camera.main.transform.rotation = Quaternion.Euler(camRotSys.y * Mathf.Rad2Deg, -camRotSys.x * Mathf.Rad2Deg, 0);
+                lastMousePos = Input.mousePosition;
+            }
 
             if (Input.mouseScrollDelta.y != 0)
             {
