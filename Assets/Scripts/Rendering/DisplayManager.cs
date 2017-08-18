@@ -36,6 +36,7 @@ namespace Assets.Scripts.Rendering
             OverviewWindow.Create(GameObject.FindWithTag("MainCanvas"));
             Inspector.Create(GameObject.FindWithTag("MainCanvas"));
             Clock.Create(GameObject.FindWithTag("MainCanvas"));
+            SwitchBoard.Create(GameObject.FindWithTag("MainCanvas"));
             MouseOver.Create();
         }
 

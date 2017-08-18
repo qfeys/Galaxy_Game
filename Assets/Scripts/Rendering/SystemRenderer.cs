@@ -17,6 +17,7 @@ namespace Assets.Scripts.Rendering
 
         public static float zoom = 0.0f; // log scale - high values are zoomed in
         static Vector3 center;
+        public static Vector2 camRot = Vector2.zero;
 
         public static void InstantiatePrototypes(GameObject star, GameObject giant, GameObject rock)
         {
@@ -189,6 +190,17 @@ namespace Assets.Scripts.Rendering
         }
 
         public static void MoveCenter(Vector2 v) { center += (Vector3)v / Mathf.Pow(10, -zoom) * 0.1f; }
+
+        public static void ResetView() { zoom = 0; center = Vector2.zero; camRot = Vector2.zero; PlaceSystemCamera(); }
+
+        public static void PlaceSystemCamera()
+        {
+            float x = 40 * Mathf.Sin(camRot.x);
+            float y = 40 * Mathf.Sin(camRot.y);
+            float z = -40 * Mathf.Cos(camRot.x) * Mathf.Cos(camRot.y);
+            Camera.main.transform.position = new Vector3(x, y, z);
+            Camera.main.transform.rotation = Quaternion.Euler(camRot.y * Mathf.Rad2Deg, -camRot.x * Mathf.Rad2Deg, 0);
+        }
 
         const int VERTICES_PER_ORBIT = 40;
         const float MIN_SIZE = 1.0f;

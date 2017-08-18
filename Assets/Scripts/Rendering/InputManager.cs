@@ -44,18 +44,14 @@ namespace Assets.Scripts.Rendering
                 lastMousePos = Input.mousePosition;
             }
 
-            // TODO: camera rotation
+            // camera rotation
             if (Input.GetMouseButtonDown(1))
                 lastMousePos = Input.mousePosition;
 
             if (Input.GetMouseButton(1) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                camRotSys += (Vector2)(lastMousePos - Input.mousePosition) * 0.01f;
-                float x = 40 * Mathf.Sin(camRotSys.x);
-                float y = 40 * Mathf.Sin(camRotSys.y);
-                float z = -40 * Mathf.Cos(camRotSys.x) * Mathf.Cos(camRotSys.y);
-                Camera.main.transform.position = new Vector3(x, y, z);
-                Camera.main.transform.rotation = Quaternion.Euler(camRotSys.y * Mathf.Rad2Deg, -camRotSys.x * Mathf.Rad2Deg, 0);
+                SystemRenderer.camRot += (Vector2)(lastMousePos - Input.mousePosition) * 0.01f;
+                SystemRenderer.PlaceSystemCamera();
                 lastMousePos = Input.mousePosition;
             }
 
