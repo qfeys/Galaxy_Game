@@ -8,19 +8,19 @@ namespace Assets.Scripts.Bodies
 {
     static class Galaxy
     {
-        public static List<StarSystem> systems;
+        public static List<SystemContainer> systems;
 
         public static void Create(int size, int seed)
         {
             Random rand = new Random(seed);
-            systems = new List<StarSystem>();
+            systems = new List<SystemContainer>();
             List<Vect3> positions = GeneratePositions(size, 1.5, 4, 10, rand);
             for (int i = 0; i < size; i++)
             {
-                systems.Add(new StarSystem(rand.Next()));
+                systems.Add(new SystemContainer(new StarSystem(rand.Next()), positions[i]));
             }
-            systems.ForEach(sys => sys.Generate());
-            //Parallel.ForEach(systems, sys => sys.Generate());
+            systems.ForEach(sys => sys.sys.Generate());
+            //Parallel.ForEach(systems, sys => sys.Item1.Generate());
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Assets.Scripts.Bodies
 
         const double MILKY_WAY_MASS = Star.SOLAR_MASS * 1e12;
 
-        class Vect3
+        public class Vect3
         {
             double x, y, z;
 
@@ -95,7 +95,35 @@ namespace Assets.Scripts.Bodies
                 return Math.Sqrt(Math.Pow(v1.x - v2.x, 2) + Math.Pow(v1.y - v2.y, 2) + Math.Pow(v1.z - v2.z, 2));
             }
 
+            public static implicit operator UnityEngine.Vector3(Vect3 v)
+            {
+                return new UnityEngine.Vector3((float)v.x,
+                                               (float)v.y,
+                                               (float)v.z);
+            }
+
             public static Vect3 Zero { get { return new Vect3(0, 0, 0); } }
+        }
+
+        public class SystemContainer
+        {
+            public StarSystem sys;
+            Vect3 pos;
+
+            public SystemContainer(StarSystem sys, Vect3 pos)
+            {
+                this.sys = sys; this.pos = pos;
+            }
+
+            public static implicit operator UnityEngine.Vector3(SystemContainer sysCon)
+            {
+                return sysCon.pos;
+            }
+
+            public static implicit operator StarSystem(SystemContainer sysCon)
+            {
+                return sysCon.sys;
+            }
         }
     }
 }
