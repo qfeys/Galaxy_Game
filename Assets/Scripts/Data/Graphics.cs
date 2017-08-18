@@ -71,7 +71,7 @@ namespace Assets.Scripts.Data
                     green = Mathf.Clamp01((float)(1.5998 * Math.Pow(temperature, -0.0755148)));
 
                 float blue = 0;
-                if (temperature <= 19)
+                if (temperature <= 1900)
                     blue = 0;
                 else if (temperature <= 6600)
                     blue = Mathf.Clamp01((float)(0.5432067 * Math.Log(temperature - 1000) - 1.196254));
