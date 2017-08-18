@@ -31,6 +31,7 @@ namespace Assets.Scripts.Simulation
         static bool abort = false;
         static bool nextRealTimeTickReady = false;
         static bool nextSimTimeTickReady = false;
+        static bool isPaused = false;
         const float REAL_TIME_BETWEEN_TICKS = 1;
         float realTimeSindsLastTick;
         
@@ -54,7 +55,8 @@ namespace Assets.Scripts.Simulation
         void Update()
         {
             ExcicuteQueuedActions();
-            realTimeSindsLastTick += UnityEngine.Time.deltaTime;
+            if(isPaused == false)
+                realTimeSindsLastTick += UnityEngine.Time.deltaTime;
             if(realTimeSindsLastTick > REAL_TIME_BETWEEN_TICKS)
             {
                 if (nextSimTimeTickReady)
@@ -67,6 +69,11 @@ namespace Assets.Scripts.Simulation
             }
             if (mainThreadException != null)
                 Debug.LogError( mainThreadException);
+        }
+
+        internal static void Pause()
+        {
+            isPaused = !isPaused;
         }
 
         public static void Init()
@@ -110,7 +117,7 @@ namespace Assets.Scripts.Simulation
                 sw.Stop();
                 long mils = sw.ElapsedMilliseconds;
                 // ExcicuteOnUnityThread(() => Debug.Log("Main loop processed " + loops + " events in " + mils + " ms"));
-                while (nextRealTimeTickReady == false && abort != true)
+                while (nextRealTimeTickReady == false  && abort != true)
                 {
                     Thread.Sleep(100);
                 }

@@ -17,16 +17,17 @@ namespace Assets.Scripts.Rendering
             go = new GameObject("Clock", typeof(RectTransform));
             go.transform.SetParent(canvas.transform);
             RectTransform tr = (RectTransform)go.transform;
-            tr.sizeDelta = new Vector2(200, 50);
+            tr.sizeDelta = new Vector2(230, 50);
             tr.anchorMin = new Vector2(1, 1);
             tr.anchorMax = new Vector2(1, 1);
             tr.pivot = new Vector2(1, 1);
-            tr.anchoredPosition = new Vector2(0, -3);
+            tr.anchoredPosition = new Vector2(0, 0);
             Image im = go.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
 
             TextBox text = new TextBox(go.transform, () => Simulation.God.Time.ToString("yyyy.MM.dd HH:mm:ss"), null, 16, TextAnchor.UpperCenter, Data.Graphics.Color_.text);
+            text.transform.anchoredPosition = new Vector2(0, -3);
 
             Dictionary<string, TimeSpan> timeSteps = Simulation.God.timeSteps;
 
@@ -41,7 +42,7 @@ namespace Assets.Scripts.Rendering
                 trst.anchorMax = new Vector2(0, 0);
                 trst.pivot = new Vector2(0, 0);
                 float x = 195 - (i % (timeSteps.Count / 2) + 1) * 190 / (timeSteps.Count / 2);
-                float y = (i < timeSteps.Count / 2 ? 0 : 13) + 1;
+                float y = (i < timeSteps.Count / 2 ? 0 : 14) + 1;
                 trst.anchoredPosition = new Vector2(x, y);
                 Image img = Step.AddComponent<Image>();
                 img.sprite = Data.Graphics.GetSprite("tab_image_low");
@@ -54,7 +55,23 @@ namespace Assets.Scripts.Rendering
                 Step.AddComponent<Button>().onClick.AddListener(() => Simulation.God.deltaTime = step.Value);
                 i++;
             }
+            GameObject pause = new GameObject("Pause", typeof(RectTransform));
+            pause.transform.SetParent(go.transform);
+            RectTransform trps = (RectTransform)pause.transform;
+            trps.sizeDelta = new Vector2(28, 24);
+            trps.anchorMin = new Vector2(1, 0);
+            trps.anchorMax = new Vector2(1, 0);
+            trps.pivot = new Vector2(1, 0);
+            trps.anchoredPosition = new Vector2(-5, 2);
+            Image imP = pause.AddComponent<Image>();
+            imP.sprite = Data.Graphics.GetSprite("tab_image_low");
+            imP.raycastTarget = true;
+            imP.type = Image.Type.Sliced;
+            imP.fillCenter = true;
 
+            TextBox textPause = new TextBox(pause.transform, "||", null, 10, TextAnchor.MiddleCenter);
+
+            pause.AddComponent<Button>().onClick.AddListener(() => Simulation.God.Pause());
         }
     }
 }
