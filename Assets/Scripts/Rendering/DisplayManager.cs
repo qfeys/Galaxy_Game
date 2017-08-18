@@ -12,17 +12,13 @@ namespace Assets.Scripts.Rendering
     {
         static public DisplayManager TheOne;
         InputManager inputManager;
-
-        public GameObject protoStar;
-        public GameObject protoGiant;
-        public GameObject protoRock;
+        
         public Material lineMaterial;
 
         public void Awake()
         {
             if (TheOne != null) throw new Exception("A second display manager is created");
             TheOne = this;
-            SystemRenderer.InstantiatePrototypes(protoStar, protoGiant, protoRock);
             inputManager = gameObject.AddComponent<InputManager>();
         }
 

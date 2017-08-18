@@ -13,7 +13,6 @@ namespace Assets.Scripts.Rendering
         static Dictionary<GameObject, Planet> displayedPlanets;
         static Dictionary<GameObject, Star> displayedStars;
         static Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
-        static Dictionary<Type, GameObject> prototypes;
 
         public static float zoom = 0.0f; // log scale - high values are zoomed in
         static Vector3 center;
