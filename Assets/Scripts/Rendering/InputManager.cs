@@ -50,7 +50,7 @@ namespace Assets.Scripts.Rendering
 
             if (Input.GetMouseButton(1) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                SystemRenderer.camRot += (Vector2)(lastMousePos - Input.mousePosition) * 0.01f;
+                SystemRenderer.CamRot += (Vector2)(lastMousePos - Input.mousePosition) * 0.01f;
                 SystemRenderer.PlaceSystemCamera();
                 lastMousePos = Input.mousePosition;
             }

@@ -17,8 +17,9 @@ namespace Assets.Scripts.Rendering
 
         public static float zoom = 0.0f; // log scale - high values are zoomed in
         static Vector3 center;
-        public static Vector2 camRot = Vector2.zero;
-        
+        private static Vector2 camRot = Vector2.zero;
+        public static Vector2 CamRot { get { return camRot; } set { camRot = new Vector2(Mathf.Clamp(value.x, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad), Mathf.Clamp(value.y, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad)); } }
+
         internal static void SetSystem(StarSystem syst)
         {
             displayedPlanets = new Dictionary<GameObject, Planet>();
@@ -200,7 +201,7 @@ namespace Assets.Scripts.Rendering
 
         public static void PlaceSystemCamera()
         {
-            float x = 40 * Mathf.Sin(camRot.x);
+            float x = 40 * Mathf.Sin(camRot.x) * Mathf.Cos(camRot.y);
             float y = 40 * Mathf.Sin(camRot.y);
             float z = -40 * Mathf.Cos(camRot.x) * Mathf.Cos(camRot.y);
             Camera.main.transform.position = new Vector3(x, y, z);
