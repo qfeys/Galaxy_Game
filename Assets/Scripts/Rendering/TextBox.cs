@@ -120,6 +120,8 @@ namespace Assets.Scripts.Rendering
             int degree = (int)Math.Floor(Math.Log10(Math.Abs(d)) / 3);
             double scaled = d * Math.Pow(1000, -degree);
 
+            if (degree - 1 >= incPrefixes.Length) return "~inf";
+            if (-degree - 1 >= decPrefixes.Length) return "~0";
             char? prefix = null;
             switch (Math.Sign(degree))
             {

@@ -76,7 +76,7 @@ namespace Assets.Scripts.Rendering
                         points[i] *= scale;
                     }
                     displayedOrbits[s.Key].SetPositions(points);
-                    if (Vector3.Distance(points[0], points[VERTICES_PER_ORBIT / 2]) < MIN_SIZE) // The orbit is smaller than the minimum object size, so do not display it
+                    if (Vector3.Distance(points[0], points[VERTICES_PER_ORBIT / 2]) < MIN_SIZE && s.Value.starSystem.Primary != s.Value) // The orbit is smaller than the minimum object size, so do not display it
                     {
                         s.Key.SetActive(false);
                         displayedOrbits[s.Key].gameObject.SetActive(false);

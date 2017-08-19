@@ -224,7 +224,7 @@ namespace Assets.Scripts.Bodies
                     {
                         double centralMass = tertiaryPos == 1 ? Primary.Mass : tertiaryPos == 2 ? Secondary.Mass : (Primary.Mass + Secondary.Mass);
                         double r3 = meanSeperationT / (1 + Tertiary.Mass / centralMass);    // Distance from tertiary to barycentrum
-                        Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, r3, eccentricityT, centralMass));
+                        Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, r3, eccentricityT, centralMass * Star.SOLAR_MASS));
                     }
                 }
             }

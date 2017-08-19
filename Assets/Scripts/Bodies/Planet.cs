@@ -350,6 +350,8 @@ namespace Assets.Scripts.Bodies
                     ) / 3;
             else if (n != 0 && Parent.Planets.Count == n + 1)
                 maxDistance = (OrbElements.SMA * (1 - OrbElements.e) - Parent.Planets[n - 1].OrbElements.SMA * (1 + Parent.Planets[n - 1].OrbElements.e)) / 3;
+            else if (n == 0 && Parent.Planets.Count == 1)
+            { }
             else Simulation.God.Log("The index of this planet is " + n + " and the number of planets around this star is " + Parent.Planets.Count + ". Is this alright?");
 
             orbits.RemoveAll(o => o * Radius / StarSystem.AU > maxDistance);
@@ -757,7 +759,7 @@ namespace Assets.Scripts.Bodies
             else type = Type.Superjovian;
             OrbitalElements companionElements = new OrbitalElements(OrbElements.LAN, OrbElements.i, OrbElements.AOP,
                 OrbElements.MAaE + Math.PI / 3 * rng.D10 > 5 ? +1 : -1,
-                OrbElements.SMA, OrbElements.e, OrbElements.parentMass);
+                OrbElements.SMA, OrbElements.e, OrbElements.parentMass * Star.SOLAR_MASS);
             Planet companion = new Planet(Parent, innerPlanet, rng.D10 <= 9 ? Type.Chunk : Type.Terrestial_planet, companionElements);
             CalculateSize();
             companion.CalculateSize();
@@ -801,7 +803,8 @@ namespace Assets.Scripts.Bodies
             {
                 type = firstType;
                 CalculateSize();
-                Planet moon = new Planet(Parent, innerPlanet, secondType, new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, rng.Circle, seperation * Radius / StarSystem.AU, 0, Mass * EARTH_MASS)) {
+                Planet moon = new Planet(Parent, innerPlanet, secondType, 
+                    new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, rng.Circle, seperation * Radius / StarSystem.AU, 0, Mass * EARTH_MASS)) {
                     isMoon = true,
                     ParentPlanet = this
                 };
