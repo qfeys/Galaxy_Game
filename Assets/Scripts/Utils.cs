@@ -60,8 +60,8 @@ namespace Assets.Scripts
             double meanAnomaly = MAaE + (time - EPOCH).TotalSeconds / n;
             double EA = EccentricAnomaly(meanAnomaly);
             ret.r = SMA * (1 - e * Math.Cos(EA));
-            ret.u = LAN + (AOP + EA) * Math.Cos(i);
-            ret.v = i * Math.Sin(AOP + EA);
+            ret.u = LAN + Math.Atan2(Math.Sin(AOP + EA) * Math.Cos(i), Math.Cos(AOP + EA));
+            ret.v = Math.Asin(Math.Sin(i) * Math.Sin(AOP + EA));
             return ret;
         }
 
@@ -91,12 +91,13 @@ namespace Assets.Scripts
             {
                 double meanAnomaly = MAaE + j * 2 * Math.PI / number + (time - EPOCH).TotalSeconds / n;
                 double EA = EccentricAnomaly(meanAnomaly);
-                VectorS point = new VectorS() {
-                    r = SMA * (1 - e * Math.Cos(EA)),
-                    u = LAN + (AOP + EA) * Math.Cos(i),
-                    v = i * Math.Sin(AOP + EA)
-                };
-                //UnityEngine.Debug.Log(j + ": " + j * 2 * Math.PI / number + "rad, MA: " + meanAnomaly.ToString("0.0") + " rad, EA: " + EA.ToString("0.0") + " rad, u:" + point.u.ToString("0.0") + " rad");
+                double AoA = AOP + EA;
+                VectorS point = new VectorS(
+                    SMA * (1 - e * Math.Cos(EA)),
+                    LAN + Math.Atan2(Math.Sin(AoA) * Math.Cos(i), Math.Cos(AoA)),
+                    Math.Asin(Math.Sin(i) * Math.Sin(AOP + EA))
+                );
+                //UnityEngine.Debug.Log(j + ": " + (j * 2 * Math.PI / number).ToString("0.00") + " rad, i: " + i.ToString("0.00") + "rad, MA: " + meanAnomaly.ToString("0.00") + " rad, EA: " + EA.ToString("0.00") + " rad, AoA: " + AoA.ToString("0.00") + " rad, u:" + (point.u - LAN).ToString("0.00") + " rad, r:"+point.r.ToString("0.000'000"));
                 ret[j] = point;
             }
             return ret;
@@ -111,11 +112,17 @@ namespace Assets.Scripts
     /// </summary>
     struct VectorS
     {
-        // Radius, recomended to be in AU
+        /// <summary>
+        /// Radius, recomended to be in AU
+        /// </summary>
         public double r;
-        // Angle on the ecliptica [0, 2xPi] [rad]
+        /// <summary>
+        /// Angle on the ecliptica [0, 2xPi] [rad]
+        /// </summary>
         public double u;
-        // Angle away from the ecliptica [-Pi/2, Pi/2] [rad]
+        /// <summary>
+        /// Angle away from the ecliptica [-Pi/2, Pi/2] [rad]
+        /// </summary>
         public double v;
 
         /// <summary>
@@ -133,8 +140,8 @@ namespace Assets.Scripts
 
         public static explicit operator UnityEngine.Vector3(VectorS vs)
         {
-            return new UnityEngine.Vector3((float)(vs.r * Math.Cos(vs.u) * Math.Cos(vs.v)),
-                                           (float)(vs.r * Math.Sin(vs.u) * Math.Cos(vs.v)),
+            return new UnityEngine.Vector3((float)(vs.r * Math.Cos(vs.u)),
+                                           (float)(vs.r * Math.Sin(vs.u)),
                                            (float)(vs.r * Math.Sin(vs.v)));
         }
 
