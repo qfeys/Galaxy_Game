@@ -76,6 +76,7 @@ namespace Assets.Scripts.Rendering
             tr.pivot = new Vector2(anchX, anchY);
             tr.anchoredPosition = new Vector2(0, 0);
             tr.localScale = new Vector3(0.5f, 0.5f, 1);
+            tr.sizeDelta = new Vector2(((RectTransform)parent).sizeDelta.x * 2, (size + 2) * 2);
             text = go.AddComponent<Text>();
             text.font = Data.Graphics.GetStandardFont();
             text.fontSize = size * 2;
