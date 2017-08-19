@@ -380,6 +380,13 @@ namespace Assets.Scripts.Bodies
                 } }
             };
 
+        /// <summary>
+        /// The mass of Sol in kg
+        /// </summary>
         public const double SOLAR_MASS = 1.98855e30;
+        /// <summary>
+        /// The radius of Sol in km
+        /// </summary>
+        public const double SOLAR_RADIUS = 659700;
     }
 }

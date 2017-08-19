@@ -65,8 +65,10 @@ namespace Assets.Scripts.Rendering
                 Vector3 posTrue = (Vector3)posS + posPar;
                 float scale = Mathf.Pow(10, -zoom);
                 s.Key.transform.position = (posTrue - center) * scale;
-                float size = (float)s.Value.Radius * scale / StarSystem.AU; // TODO correct scale radius
+                float size = (float)(s.Value.Radius * Star.SOLAR_RADIUS * 2 * scale / StarSystem.AU);
                 s.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
+                //s.Key.GetComponent<Light>().intensity = (float)s.Value.Luminosity * scale;
+                s.Key.GetComponent<Light>().range = 100 * scale;
                 if (displayedOrbits.ContainsKey(s.Key))
                 {
                     Vector3[] points = FindPointsOnOrbit(s.Value.OrbElements, VERTICES_PER_ORBIT);
@@ -161,6 +163,11 @@ namespace Assets.Scripts.Rendering
             sl.intensity = 1;
             sl.shadows = LightShadows.Hard;
             sl.color = Data.Graphics.Color_.FromTemperature(st.Temperature);
+            sl.intensity = (float)st.Luminosity;
+            Material mat = go.GetComponent<MeshRenderer>().material;
+            mat.EnableKeyword("_EMISSION");
+            mat.SetColor("_Color", sl.color);
+            mat.SetColor("_EmissionColor", sl.color);
             go.tag = "Inspectable";
             return go;
         }
@@ -173,6 +180,8 @@ namespace Assets.Scripts.Rendering
             lr.startWidth = 0.03f;
             lr.endWidth = 0.2f;
             lr.material = DisplayManager.TheOne.lineMaterial;
+            lr.material.EnableKeyword("_EMISSION");
+            lr.material.SetColor("_EmissionColor", Color.green * Mathf.LinearToGammaSpace(0.1f));
             displayedOrbits.Add(go, lr);
         }
 
