@@ -21,7 +21,7 @@ namespace Assets.Scripts
         public readonly double e;   // exentricity
         public readonly double parentMass; // in kg
         // TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
-        public TimeSpan T { get { return TimeSpan.FromSeconds(parentMass == 0 ? 0 : 2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass))); } }
+        public AstroTimeSpan T { get { return AstroTimeSpan.FromSeconds(parentMass == 0 ? 0 : 2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass))); } }
         /// <summary>
         /// The gravitational constant, unit: m^3 / (kg s)
         /// </summary>
@@ -204,7 +204,6 @@ namespace Assets.Scripts
         public double Circle { get { return irand.NextDouble() * 2 * Math.PI; } }
     }
 
-
     public class SortedList<T> : ICollection<T>
     {
         private readonly List<T> collection = new List<T>();
@@ -310,5 +309,32 @@ namespace Assets.Scripts
 
         public int Count { get { return collection.Count; } }
         public bool IsReadOnly { get { return false; } }
+    }
+
+    public class AstroTimeSpan
+    {
+        /// <summary>
+        /// Represent seconds
+        /// </summary>
+        long ticks;
+
+        AstroTimeSpan(long ticks)
+        {
+            this.ticks = ticks;
+        }
+
+        public static AstroTimeSpan FromSeconds(long seconds) { return new AstroTimeSpan(seconds); }
+        public static AstroTimeSpan FromSeconds(double seconds) { return new AstroTimeSpan((long)seconds); }
+        public static AstroTimeSpan FromMinutes(long minutes) { return new AstroTimeSpan(minutes * 60); }
+        public static AstroTimeSpan FromMinutes(double minutes) { return new AstroTimeSpan((long)(minutes * 60)); }
+        public static AstroTimeSpan FromHours(long hours) { return new AstroTimeSpan(hours * 3600); }
+        public static AstroTimeSpan FromHours(double hours) { return new AstroTimeSpan((long)(hours * 3600)); }
+        public static AstroTimeSpan FromDays(long days) { return new AstroTimeSpan(days * 86400); }
+        public static AstroTimeSpan FromDays(double days) { return new AstroTimeSpan((long)(days * 86400)); }
+
+        public long TotalSeconds { get { return ticks; } }
+        public long TotalMinutes { get { return ticks / 60; } }
+        public long TotalHours { get { return ticks / 3600; } }
+        public long TotalDays { get { return ticks / 86400; } }
     }
 }
