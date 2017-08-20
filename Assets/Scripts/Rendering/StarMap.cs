@@ -12,6 +12,7 @@ namespace Assets.Scripts.Rendering
     {
         static GameObject master;
         static Dictionary<GameObject, Bodies.Galaxy.SystemContainer> displayedSystems;
+        static Dictionary<GameObject, Bodies.Galaxy.SystemContainer> displayedMarkers;
         static GameObject ecliptica;
         static bool isActive = false;
 
@@ -21,20 +22,29 @@ namespace Assets.Scripts.Rendering
         {
             master = new GameObject("StarMap");
             displayedSystems = new Dictionary<GameObject, Bodies.Galaxy.SystemContainer>();
+            displayedMarkers = new Dictionary<GameObject, Bodies.Galaxy.SystemContainer>();
             foreach (Bodies.Galaxy.SystemContainer sys in Bodies.Galaxy.systems)
             {
                 displayedSystems.Add(CreateSystem(sys, sys), sys);
             }
             CreateEcliptica();
-            theater = new Theater(Render);
+            theater = new Theater(Render, true) {
+                zoom = -0.5f,
+                CamRot = new Vector2(0, 0) * Mathf.Deg2Rad
+            };
             theater.SetCenter(Vector3.zero);
-            PlaceMarkers();
+            RedrawMarkers();
             master.SetActive(false);
         }
 
         public static void Render()
         {
-
+            foreach (var sys in displayedSystems)
+            {
+                sys.Key.transform.position = (sys.Value - theater.Center) * theater.Scale;
+            }
+            ecliptica.transform.position = -theater.Center * theater.Scale;
+            RedrawMarkers();
         }
 
         public static void Disable()
@@ -77,33 +87,50 @@ namespace Assets.Scripts.Rendering
             ecliptica.transform.SetParent(master.transform);
             Canvas c = ecliptica.AddComponent<Canvas>();
             c.renderMode = RenderMode.WorldSpace;
-            ((RectTransform)c.transform).sizeDelta = new Vector2(40, 40);
+            ((RectTransform)c.transform).sizeDelta = new Vector2(60, 60);
             CanvasScaler cs = ecliptica.AddComponent<CanvasScaler>();
             cs.referenceResolution = new Vector2(400, 400);
-            cs.referencePixelsPerUnit = 10;
+            cs.referencePixelsPerUnit = 15;
             Image im = ecliptica.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("ecliptica");
             im.color = new Color(1, 1, 1, 0.5f);
         }
 
-        static void PlaceMarkers()
+        static void RedrawMarkers()
         {
-            foreach (Transform child in ecliptica.transform) GameObject.Destroy(child.gameObject);
             foreach (var sys in displayedSystems.Values)
             {
-                Vector2 pos = (Vector2)((Vector3)sys - theater.center);
-                if(pos.magnitude < 40)
+                Vector2 pos = (Vector3)sys;
+                if (pos.magnitude < 20 / theater.Scale)
                 {
-                    GameObject go = new GameObject("SwitchBoard", typeof(RectTransform));
-                    go.transform.SetParent(ecliptica.transform);
-                    RectTransform rt = go.transform as RectTransform;
-                    rt.sizeDelta = new Vector2(1.6f, 1.6f);
-                    rt.anchorMin = new Vector2(0.5f, 0.5f);
-                    rt.anchorMax = new Vector2(0.5f, 0.5f);
-                    rt.pivot = new Vector2(0.5f, 0.5f);
-                    rt.anchoredPosition = pos;
-                    Image im = go.AddComponent<Image>();
-                    im.sprite = Data.Graphics.GetSprite("marker");
+                    if (displayedMarkers.ContainsValue(sys) == false)
+                    {
+                        GameObject go = new GameObject("Marker", typeof(RectTransform));
+                        go.transform.SetParent(ecliptica.transform);
+                        RectTransform rt = go.transform as RectTransform;
+                        rt.sizeDelta = new Vector2(1.6f, 1.6f);
+                        rt.anchorMin = new Vector2(0.5f, 0.5f);
+                        rt.anchorMax = new Vector2(0.5f, 0.5f);
+                        rt.pivot = new Vector2(0.5f, 0.5f);
+                        rt.anchoredPosition = pos * theater.Scale;
+                        Image im = go.AddComponent<Image>();
+                        im.sprite = Data.Graphics.GetSprite("marker");
+                        displayedMarkers.Add(go, sys);
+                    }
+                    else
+                    {
+                        RectTransform rt = displayedMarkers.First(kvp => kvp.Value == sys).Key.transform as RectTransform;
+                        rt.anchoredPosition = pos * theater.Scale;
+                    }
+                }
+                else
+                {
+                    if(displayedMarkers.ContainsValue(sys) == true)
+                    {
+                        GameObject go = displayedMarkers.First(kvp => kvp.Value == sys).Key;
+                        displayedMarkers.Remove(go);
+                        GameObject.Destroy(go);
+                    }
                 }
             }
         }

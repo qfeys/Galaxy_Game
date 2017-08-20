@@ -88,7 +88,7 @@ namespace Assets.Scripts.Rendering
                 }
                 Vector3 posTrue = (Vector3)posS + posPar;
                 float scale = Mathf.Pow(10, -theater.zoom);
-                s.Key.transform.position = (posTrue - theater.center) * scale;
+                s.Key.transform.position = (posTrue - theater.Center) * scale;
                 float size = (float)(s.Value.Radius * Star.SOLAR_RADIUS * 2 * scale / StarSystem.AU);
                 s.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
                 //s.Key.GetComponent<Light>().intensity = (float)s.Value.Luminosity * scale;
@@ -98,7 +98,7 @@ namespace Assets.Scripts.Rendering
                     Vector3[] points = FindPointsOnOrbit(s.Value.OrbElements, VERTICES_PER_ORBIT);
                     for (int i = 0; i < points.Length; i++)
                     {
-                        points[i] += posPar - theater.center;
+                        points[i] += posPar - theater.Center;
                         points[i] *= scale;
                     }
                     displayedOrbits[s.Key].SetPositions(points);
@@ -121,7 +121,7 @@ namespace Assets.Scripts.Rendering
                     p.Value.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.Value.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
                 Vector3 posTrue = (Vector3)posS + posPar;
                 float scale = Mathf.Pow(10, -theater.zoom);
-                p.Key.transform.position = (posTrue - theater.center) * scale;
+                p.Key.transform.position = (posTrue - theater.Center) * scale;
                 float size = p.Value.Radius * scale / StarSystem.AU;
                 p.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
                 if (displayedOrbits.ContainsKey(p.Key))
@@ -129,7 +129,7 @@ namespace Assets.Scripts.Rendering
                     Vector3[] points = FindPointsOnOrbit(p.Value.OrbElements, VERTICES_PER_ORBIT);
                     for (int i = 0; i < points.Length; i++)
                     {
-                        points[i] += posPar - theater.center;
+                        points[i] += posPar - theater.Center;
                         points[i] *= scale;
                     }
                     displayedOrbits[p.Key].SetPositions(points);

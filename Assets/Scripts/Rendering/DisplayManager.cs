@@ -99,6 +99,11 @@ namespace Assets.Scripts.Rendering
             activeTheater.Render();
         }
 
+        internal void ResetView()
+        {
+            activeTheater.ResetView();
+        }
+
         #endregion
 
         internal void SetInspector(GameObject obj)

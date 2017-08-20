@@ -33,7 +33,7 @@ namespace Assets.Scripts.Rendering
             hzlg.spacing = 5;
             hzlg.childAlignment = TextAnchor.LowerLeft;
             hzlg.childForceExpandWidth = false;
-            AddButton("Reset View", "rst", () => SystemRenderer.theater.ResetView());
+            AddButton("Reset View", "rst", () => DisplayManager.TheOne.ResetView());
             AddButton("change view", "sys", () => DisplayManager.TheOne.ToggleView());
 
         }
