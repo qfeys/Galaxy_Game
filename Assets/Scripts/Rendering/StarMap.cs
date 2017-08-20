@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Rendering
 {
@@ -54,6 +55,7 @@ namespace Assets.Scripts.Rendering
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             go.name = sys.ToString();
             go.transform.SetParent(master.transform);
+            go.transform.position = pos;
             SystemScript ss = go.AddComponent<SystemScript>();
             ss.parent = sys;
             Material mat = go.GetComponent<MeshRenderer>().material;
@@ -66,9 +68,17 @@ namespace Assets.Scripts.Rendering
 
         static void CreateEcliptica()
         {
-            ecliptica = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            ecliptica = new GameObject("EclipticaMap");
             ecliptica.transform.SetParent(master.transform);
-            ecliptica.transform.rotation = Quaternion.Euler(-90, 0, 0);
+            Canvas c = ecliptica.AddComponent<Canvas>();
+            c.renderMode = RenderMode.WorldSpace;
+            ((RectTransform)c.transform).sizeDelta = new Vector2(40, 40);
+            CanvasScaler cs = ecliptica.AddComponent<CanvasScaler>();
+            cs.referenceResolution = new Vector2(400, 400);
+            cs.referencePixelsPerUnit = 10;
+            Image im = ecliptica.AddComponent<Image>();
+            im.sprite = Data.Graphics.GetSprite("ecliptica");
+            im.color = new Color(1, 1, 1, 0.5f);
         }
 
         class SystemScript : MonoBehaviour
