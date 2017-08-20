@@ -77,7 +77,7 @@ namespace Assets.Scripts.Rendering
         internal void TiltCamera(Vector2 delta)
         {
             activeTheater.CamRot += delta;
-            activeTheater.PlaceSystemCamera();
+            activeTheater.PlaceCamera();
             activeTheater.Render();
         }
 
@@ -95,6 +95,8 @@ namespace Assets.Scripts.Rendering
                 SystemRenderer.Enable();
                 systemViewActive = true;
             }
+            activeTheater.PlaceCamera();
+            activeTheater.Render();
         }
 
         #endregion

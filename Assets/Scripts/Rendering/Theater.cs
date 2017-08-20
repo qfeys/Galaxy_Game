@@ -13,7 +13,7 @@ namespace Assets.Scripts.Rendering
         public float zoom = 0.0f; // log scale - high values are zoomed in
         public Vector3 center { get; private set; }
         private Vector2 camRot = Vector2.zero;
-        public Vector2 CamRot { get { return camRot; } set { camRot = new Vector2(Mathf.Clamp(value.x, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad), Mathf.Clamp(value.y, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad)); } }
+        public Vector2 CamRot { get { return camRot; } set { camRot = value; Debug.Log(value); } }
         Action render;
 
         public Theater (Action render)
@@ -35,12 +35,12 @@ namespace Assets.Scripts.Rendering
 
         public void MoveCenter(Vector2 v) { center += (Vector3)v / Mathf.Pow(10, -zoom) * 0.1f; }
 
-        public void ResetView() { zoom = 0; center = Vector2.zero; camRot = Vector2.zero; PlaceSystemCamera(); }
+        public void ResetView() { zoom = 0; center = Vector2.zero; camRot = Vector2.zero; PlaceCamera(); }
 
         /// <summary>
         /// Tilts the camera so it conferms to the theater state
         /// </summary>
-        public void PlaceSystemCamera()
+        public void PlaceCamera()
         {
             float x = 40 * Mathf.Sin(camRot.x) * Mathf.Cos(camRot.y);
             float y = 40 * Mathf.Sin(camRot.y);
