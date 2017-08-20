@@ -190,6 +190,33 @@ namespace Assets.Scripts.Bodies
             return spc.ToString();
         }
 
+        public static implicit operator UnityEngine.Vector3(Star ss)
+        {
+            VectorS posS = ss.OrbElements.GetPositionSphere(Simulation.God.Time);
+            UnityEngine.Vector3 posPar = UnityEngine.Vector3.zero;
+            if (ss.starSystem.Tertiary != ss)
+                posPar = UnityEngine.Vector3.zero;
+            else
+            {
+                switch (ss.starSystem.TertiaryPos)
+                {
+                case 0:
+                    throw new Exception("Tertiary planet " + ss + " does not have a position assigned.");
+                case 1:
+                    posPar = (UnityEngine.Vector3)ss.starSystem.Primary.OrbElements.GetPositionSphere(Simulation.God.Time);
+                    break;
+                case 2:
+                    posPar = (UnityEngine.Vector3)ss.starSystem.Secondary.OrbElements.GetPositionSphere(Simulation.God.Time);
+                    break;
+                case 3:
+                    posPar = UnityEngine.Vector3.zero;
+                    break;
+                }
+            }
+            UnityEngine.Vector3 posTrue = (UnityEngine.Vector3)posS + posPar;
+            return posTrue;
+        }
+
         /// <summary>
         /// Values are: Luminosity, mass, surface Temperature and radius
         /// </summary>

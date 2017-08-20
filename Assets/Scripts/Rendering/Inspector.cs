@@ -104,7 +104,7 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, Func<object>>("Temperature",()=>s.Temperature),
                     new Tuple<string, Func<object>>("Radius",()=>s.Radius),
                     new Tuple<string, Func<object>>("Luminocity",()=>s.Luminosity),
-                    new Tuple<string, Func<object>>("Orbit (hours)",()=>s.OrbElements.T.TotalHours)
+                    new Tuple<string, Func<object>>("Orbit (24h days)",()=>s.OrbElements.T.TotalDays)
                 });
             info.Redraw();
         }

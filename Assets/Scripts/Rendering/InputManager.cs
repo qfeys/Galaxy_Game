@@ -32,7 +32,10 @@ namespace Assets.Scripts.Rendering
                             SystemRenderer.SetCenter(objectWeHit.GetComponent<SystemRenderer.PlanetScript>().parent);
                         }
                         if (objectWeHit.GetComponent<SystemRenderer.StarScript>() != null)
+                        {
                             Inspector.DisplayStar(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
+                            SystemRenderer.SetCenter(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
+                        }
                     }
                 }
                 lastMousePos = Input.mousePosition;

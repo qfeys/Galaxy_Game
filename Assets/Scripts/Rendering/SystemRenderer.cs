@@ -68,7 +68,26 @@ namespace Assets.Scripts.Rendering
             foreach (var s in displayedStars)
             {
                 VectorS posS = s.Value.OrbElements.GetPositionSphere(Simulation.God.Time);
-                Vector3 posPar = Vector3.zero;  // TODO: correct position of tertiary planets
+                Vector3 posPar = Vector3.zero;
+                if (s.Value.starSystem.Tertiary != s.Value)
+                    posPar = Vector3.zero;
+                else
+                {
+                    switch (s.Value.starSystem.TertiaryPos)
+                    {
+                    case 0:
+                        throw new Exception("Tertiary planet " + s.Value + " does not have a position assigned.");
+                    case 1:
+                        posPar = (Vector3)s.Value.starSystem.Primary.OrbElements.GetPositionSphere(Simulation.God.Time);
+                        break;
+                    case 2:
+                        posPar = (Vector3)s.Value.starSystem.Secondary.OrbElements.GetPositionSphere(Simulation.God.Time);
+                        break;
+                    case 3:
+                        posPar = Vector3.zero;
+                        break;
+                    }
+                }
                 Vector3 posTrue = (Vector3)posS + posPar;
                 float scale = Mathf.Pow(10, -zoom);
                 s.Key.transform.position = (posTrue - center) * scale;

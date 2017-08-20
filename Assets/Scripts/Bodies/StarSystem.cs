@@ -13,7 +13,7 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// 1 means orbiting primary, 2 means orbiting secondary, 3 means orbiting both
         /// </summary>
-        int tertiaryPos = 0;
+        public int TertiaryPos { get; private set; }
         public List<Planet> Planets { get; private set; }
         /// <summary>
         /// Age in GY (bilions of years)
@@ -191,9 +191,9 @@ namespace Assets.Scripts.Bodies
                     do
                     {
                         int d = rng.D10;
-                        if (d <= 3) tertiaryPos = 1;       // orbit primary
-                        else if (d <= 6) tertiaryPos = 2;  // orbit secondary
-                        else tertiaryPos = 3;              // orbit both
+                        if (d <= 3) TertiaryPos = 1;       // orbit primary
+                        else if (d <= 6) TertiaryPos = 2;  // orbit secondary
+                        else TertiaryPos = 3;              // orbit both
                         int i = 0;
                         do
                         {
@@ -215,14 +215,14 @@ namespace Assets.Scripts.Bodies
                             closestSeperationT = meanSeperationT * (1 - eccentricityT);
                             furthestSeperationT = meanSeperationT * (1 + eccentricityT);
                             i++;
-                        } while (tertiaryPos != 3 ? furthestSeperationT * 3 > closestSeperation : furthestSeperation * 3 > closestSeperationT && i < 5);    // Check for invalid orbits
+                        } while (TertiaryPos != 3 ? furthestSeperationT * 3 > closestSeperation : furthestSeperation * 3 > closestSeperationT && i < 5);    // Check for invalid orbits
                         j++;
-                        if (j > 5) { Tertiary = null; tertiaryPos = 0; break; }      // We tried to much. Just give up.
-                    } while     (tertiaryPos != 3 ? furthestSeperationT * 3 > closestSeperation : furthestSeperation * 3 > closestSeperationT);             // Identical check
+                        if (j > 5) { Tertiary = null; TertiaryPos = 0; break; }      // We tried to much. Just give up.
+                    } while     (TertiaryPos != 3 ? furthestSeperationT * 3 > closestSeperation : furthestSeperation * 3 > closestSeperationT);             // Identical check
 
                     if (Tertiary != null)
                     {
-                        double centralMass = tertiaryPos == 1 ? Primary.Mass : tertiaryPos == 2 ? Secondary.Mass : (Primary.Mass + Secondary.Mass);
+                        double centralMass = TertiaryPos == 1 ? Primary.Mass : TertiaryPos == 2 ? Secondary.Mass : (Primary.Mass + Secondary.Mass);
                         double r3 = meanSeperationT / (1 + Tertiary.Mass / centralMass);    // Distance from tertiary to barycentrum
                         Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, r3, eccentricityT, centralMass * Star.SOLAR_MASS));
                     }
@@ -237,8 +237,8 @@ namespace Assets.Scripts.Bodies
                 // Destroy invalid orbits due to binaries
                 orbitSizes.RemoveAll(o => 
                     (Secondary != null && o * 3 > closestSeperation && o < furthestSeperation * 3) ||
-                    (tertiaryPos == 1 && o * 3 > closestSeperationT && o < furthestSeperationT * 3) ||
-                    (tertiaryPos == 3 && o * 3 > closestSeperationT && o < furthestSeperationT * 3)
+                    (TertiaryPos == 1 && o * 3 > closestSeperationT && o < furthestSeperationT * 3) ||
+                    (TertiaryPos == 3 && o * 3 > closestSeperationT && o < furthestSeperationT * 3)
                 );
 
                 if (Secondary != null)   // Repeat for secondary
@@ -248,7 +248,7 @@ namespace Assets.Scripts.Bodies
                     // Destroy invalid orbits due to binaries
                     orbitSizesS.RemoveAll(o => 
                         (o * 3 > closestSeperation) ||
-                        (tertiaryPos == 2 && o * 3 > closestSeperationT && o < furthestSeperationT * 3)
+                        (TertiaryPos == 2 && o * 3 > closestSeperationT && o < furthestSeperationT * 3)
                     );
 
                     if (Tertiary != null) // repeat for tertiary
