@@ -11,19 +11,22 @@ namespace Assets.Scripts.Rendering
     static class StarMap
     {
         static GameObject master;
-        static Dictionary<GameObject, Bodies.StarSystem> displayedSystems;
+        static Dictionary<GameObject, Bodies.Galaxy.SystemContainer> displayedSystems;
         static GameObject ecliptica;
         static bool isActive = false;
+        static Vector2 center;
 
         public static void Init()
         {
             master = new GameObject("StarMap");
-            displayedSystems = new Dictionary<GameObject, Bodies.StarSystem>();
+            displayedSystems = new Dictionary<GameObject, Bodies.Galaxy.SystemContainer>();
             foreach (Bodies.Galaxy.SystemContainer sys in Bodies.Galaxy.systems)
             {
                 displayedSystems.Add(CreateSystem(sys, sys), sys);
             }
             CreateEcliptica();
+            center = Vector2.zero;
+            PlaceMarkers();
             master.SetActive(false);
         }
 
@@ -79,6 +82,28 @@ namespace Assets.Scripts.Rendering
             Image im = ecliptica.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("ecliptica");
             im.color = new Color(1, 1, 1, 0.5f);
+        }
+
+        static void PlaceMarkers()
+        {
+            foreach (Transform child in ecliptica.transform) GameObject.Destroy(child.gameObject);
+            foreach (var sys in displayedSystems.Values)
+            {
+                Vector2 pos = (Vector2)(Vector3)sys - center;
+                if(pos.magnitude < 40)
+                {
+                    GameObject go = new GameObject("SwitchBoard", typeof(RectTransform));
+                    go.transform.SetParent(ecliptica.transform);
+                    RectTransform rt = go.transform as RectTransform;
+                    rt.sizeDelta = new Vector2(1.6f, 1.6f);
+                    rt.anchorMin = new Vector2(0.5f, 0.5f);
+                    rt.anchorMax = new Vector2(0.5f, 0.5f);
+                    rt.pivot = new Vector2(0.5f, 0.5f);
+                    rt.anchoredPosition = pos;
+                    Image im = go.AddComponent<Image>();
+                    im.sprite = Data.Graphics.GetSprite("marker");
+                }
+            }
         }
 
         class SystemScript : MonoBehaviour
