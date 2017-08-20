@@ -20,7 +20,7 @@ namespace Assets.Scripts.Bodies
                 systems.Add(new SystemContainer(new StarSystem(rand.Next()), positions[i]));
             }
             systems.ForEach(sys => sys.sys.Generate());
-            //Parallel.ForEach(systems, sys => sys.Item1.Generate());
+            //Parallel.ForEach(systems, sys => sys.sys.Generate());
         }
 
         /// <summary>
@@ -130,6 +130,11 @@ namespace Assets.Scripts.Bodies
                 UnityEngine.Vector3 p = pos;
                 return "(" + p.x.ToString("0") + "," + p.y.ToString("0") + "," + p.z.ToString("0") + ")" + sys.ToString();
             }
+        }
+
+        internal static Planet FirstPlanet()
+        {
+            return systems.First(sys => sys.sys.Planets.Count != 0).sys.Planets[0];
         }
     }
 }

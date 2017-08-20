@@ -42,14 +42,19 @@ namespace Assets.Scripts.Bodies
             {
                 if (spcP.size <= SpectralClass.Size.IV)       // subgiants & giants
                 {
-                    SpectralClass comparedSpc = new SpectralClass() {
+                    SpectralClass comparedSpc = new SpectralClass();
+                    double starMass = Star.LumAndMassTable[spcP.class_][spcP.size][spcP.specification].Item2;
+                    comparedSpc = new SpectralClass() {
                         size = SpectralClass.Size.IV,
-                        class_ = Star.LumAndMassTable.Aggregate((s, t) => s.Value[SpectralClass.Size.IV].Min(
-                            k => Math.Abs(k.Value.Item2 - Star.LumAndMassTable[spcP.class_][spcP.size][spcP.specification].Item2)
-                            ) < t.Value[SpectralClass.Size.IV].Min(
-                                k => Math.Abs(k.Value.Item2 - Star.LumAndMassTable[spcP.class_][spcP.size][spcP.specification].Item2)
-                                ) ? s : t).Key         // New record for the most complex LINQ command ! The above function seaches for the spectral class of size 4 that has the closest  
-                                                       // matching mass to our primary
+                        class_ = Star.LumAndMassTable.Aggregate((s, t) => {
+                            double sf = s.Value[SpectralClass.Size.V].Min(
+                                k => Math.Abs(k.Value.Item2 - starMass));
+                            double tf = t.Value[SpectralClass.Size.V].Min(
+                                k => Math.Abs(k.Value.Item2 - starMass)
+                            );
+                            return sf < tf ? s : t; }).Key
+                            // New record for the most complex LINQ command ! The above function seaches for the spectral class of size 5 that has the closest  
+                            // matching mass to our primary
                     };
                     comparedSpc.specification = Star.LumAndMassTable[comparedSpc.class_][SpectralClass.Size.IV].Aggregate((l, r) => l.Value.Item2 < r.Value.Item2 ? l : r).Key;
                     if (comparedSpc.class_ == SpectralClass.Class_.B) Age = 0.1;
@@ -184,18 +189,16 @@ namespace Assets.Scripts.Bodies
 
                 if(Tertiary != null)
                 {
-                    double meanSeperationT;  // In AU
-                    double eccentricityT;
-
-                    int j = 0;
-                    do
+                    double meanSeperationT = 0;  // In AU
+                    double eccentricityT = 0;
+                    
+                    for (int j = 0; j < 5; j++)
                     {
                         int d = rng.D10;
                         if (d <= 3) TertiaryPos = 1;       // orbit primary
                         else if (d <= 6) TertiaryPos = 2;  // orbit secondary
                         else TertiaryPos = 3;              // orbit both
-                        int i = 0;
-                        do
+                        for (int i = 0; i < 5; i++)
                         {
                             int f = rng.D10 + (Age > 5 ? +1 : 0) + (Age < 1 ? -1 : 0);
                             bool veryCloseT = false;
@@ -214,11 +217,16 @@ namespace Assets.Scripts.Bodies
                             else eccentricityT = rng.D10 * 0.04 + 0.5;
                             closestSeperationT = meanSeperationT * (1 - eccentricityT);
                             furthestSeperationT = meanSeperationT * (1 + eccentricityT);
-                            i++;
-                        } while (TertiaryPos != 3 ? furthestSeperationT * 3 > closestSeperation : furthestSeperation * 3 > closestSeperationT && i < 5);    // Check for invalid orbits
-                        j++;
-                        if (j > 5) { Tertiary = null; TertiaryPos = 0; break; }      // We tried to much. Just give up.
-                    } while     (TertiaryPos != 3 ? furthestSeperationT * 3 > closestSeperation : furthestSeperation * 3 > closestSeperationT);             // Identical check
+
+                            if (TertiaryPos != 3 ? furthestSeperationT * 3 < closestSeperation : furthestSeperation * 3 < closestSeperationT) // Check of orbit is valid
+                                goto exit;
+                        }    
+                    } 
+                    // no valid orbit. Give up.
+                    Tertiary = null;
+                    TertiaryPos = 0;
+
+                    exit:
 
                     if (Tertiary != null)
                     {
