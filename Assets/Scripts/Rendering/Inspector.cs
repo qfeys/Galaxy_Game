@@ -79,14 +79,16 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, Func<object>>("Temperature",()=>p.SurfaceTemperature),
                     new Tuple<string, Func<object>>("Pressure",()=>p.PressureAtSeaLevel),
                     new Tuple<string, Func<object>>("Day (hours)",()=>p.SolarDay),
-                    new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays)
+                    new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays),
+                    new Tuple<string, Func<object>>("Semi-Major Axis",()=>p.OrbElements.SMA)
                 });
             else if (p.type == Bodies.Planet.Type.Gas_Giant || p.type == Bodies.Planet.Type.Superjovian)
                 info.SetInfo(new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("Mass", ()=>p.Mass),
                     new Tuple<string, Func<object>>("Temperature",()=>p.BaseTemperature),
                     new Tuple<string, Func<object>>("Day (hours)",()=>p.SolarDay),
-                    new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays)
+                    new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays),
+                    new Tuple<string, Func<object>>("Semi-Major Axis",()=>p.OrbElements.SMA)
                 });
             info.Redraw();
         }
@@ -104,7 +106,8 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, Func<object>>("Temperature",()=>s.Temperature),
                     new Tuple<string, Func<object>>("Radius",()=>s.Radius),
                     new Tuple<string, Func<object>>("Luminocity",()=>s.Luminosity),
-                    new Tuple<string, Func<object>>("Orbit (24h days)",()=>s.OrbElements.T.TotalDays)
+                    new Tuple<string, Func<object>>("Orbit (24h days)",()=>s.OrbElements.T.TotalDays),
+                    new Tuple<string, Func<object>>("Semi-Major Axis",()=>s.OrbElements.SMA)
                 });
             info.Redraw();
         }
