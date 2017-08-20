@@ -21,7 +21,7 @@ namespace Assets.Scripts.Rendering
         internal static void Init()
         {
             master = new GameObject("SolarSystem");
-            theater = new Theater();
+            theater = new Theater(Render);
         }
 
         internal static void SetSystem(StarSystem syst)

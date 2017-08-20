@@ -14,7 +14,14 @@ namespace Assets.Scripts.Rendering
         public Vector3 center { get; private set; }
         private Vector2 camRot = Vector2.zero;
         public Vector2 CamRot { get { return camRot; } set { camRot = new Vector2(Mathf.Clamp(value.x, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad), Mathf.Clamp(value.y, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad)); } }
-        
+        Action render;
+
+        public Theater (Action render)
+        {
+            this.render = render;
+        }
+
+        public void Render() { render(); }
 
         public void SetCenter(Vector3 c) { center = c; }
         public void SetCenter(Bodies.Planet p)
@@ -30,6 +37,9 @@ namespace Assets.Scripts.Rendering
 
         public void ResetView() { zoom = 0; center = Vector2.zero; camRot = Vector2.zero; PlaceSystemCamera(); }
 
+        /// <summary>
+        /// Tilts the camera so it conferms to the theater state
+        /// </summary>
         public void PlaceSystemCamera()
         {
             float x = 40 * Mathf.Sin(camRot.x) * Mathf.Cos(camRot.y);

@@ -15,6 +15,7 @@ namespace Assets.Scripts.Rendering
         
         public Material lineMaterial;
         bool systemViewActive = true;
+        Theater activeTheater { get { return systemViewActive ? SystemRenderer.theater : StarMap.theater; } }
 
         public void Awake()
         {
@@ -56,16 +57,30 @@ namespace Assets.Scripts.Rendering
             SystemRenderer.Render();
         }
 
-        internal void RerenderSystem()
+        internal void Rerender()
         {
-            SystemRenderer.Render();
+            activeTheater.Render();
         }
 
         internal void ChangeZoom(float delta)
         {
-            SystemRenderer.theater.zoom += delta;
-            SystemRenderer.Render();
+            activeTheater.zoom += delta;
+            activeTheater.Render();
         }
+
+        internal void MoveCamera(Vector2 delta)
+        {
+            activeTheater.MoveCenter(delta);
+            activeTheater.Render();
+        }
+
+        internal void TiltCamera(Vector2 delta)
+        {
+            activeTheater.CamRot += delta;
+            activeTheater.PlaceSystemCamera();
+            activeTheater.Render();
+        }
+
         internal void ToggleView()
         {
             if (systemViewActive)

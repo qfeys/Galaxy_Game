@@ -26,7 +26,7 @@ namespace Assets.Scripts.Rendering
                 displayedSystems.Add(CreateSystem(sys, sys), sys);
             }
             CreateEcliptica();
-            theater = new Theater();
+            theater = new Theater(Render);
             theater.SetCenter(Vector3.zero);
             PlaceMarkers();
             master.SetActive(false);

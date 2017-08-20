@@ -43,7 +43,7 @@ namespace Assets.Scripts.Rendering
 
             if (Input.GetMouseButton(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                SystemRenderer.theater.MoveCenter(lastMousePos - Input.mousePosition);
+                DisplayManager.TheOne.MoveCamera(lastMousePos - Input.mousePosition);
                 lastMousePos = Input.mousePosition;
             }
 
@@ -53,8 +53,7 @@ namespace Assets.Scripts.Rendering
 
             if (Input.GetMouseButton(1) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                SystemRenderer.theater.CamRot += (Vector2)(lastMousePos - Input.mousePosition) * 0.01f;
-                SystemRenderer.theater.PlaceSystemCamera();
+                DisplayManager.TheOne.TiltCamera((Vector2)(lastMousePos - Input.mousePosition) * 0.01f);
                 lastMousePos = Input.mousePosition;
             }
 
