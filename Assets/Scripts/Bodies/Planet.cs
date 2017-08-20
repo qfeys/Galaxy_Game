@@ -653,9 +653,9 @@ namespace Assets.Scripts.Bodies
                             else Life = LifeTypes.Microbial;
                 if(Life != LifeTypes.None)
                 {
-                    if (AtmosphericComposition.ContainsKey(Gases.CO)) { AtmosphericComposition.Add(Gases.O2, AtmosphericComposition[Gases.CO]); AtmosphericComposition.Remove(Gases.CO); }
-                    if (AtmosphericComposition.ContainsKey(Gases.CO2)) { AtmosphericComposition.Add(Gases.O2, AtmosphericComposition[Gases.CO2]); AtmosphericComposition.Remove(Gases.CO2); }
-                    if (AtmosphericComposition.ContainsKey(Gases.CH4)) { AtmosphericComposition.Add(Gases.O2, AtmosphericComposition[Gases.CH4]); AtmosphericComposition.Remove(Gases.CH4); }
+                    if (AtmosphericComposition.ContainsKey(Gases.CO)) { double o2cont; AtmosphericComposition.TryGetValue(Gases.O2, out o2cont); AtmosphericComposition[Gases.O2] = o2cont + AtmosphericComposition[Gases.CO]; AtmosphericComposition.Remove(Gases.CO); }
+                    if (AtmosphericComposition.ContainsKey(Gases.CO2)) { double o2cont; AtmosphericComposition.TryGetValue(Gases.O2, out o2cont); AtmosphericComposition[Gases.O2] = o2cont + AtmosphericComposition[Gases.CO2]; AtmosphericComposition.Remove(Gases.CO2); }
+                    if (AtmosphericComposition.ContainsKey(Gases.CH4)) { double o2cont; AtmosphericComposition.TryGetValue(Gases.O2, out o2cont); AtmosphericComposition[Gases.O2] = o2cont + AtmosphericComposition[Gases.CH4]; AtmosphericComposition.Remove(Gases.CH4); }
                 }
             }
 
@@ -840,7 +840,7 @@ namespace Assets.Scripts.Bodies
         public void ResolveCaptured()
         {
             do type = RollType();
-            while (type != Type.Chunk || type != Type.Terrestial_planet || type != Type.Gas_Giant || type != Type.Superjovian);
+            while (type != Type.Chunk && type != Type.Terrestial_planet && type != Type.Gas_Giant && type != Type.Superjovian);
             isCaptured = true;
             CalculateSize();
         }
