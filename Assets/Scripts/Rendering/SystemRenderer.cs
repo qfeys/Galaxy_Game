@@ -10,6 +10,7 @@ namespace Assets.Scripts.Rendering
     static class SystemRenderer
     {
 
+        static GameObject master;
         static Dictionary<GameObject, Planet> displayedPlanets;
         static Dictionary<GameObject, Star> displayedStars;
         static Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
@@ -19,6 +20,11 @@ namespace Assets.Scripts.Rendering
         static Vector3 center;
         private static Vector2 camRot = Vector2.zero;
         public static Vector2 CamRot { get { return camRot; } set { camRot = new Vector2(Mathf.Clamp(value.x, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad), Mathf.Clamp(value.y, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad)); } }
+
+        internal static void Init()
+        {
+            master = new GameObject("SolarSystem");
+        }
 
         internal static void SetSystem(StarSystem syst)
         {
@@ -145,6 +151,7 @@ namespace Assets.Scripts.Rendering
             if (pl.type == Planet.Type.Astroid_Belt) { Debug.Log("Try displaying an astroid belt. Aborting"); return null; }
             if (pl.type == Planet.Type.Double_Planet) { Debug.Log("Try displaying a double planet. Aborting"); return null; }
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            go.transform.SetParent(master.transform);
             PlanetScript ps = go.AddComponent<PlanetScript>();
             ps.parent = pl;
             go.name = pl.ToString();
@@ -156,6 +163,7 @@ namespace Assets.Scripts.Rendering
         {
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             go.name = st.ToString();
+            go.transform.SetParent(master.transform);
             StarScript ss = go.AddComponent<StarScript>();
             ss.parent = st;
             Light sl = go.AddComponent<Light>();
@@ -176,6 +184,7 @@ namespace Assets.Scripts.Rendering
         private static void CreateOrbit(OrbitalElements el, GameObject go)
         {
             GameObject orb = new GameObject("Orbit of " + el);
+            orb.transform.SetParent(master.transform);
             LineRenderer lr = orb.AddComponent<LineRenderer>();
             lr.positionCount = VERTICES_PER_ORBIT + 1;
             lr.startWidth = 0.03f;
@@ -212,9 +221,7 @@ namespace Assets.Scripts.Rendering
         {
             if (isActive == false)
                 return;
-            displayedPlanets.Keys.ToList().ForEach(go => go.SetActive(false));
-            displayedStars.Keys.ToList().ForEach(go => go.SetActive(false));
-            displayedOrbits.Values.ToList().ForEach(lr => lr.gameObject.SetActive(false));
+            master.SetActive(false);
             isActive = false;
         }
 
@@ -222,9 +229,7 @@ namespace Assets.Scripts.Rendering
         {
             if (isActive == true)
                 return;
-            displayedPlanets.Keys.ToList().ForEach(go => go.SetActive(true));
-            displayedStars.Keys.ToList().ForEach(go => go.SetActive(true));
-            displayedOrbits.Values.ToList().ForEach(lr => lr.gameObject.SetActive(true));
+            master.SetActive(true);
             isActive = true;
         }
 

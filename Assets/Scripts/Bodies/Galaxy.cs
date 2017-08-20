@@ -124,6 +124,12 @@ namespace Assets.Scripts.Bodies
             {
                 return sysCon.sys;
             }
+
+            public override string ToString()
+            {
+                UnityEngine.Vector3 p = pos;
+                return "(" + p.x.ToString("0") + "," + p.y.ToString("0") + "," + p.z.ToString("0") + ")" + sys.ToString();
+            }
         }
     }
 }

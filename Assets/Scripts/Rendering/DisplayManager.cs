@@ -35,6 +35,8 @@ namespace Assets.Scripts.Rendering
             Clock.Create(GameObject.FindWithTag("MainCanvas"));
             SwitchBoard.Create(GameObject.FindWithTag("MainCanvas"));
             MouseOver.Create();
+            SystemRenderer.Init();
+            StarMap.Init();
         }
 
         // Update is called once per frame
