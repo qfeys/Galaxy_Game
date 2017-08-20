@@ -84,7 +84,7 @@ namespace Assets.Scripts.Simulation
             Localisation.Load();
 
             Debug.Log("Initialising galaxy");
-            Bodies.Galaxy.Create(1, 21);
+            Bodies.Galaxy.Create(2, 21);
 
             Debug.Log("Initialising Empires");
             //PlayerEmpire = new Empire("TyroTech Empire", Bodies.Galaxy.systems[0].RandLivableWorld());

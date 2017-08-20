@@ -37,7 +37,7 @@ namespace Assets.Scripts.Bodies
             // Generate primary
             rng = new RNG(seed);
             SpectralClass spcP = RollSpectralClass();
-            spcP.specification = rng.D10;
+            spcP.specification = rng.D10 - 1;
             // Determine system Age
             {
                 if (spcP.size <= SpectralClass.Size.IV)       // subgiants & giants
@@ -92,10 +92,10 @@ namespace Assets.Scripts.Bodies
             if(rng.D10 >= 7)    // This is a binary system
             {
                 SpectralClass spcS;
-                if (rng.D10 <= 2)   // The binary has the came class
+                if (rng.D10 <= 2)   // The binary has the same class
                 {
                     spcS = new SpectralClass(spcP) {
-                        specification = rng.D10
+                        specification = rng.D10 - 1
                     };
                     if (spcS.specification < spcP.specification)
                         spcS.specification = spcP.specification;
@@ -105,7 +105,7 @@ namespace Assets.Scripts.Bodies
                     spcS = RollSpectralClass();
                     if (spcS.size == SpectralClass.Size.III || (spcS.size == SpectralClass.Size.IV && spcS.class_ == SpectralClass.Class_.K) || spcS.class_ < spcP.class_)
                         spcS = SpectralClass.BrownDwarf;
-                    spcS.specification = rng.D10;
+                    spcS.specification = rng.D10 - 1;
                 }
                 if (rng.D10 >= 7)   // This is a tertiary system
                 {
@@ -113,7 +113,7 @@ namespace Assets.Scripts.Bodies
                     if (rng.D10 <= 2)
                     {
                         spcT = new SpectralClass(spcS) {
-                            specification = rng.D10
+                            specification = rng.D10 - 1
                         };
                         if (spcT.specification < spcS.specification)
                             spcT.specification = spcS.specification;
@@ -123,7 +123,7 @@ namespace Assets.Scripts.Bodies
                         spcT = RollSpectralClass();
                         if (spcT.size == SpectralClass.Size.III || (spcT.size == SpectralClass.Size.IV && spcT.class_ == SpectralClass.Class_.K) || spcT.class_ < spcS.class_)
                             spcT = SpectralClass.BrownDwarf;
-                        spcT.specification = rng.D10;
+                        spcT.specification = rng.D10 - 1;
                     }
                     Tertiary = new Star(this, spcT);
                 }

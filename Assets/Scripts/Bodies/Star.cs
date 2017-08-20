@@ -94,10 +94,16 @@ namespace Assets.Scripts.Bodies
             }
             else    // all other stars
             {
-                Luminosity = LumAndMassTable[spc.class_][spc.size][spc.specification].Item1;
-                Mass = LumAndMassTable[spc.class_][spc.size][spc.specification].Item2;
-                Temperature = LumAndMassTable[spc.class_][spc.size][spc.specification].Item3;
-                Radius = LumAndMassTable[spc.class_][spc.size][spc.specification].Item4;
+                try
+                {
+                    Luminosity = LumAndMassTable[spc.class_][spc.size][spc.specification].Item1;
+                    Mass = LumAndMassTable[spc.class_][spc.size][spc.specification].Item2;
+                    Temperature = LumAndMassTable[spc.class_][spc.size][spc.specification].Item3;
+                    Radius = LumAndMassTable[spc.class_][spc.size][spc.specification].Item4;
+                }catch(KeyNotFoundException e)
+                {
+                    UnityEngine.Debug.LogError("Did not find the key: " + spc);
+                }
 
                 if (spc.size == SpectralClass.Size.IV)
                 {
