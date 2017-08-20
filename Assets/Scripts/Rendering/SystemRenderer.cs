@@ -16,14 +16,12 @@ namespace Assets.Scripts.Rendering
         static Dictionary<GameObject, LineRenderer> displayedOrbits;   // The gameobject is the orbital, not the line
         static bool isActive = true;
 
-        public static float zoom = 0.0f; // log scale - high values are zoomed in
-        static Vector3 center;
-        private static Vector2 camRot = Vector2.zero;
-        public static Vector2 CamRot { get { return camRot; } set { camRot = new Vector2(Mathf.Clamp(value.x, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad), Mathf.Clamp(value.y, -100 * Mathf.Deg2Rad, 100 * Mathf.Deg2Rad)); } }
+        public static Theater theater { get; private set; }
 
         internal static void Init()
         {
             master = new GameObject("SolarSystem");
+            theater = new Theater();
         }
 
         internal static void SetSystem(StarSystem syst)
@@ -60,7 +58,7 @@ namespace Assets.Scripts.Rendering
                     CreateOrbit(m.OrbElements, gom);
                 });
             });
-            center = Vector3.zero;
+            theater.SetCenter(Vector3.zero);
         }
 
         public static void Render()
@@ -89,8 +87,8 @@ namespace Assets.Scripts.Rendering
                     }
                 }
                 Vector3 posTrue = (Vector3)posS + posPar;
-                float scale = Mathf.Pow(10, -zoom);
-                s.Key.transform.position = (posTrue - center) * scale;
+                float scale = Mathf.Pow(10, -theater.zoom);
+                s.Key.transform.position = (posTrue - theater.center) * scale;
                 float size = (float)(s.Value.Radius * Star.SOLAR_RADIUS * 2 * scale / StarSystem.AU);
                 s.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
                 //s.Key.GetComponent<Light>().intensity = (float)s.Value.Luminosity * scale;
@@ -100,7 +98,7 @@ namespace Assets.Scripts.Rendering
                     Vector3[] points = FindPointsOnOrbit(s.Value.OrbElements, VERTICES_PER_ORBIT);
                     for (int i = 0; i < points.Length; i++)
                     {
-                        points[i] += posPar - center;
+                        points[i] += posPar - theater.center;
                         points[i] *= scale;
                     }
                     displayedOrbits[s.Key].SetPositions(points);
@@ -122,8 +120,8 @@ namespace Assets.Scripts.Rendering
                 Vector3 posPar = p.Value.ParentPlanet == null ?
                     p.Value.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.Value.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
                 Vector3 posTrue = (Vector3)posS + posPar;
-                float scale = Mathf.Pow(10, -zoom);
-                p.Key.transform.position = (posTrue - center) * scale;
+                float scale = Mathf.Pow(10, -theater.zoom);
+                p.Key.transform.position = (posTrue - theater.center) * scale;
                 float size = p.Value.Radius * scale / StarSystem.AU;
                 p.Key.transform.localScale = Vector3.one * (size > MIN_SIZE ? size : MIN_SIZE);
                 if (displayedOrbits.ContainsKey(p.Key))
@@ -131,7 +129,7 @@ namespace Assets.Scripts.Rendering
                     Vector3[] points = FindPointsOnOrbit(p.Value.OrbElements, VERTICES_PER_ORBIT);
                     for (int i = 0; i < points.Length; i++)
                     {
-                        points[i] += posPar - center;
+                        points[i] += posPar - theater.center;
                         points[i] *= scale;
                     }
                     displayedOrbits[p.Key].SetPositions(points);
@@ -212,28 +210,6 @@ namespace Assets.Scripts.Rendering
             lr.material.EnableKeyword("_EMISSION");
             lr.material.SetColor("_EmissionColor", Color.green * Mathf.LinearToGammaSpace(0.1f));
             displayedOrbits.Add(go, lr);
-        }
-
-        public static void SetCenter(Vector3 c) { center = c; }
-        public static void SetCenter(Planet p) {
-            VectorS posS = p.OrbElements.GetPositionSphere(Simulation.God.Time);
-            Vector3 posPar = p.ParentPlanet == null ?
-                p.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
-            Vector3 posTrue = (Vector3)posS + posPar;
-            SetCenter(posTrue);
-        }
-
-        public static void MoveCenter(Vector2 v) { center += (Vector3)v / Mathf.Pow(10, -zoom) * 0.1f; }
-
-        public static void ResetView() { zoom = 0; center = Vector2.zero; camRot = Vector2.zero; PlaceSystemCamera(); }
-
-        public static void PlaceSystemCamera()
-        {
-            float x = 40 * Mathf.Sin(camRot.x) * Mathf.Cos(camRot.y);
-            float y = 40 * Mathf.Sin(camRot.y);
-            float z = -40 * Mathf.Cos(camRot.x) * Mathf.Cos(camRot.y);
-            Camera.main.transform.position = new Vector3(x, y, z);
-            Camera.main.transform.rotation = Quaternion.Euler(camRot.y * Mathf.Rad2Deg, -camRot.x * Mathf.Rad2Deg, 0);
         }
 
         public static void Disable()

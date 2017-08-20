@@ -63,7 +63,7 @@ namespace Assets.Scripts.Rendering
 
         internal void ChangeZoom(float delta)
         {
-            SystemRenderer.zoom += delta;
+            SystemRenderer.theater.zoom += delta;
             SystemRenderer.Render();
         }
         internal void ToggleView()

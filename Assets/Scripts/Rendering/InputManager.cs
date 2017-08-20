@@ -29,12 +29,12 @@ namespace Assets.Scripts.Rendering
                         if (objectWeHit.GetComponent<SystemRenderer.PlanetScript>() != null)
                         {
                             Inspector.DisplayPlanet(objectWeHit.GetComponent<SystemRenderer.PlanetScript>().parent);
-                            SystemRenderer.SetCenter(objectWeHit.GetComponent<SystemRenderer.PlanetScript>().parent);
+                            SystemRenderer.theater.SetCenter(objectWeHit.GetComponent<SystemRenderer.PlanetScript>().parent);
                         }
                         if (objectWeHit.GetComponent<SystemRenderer.StarScript>() != null)
                         {
                             Inspector.DisplayStar(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
-                            SystemRenderer.SetCenter(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
+                            SystemRenderer.theater.SetCenter(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
                         }
                     }
                 }
@@ -43,7 +43,7 @@ namespace Assets.Scripts.Rendering
 
             if (Input.GetMouseButton(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                SystemRenderer.MoveCenter(lastMousePos - Input.mousePosition);
+                SystemRenderer.theater.MoveCenter(lastMousePos - Input.mousePosition);
                 lastMousePos = Input.mousePosition;
             }
 
@@ -53,8 +53,8 @@ namespace Assets.Scripts.Rendering
 
             if (Input.GetMouseButton(1) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                SystemRenderer.CamRot += (Vector2)(lastMousePos - Input.mousePosition) * 0.01f;
-                SystemRenderer.PlaceSystemCamera();
+                SystemRenderer.theater.CamRot += (Vector2)(lastMousePos - Input.mousePosition) * 0.01f;
+                SystemRenderer.theater.PlaceSystemCamera();
                 lastMousePos = Input.mousePosition;
             }
 

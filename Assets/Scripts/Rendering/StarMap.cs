@@ -14,7 +14,8 @@ namespace Assets.Scripts.Rendering
         static Dictionary<GameObject, Bodies.Galaxy.SystemContainer> displayedSystems;
         static GameObject ecliptica;
         static bool isActive = false;
-        static Vector2 center;
+
+        public static Theater theater { get; private set; }
 
         public static void Init()
         {
@@ -25,7 +26,8 @@ namespace Assets.Scripts.Rendering
                 displayedSystems.Add(CreateSystem(sys, sys), sys);
             }
             CreateEcliptica();
-            center = Vector2.zero;
+            theater = new Theater();
+            theater.SetCenter(Vector3.zero);
             PlaceMarkers();
             master.SetActive(false);
         }
@@ -89,7 +91,7 @@ namespace Assets.Scripts.Rendering
             foreach (Transform child in ecliptica.transform) GameObject.Destroy(child.gameObject);
             foreach (var sys in displayedSystems.Values)
             {
-                Vector2 pos = (Vector2)(Vector3)sys - center;
+                Vector2 pos = (Vector2)((Vector3)sys - theater.center);
                 if(pos.magnitude < 40)
                 {
                     GameObject go = new GameObject("SwitchBoard", typeof(RectTransform));
