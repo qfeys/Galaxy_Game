@@ -11,8 +11,7 @@ namespace Assets.Scripts.Rendering
     static class StarMap
     {
         static GameObject master;
-        static Dictionary<GameObject, Bodies.Galaxy.SystemContainer> displayedSystems;
-        static Dictionary<GameObject, Bodies.Galaxy.SystemContainer> displayedMarkers;
+        static List<MapStar> displayedSystems;
         static GameObject ecliptica;
         static bool isActive = false;
 
@@ -21,30 +20,27 @@ namespace Assets.Scripts.Rendering
         public static void Init()
         {
             master = new GameObject("StarMap");
-            displayedSystems = new Dictionary<GameObject, Bodies.Galaxy.SystemContainer>();
-            displayedMarkers = new Dictionary<GameObject, Bodies.Galaxy.SystemContainer>();
-            foreach (Bodies.Galaxy.SystemContainer sys in Bodies.Galaxy.systems)
-            {
-                displayedSystems.Add(CreateSystem(sys, sys), sys);
-            }
+            displayedSystems = new List<MapStar>();
             CreateEcliptica();
             theater = new Theater(Render, true) {
                 zoom = -0.5f,
-                CamRot = new Vector2(0, 0) * Mathf.Deg2Rad
+                CamRot = new Vector2(0, 30) * Mathf.Deg2Rad
             };
             theater.SetCenter(Vector3.zero);
-            RedrawMarkers();
+            foreach (Bodies.Galaxy.SystemContainer sys in Bodies.Galaxy.systems)
+            {
+                displayedSystems.Add(new MapStar(sys));
+            }
+            Render();
             master.SetActive(false);
         }
 
         public static void Render()
         {
-            foreach (var sys in displayedSystems)
+            foreach (var mapStar in displayedSystems)
             {
-                sys.Key.transform.position = (sys.Value - theater.Center) * theater.Scale;
+                mapStar.Update();
             }
-            ecliptica.transform.position = -theater.Center * theater.Scale;
-            RedrawMarkers();
         }
 
         public static void Disable()
@@ -65,22 +61,6 @@ namespace Assets.Scripts.Rendering
             isActive = true;
         }
 
-        static GameObject CreateSystem(Bodies.StarSystem sys, Vector3 pos)
-        {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            go.name = sys.ToString();
-            go.transform.SetParent(master.transform);
-            go.transform.position = pos;
-            SystemScript ss = go.AddComponent<SystemScript>();
-            ss.parent = sys;
-            Material mat = go.GetComponent<MeshRenderer>().material;
-            mat.EnableKeyword("_EMISSION");
-            mat.SetColor("_Color", Data.Graphics.Color_.FromTemperature(sys.Primary.Temperature));
-            mat.SetColor("_EmissionColor", Data.Graphics.Color_.FromTemperature(sys.Primary.Temperature));
-            go.tag = "Inspectable";
-            return go;
-        }
-
         static void CreateEcliptica()
         {
             ecliptica = new GameObject("EclipticaMap");
@@ -96,48 +76,73 @@ namespace Assets.Scripts.Rendering
             im.color = new Color(1, 1, 1, 0.5f);
         }
 
-        static void RedrawMarkers()
-        {
-            foreach (var sys in displayedSystems.Values)
-            {
-                Vector2 pos = (Vector3)sys;
-                if (pos.magnitude < 20 / theater.Scale)
-                {
-                    if (displayedMarkers.ContainsValue(sys) == false)
-                    {
-                        GameObject go = new GameObject("Marker", typeof(RectTransform));
-                        go.transform.SetParent(ecliptica.transform);
-                        RectTransform rt = go.transform as RectTransform;
-                        rt.sizeDelta = new Vector2(1.6f, 1.6f);
-                        rt.anchorMin = new Vector2(0.5f, 0.5f);
-                        rt.anchorMax = new Vector2(0.5f, 0.5f);
-                        rt.pivot = new Vector2(0.5f, 0.5f);
-                        rt.anchoredPosition = pos * theater.Scale;
-                        Image im = go.AddComponent<Image>();
-                        im.sprite = Data.Graphics.GetSprite("marker");
-                        displayedMarkers.Add(go, sys);
-                    }
-                    else
-                    {
-                        RectTransform rt = displayedMarkers.First(kvp => kvp.Value == sys).Key.transform as RectTransform;
-                        rt.anchoredPosition = pos * theater.Scale;
-                    }
-                }
-                else
-                {
-                    if(displayedMarkers.ContainsValue(sys) == true)
-                    {
-                        GameObject go = displayedMarkers.First(kvp => kvp.Value == sys).Key;
-                        displayedMarkers.Remove(go);
-                        GameObject.Destroy(go);
-                    }
-                }
-            }
-        }
-
         class SystemScript : MonoBehaviour
         {
             public Bodies.StarSystem parent;
+        }
+
+        class MapStar
+        {
+            GameObject star;
+            GameObject marker;
+            LineRenderer line;
+            Bodies.Galaxy.SystemContainer system;
+
+            public MapStar(Bodies.Galaxy.SystemContainer system)
+            {
+                this.system = system;
+                star = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                star.name = system.ToString();
+                star.transform.SetParent(master.transform);
+                star.transform.position = system;
+                SystemScript ss = star.AddComponent<SystemScript>();
+                ss.parent = system;
+                Material mat = star.GetComponent<MeshRenderer>().material;
+                mat.EnableKeyword("_EMISSION");
+                Color color = Data.Graphics.Color_.FromTemperature(((Bodies.StarSystem)system).Primary.Temperature);
+                mat.SetColor("_Color", color);
+                mat.SetColor("_EmissionColor", color);
+                star.tag = "Inspectable";
+                
+                marker = new GameObject("Marker", typeof(RectTransform));
+                marker.transform.SetParent(ecliptica.transform);
+                RectTransform rt = marker.transform as RectTransform;
+                rt.sizeDelta = new Vector2(1.6f, 1.6f);
+                rt.anchorMin = new Vector2(0.5f, 0.5f);
+                rt.anchorMax = new Vector2(0.5f, 0.5f);
+                rt.pivot = new Vector2(0.5f, 0.5f);
+                rt.anchoredPosition = (Vector3)system * theater.Scale;
+                Image im = marker.AddComponent<Image>();
+                im.sprite = Data.Graphics.GetSprite("marker");
+
+                line = star.AddComponent<LineRenderer>();
+                line.positionCount = 2;
+                line.startWidth = 0.2f;
+                line.endWidth = 0.2f;
+                line.material = DisplayManager.TheOne.lineMaterial;
+                line.material.EnableKeyword("_EMISSION");
+                line.material.SetColor("_EmissionColor", color * Mathf.LinearToGammaSpace(0.1f));
+                line.SetPosition(0, Vector3.zero);
+            }
+
+            public void Update()
+            {
+                Vector3 pos = (system - theater.Center) * theater.Scale;
+                star.transform.position = pos;
+                ((RectTransform)marker.transform).anchoredPosition = pos;
+                line.SetPosition(0, pos);
+                line.SetPosition(1, new Vector3(pos.x, pos.y, 0));
+                if (pos.magnitude < 40 / theater.Scale)
+                {
+                    star.SetActive(true);
+                    marker.SetActive(true);
+                }
+                else
+                {
+                    star.SetActive(false);
+                    marker.SetActive(false);
+                }
+            }
         }
     }
 }
