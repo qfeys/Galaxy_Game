@@ -81,22 +81,27 @@ namespace Assets.Scripts.Rendering
             activeTheater.Render();
         }
 
-        internal void ToggleView()
+        internal void SetView(bool activateSysView)
         {
-            if (systemViewActive)
-            {
-                SystemRenderer.Disable();
-                StarMap.Enable();
-                systemViewActive = false;
-            }
-            else
+            if (activateSysView)
             {
                 StarMap.Disable();
                 SystemRenderer.Enable();
                 systemViewActive = true;
             }
+            else
+            {
+                SystemRenderer.Disable();
+                StarMap.Enable();
+                systemViewActive = false;
+            }
             activeTheater.PlaceCamera();
             activeTheater.Render();
+        }
+
+        internal void ToggleView()
+        {
+            SetView(!systemViewActive);
         }
 
         internal void ResetView()

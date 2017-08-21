@@ -36,6 +36,11 @@ namespace Assets.Scripts.Rendering
                             Inspector.DisplayStar(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
                             SystemRenderer.theater.SetCenter(objectWeHit.GetComponent<SystemRenderer.StarScript>().parent);
                         }
+                        if (objectWeHit.GetComponent<StarMap.SystemScript>() != null)
+                        {
+                            Inspector.DisplaySystem(objectWeHit.GetComponent<StarMap.SystemScript>().parent);
+                            StarMap.theater.SetCenter(objectWeHit.GetComponent<StarMap.SystemScript>());
+                        }
                     }
                 }
                 lastMousePos = Input.mousePosition;

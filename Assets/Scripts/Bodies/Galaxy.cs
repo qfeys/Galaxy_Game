@@ -19,8 +19,8 @@ namespace Assets.Scripts.Bodies
             {
                 systems.Add(new SystemContainer(new StarSystem(rand.Next()), positions[i]));
             }
-            systems.ForEach(sys => sys.sys.Generate());
-            //Parallel.ForEach(systems, sys => sys.sys.Generate());
+            //systems.ForEach(sys => sys.sys.Generate());
+            Parallel.ForEach(systems, sys => sys.sys.Generate());
         }
 
         /// <summary>

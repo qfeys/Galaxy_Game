@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Scripts.Bodies;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -93,7 +94,7 @@ namespace Assets.Scripts.Rendering
             info.Redraw();
         }
 
-        public static void DisplayStar(Bodies.Star s)
+        public static void DisplayStar(Star s)
         {
             Clear();
             OpenInspector();
@@ -109,6 +110,43 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, Func<object>>("Orbit (24h days)",()=>s.OrbElements.T.TotalDays),
                     new Tuple<string, Func<object>>("Semi-Major Axis",()=>s.OrbElements.SMA)
                 });
+            info.Redraw();
+        }
+
+        internal static void DisplaySystem(StarSystem sys)
+        {
+            Clear();
+            OpenInspector();
+            TextBox title = new TextBox(go.transform, () => sys, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
+            title.transform.anchoredPosition = new Vector2(20, -20);
+            
+            GameObject buttonView = new GameObject("View System", typeof(RectTransform));
+            buttonView.transform.SetParent(go.transform);
+            RectTransform trcl = (RectTransform)buttonView.transform;
+            trcl.sizeDelta = new Vector2(40, 20);
+            trcl.anchorMin = new Vector2(0, 1);
+            trcl.anchorMax = new Vector2(0, 1);
+            trcl.pivot = new Vector2(0, 1);
+            trcl.anchoredPosition = new Vector2(20, -30);
+            Image img = buttonView.AddComponent<Image>();
+            img.sprite = Data.Graphics.GetSprite("tab_image_low");
+            img.raycastTarget = true;
+            img.type = Image.Type.Sliced;
+            img.fillCenter = true;
+            buttonView.AddComponent<Button>().onClick.AddListener(() =>
+            {
+                DisplayManager.TheOne.DisplaySystem(sys);
+                DisplayManager.TheOne.SetView(true);
+                CloseInspector();
+            });
+
+            InfoTable info = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>());
+            info.SetInfo(new List<Tuple<string, Func<object>>>() {
+                    new Tuple<string, Func<object>>("Primary", ()=>sys.Primary),
+                    new Tuple<string, Func<object>>("# Stars",()=>sys.Tertiary == null? sys.Secondary == null? 1:2:3),
+                    new Tuple<string, Func<object>>("# planets",()=>sys.Planets.Count),
+                    new Tuple<string, Func<object>>("# moons",()=>sys.Planets.Sum(p => p.moons.Count))
+            });
             info.Redraw();
         }
     }

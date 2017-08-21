@@ -76,9 +76,14 @@ namespace Assets.Scripts.Rendering
             im.color = new Color(1, 1, 1, 0.5f);
         }
 
-        class SystemScript : MonoBehaviour
+        public class SystemScript : MonoBehaviour
         {
             public Bodies.StarSystem parent;
+
+            public static implicit operator Vector3(SystemScript ss)
+            {
+                return displayedSystems.First(ms => (Bodies.StarSystem)ms.System == ss.parent).System;
+            }
         }
 
         class MapStar
@@ -86,11 +91,11 @@ namespace Assets.Scripts.Rendering
             GameObject star;
             GameObject marker;
             LineRenderer line;
-            Bodies.Galaxy.SystemContainer system;
+            public Bodies.Galaxy.SystemContainer System { get; private set; }
 
             public MapStar(Bodies.Galaxy.SystemContainer system)
             {
-                this.system = system;
+                this.System = system;
                 star = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 star.name = system.ToString();
                 star.transform.SetParent(master.transform);
@@ -127,7 +132,7 @@ namespace Assets.Scripts.Rendering
 
             public void Update()
             {
-                Vector3 pos = (system - theater.Center) * theater.Scale;
+                Vector3 pos = (System - theater.Center) * theater.Scale;
                 star.transform.position = pos;
                 ((RectTransform)marker.transform).anchoredPosition = pos;
                 line.SetPosition(0, pos);
