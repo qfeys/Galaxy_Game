@@ -39,7 +39,7 @@ namespace Assets.Scripts.Rendering
                         if (objectWeHit.GetComponent<StarMap.SystemScript>() != null)
                         {
                             Inspector.DisplaySystem(objectWeHit.GetComponent<StarMap.SystemScript>().parent);
-                            StarMap.theater.SetCenter(objectWeHit.GetComponent<StarMap.SystemScript>());
+                            //StarMap.theater.SetCenter(objectWeHit.GetComponent<StarMap.SystemScript>());
                         }
                     }
                 }

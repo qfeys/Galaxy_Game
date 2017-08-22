@@ -26,6 +26,7 @@ namespace Assets.Scripts.Rendering
 
         internal static void SetSystem(StarSystem syst)
         {
+            Clear();
             displayedPlanets = new Dictionary<GameObject, Planet>();
             displayedStars = new Dictionary<GameObject, Star>();
             displayedOrbits = new Dictionary<GameObject, LineRenderer>();
@@ -59,6 +60,14 @@ namespace Assets.Scripts.Rendering
                 });
             });
             theater.SetCenter(Vector3.zero);
+        }
+
+        private static void Clear()
+        {
+            if (displayedPlanets == null) return;
+            foreach (var planet in displayedPlanets) GameObject.Destroy(planet.Key);
+            foreach (var star in displayedStars) GameObject.Destroy(star.Key);
+            foreach (var orbit in displayedOrbits) GameObject.Destroy(orbit.Value.gameObject);
         }
 
         public static void Render()

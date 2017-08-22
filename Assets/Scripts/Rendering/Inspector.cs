@@ -123,16 +123,17 @@ namespace Assets.Scripts.Rendering
             GameObject buttonView = new GameObject("View System", typeof(RectTransform));
             buttonView.transform.SetParent(go.transform);
             RectTransform trcl = (RectTransform)buttonView.transform;
-            trcl.sizeDelta = new Vector2(40, 20);
+            trcl.sizeDelta = new Vector2(60, 30);
             trcl.anchorMin = new Vector2(0, 1);
             trcl.anchorMax = new Vector2(0, 1);
             trcl.pivot = new Vector2(0, 1);
-            trcl.anchoredPosition = new Vector2(20, -30);
+            trcl.anchoredPosition = new Vector2(20, -60);
             Image img = buttonView.AddComponent<Image>();
             img.sprite = Data.Graphics.GetSprite("tab_image_low");
             img.raycastTarget = true;
             img.type = Image.Type.Sliced;
             img.fillCenter = true;
+            TextBox text = new TextBox(buttonView.transform, "Go To", null, 8, TextAnchor.MiddleCenter);
             buttonView.AddComponent<Button>().onClick.AddListener(() =>
             {
                 DisplayManager.TheOne.DisplaySystem(sys);

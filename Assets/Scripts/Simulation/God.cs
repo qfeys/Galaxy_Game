@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using Assets.Scripts.Empires;
 using Assets.Scripts.Data;
+using System.Collections.Concurrent;
 
 namespace Assets.Scripts.Simulation
 {
@@ -84,7 +85,7 @@ namespace Assets.Scripts.Simulation
             Localisation.Load();
 
             Debug.Log("Initialising galaxy");
-            Bodies.Galaxy.Create(20, 21);
+            Bodies.Galaxy.Create(20, 20);
 
             Debug.Log("Initialising Empires");
             //PlayerEmpire = new Empire("TyroTech Empire", Bodies.Galaxy.systems[0].RandLivableWorld());
@@ -134,7 +135,7 @@ namespace Assets.Scripts.Simulation
             Debug.Log("Secondary thread: " + simThread.ThreadState);
         }
 
-        static Queue<Action> unityActions = new Queue<Action>();
+        static ConcurrentQueue<Action> unityActions = new ConcurrentQueue<Action>();
         public static void ExcicuteOnUnityThread(Action a)
         {
             unityActions.Enqueue(a);
@@ -149,7 +150,9 @@ namespace Assets.Scripts.Simulation
         {
             while(unityActions.Count != 0)
             {
-                unityActions.Dequeue().Invoke();
+                Action result;
+                if (unityActions.TryDequeue(out result))
+                    result.Invoke();
             }
         }
     }

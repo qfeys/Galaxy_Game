@@ -137,7 +137,7 @@ namespace Assets.Scripts.Rendering
                 ((RectTransform)marker.transform).anchoredPosition = pos;
                 line.SetPosition(0, pos);
                 line.SetPosition(1, new Vector3(pos.x, pos.y, 0));
-                if (pos.magnitude < 40 / theater.Scale)
+                if (pos.magnitude < 25)
                 {
                     star.SetActive(true);
                     marker.SetActive(true);
