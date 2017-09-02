@@ -67,6 +67,16 @@ namespace Assets.Scripts.Rendering
                 DisplayManager.TheOne.ChangeZoom(-Input.mouseScrollDelta.y * scrollSensitivity);
             }
 
+            if (Input.GetButtonDown("Zoom"))
+            {
+                DisplayManager.TheOne.ChangeZoom(-Input.GetAxisRaw("Zoom") * scrollSensitivity);
+            }
+
+            //if (Input.anyKeyDown)
+            //{
+            //    Debug.Log(Input.inputString);
+            //}
+
         }
     }
 }
