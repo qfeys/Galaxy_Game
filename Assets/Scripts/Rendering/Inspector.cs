@@ -75,7 +75,8 @@ namespace Assets.Scripts.Rendering
 
             InfoTable info = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>());
             if (p.type == Bodies.Planet.Type.Chunk || p.type == Bodies.Planet.Type.Terrestial_planet)
-                info.SetInfo(new List<Tuple<string, Func<object>>>() {
+                if (p.IsPopulated == false)
+                    info.SetInfo(new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("Mass", ()=>p.Mass),
                     new Tuple<string, Func<object>>("Temperature",()=>p.SurfaceTemperature),
                     new Tuple<string, Func<object>>("Pressure",()=>p.PressureAtSeaLevel),
@@ -83,6 +84,17 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays),
                     new Tuple<string, Func<object>>("Semi-Major Axis",()=>p.OrbElements.SMA),
                     new Tuple<string, Func<object>>("Inclination (deg)",()=>p.OrbElements.i * Mathf.Rad2Deg)
+                });
+                else
+                    info.SetInfo(new List<Tuple<string, Func<object>>>() {
+                    new Tuple<string, Func<object>>("Mass", ()=>p.Mass),
+                    new Tuple<string, Func<object>>("Temperature",()=>p.SurfaceTemperature),
+                    new Tuple<string, Func<object>>("Pressure",()=>p.PressureAtSeaLevel),
+                    new Tuple<string, Func<object>>("Day (hours)",()=>p.SolarDay),
+                    new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays),
+                    new Tuple<string, Func<object>>("Semi-Major Axis",()=>p.OrbElements.SMA),
+                    new Tuple<string, Func<object>>("Inclination (deg)",()=>p.OrbElements.i * Mathf.Rad2Deg),
+                    new Tuple<string, Func<object>>("Total population",()=>p.PopulationCount)
                 });
             else if (p.type == Bodies.Planet.Type.Gas_Giant || p.type == Bodies.Planet.Type.Superjovian)
                 info.SetInfo(new List<Tuple<string, Func<object>>>() {

@@ -10,9 +10,18 @@ namespace Assets.Scripts.Empires
     {
 
         public string Name { get; private set; }
+        /// <summary>
+        /// The planet where this population is
+        /// </summary>
         public Planet Location { get; private set; }
+        /// <summary>
+        /// The number of people this population has (TODO: full demographics)
+        /// </summary>
         public long Count { get; private set; }
-        public double Wealth { get; private set; } // GDP in Milion USD
+        /// <summary>
+        /// The GDP of this population in GDP
+        /// </summary>
+        public double Wealth { get; private set; }
         double poverty; // part of people living in poverty
         double inequality; // gini-index - lower is better
         double happiness; // negative is bad

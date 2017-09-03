@@ -7,6 +7,8 @@ namespace Assets.Scripts.Bodies
 {
     internal class Planet
     {
+        #region StallarVariables&functions
+
         /// <summary>
         /// The parent star
         /// </summary>
@@ -120,6 +122,7 @@ namespace Assets.Scripts.Bodies
         bool isMoon;
         bool isCaptured = false;
         bool isTidallyLocked;
+
         public RNG rng { get { return Parent.starSystem.rng; } }
 
         public Planet(Star parent, double meanDistance, bool InnerPlanet)
@@ -872,6 +875,8 @@ namespace Assets.Scripts.Bodies
             {Gases.SO2, new Tuple<double, double>(64,263) }
         };
 
+        #endregion
+
         public override string ToString()
         {
             string rt = type.ToString() + " " + Parent.ToString();
@@ -882,9 +887,15 @@ namespace Assets.Scripts.Bodies
             return rt;
         }
 
+        public List<Population> Populations { get; private set; }
+        public bool IsPopulated { get { return Populations != null && Populations.Count != 0; } }
+        public long PopulationCount { get { return Populations == null ? 0 : Populations.Sum(p => p.Count); } }
+
         internal void AddPopulation(Population p)
         {
-            // TODO
+            if (Populations == null)
+                Populations = new List<Population>();
+            Populations.Add(p);
         }
     }
 }
