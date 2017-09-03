@@ -50,6 +50,7 @@ namespace Assets.Scripts.Simulation
             deltaTime = TimeSpan.FromSeconds(1);
             simThread = new Thread(()=> { try { RunTime(); } catch (Exception e) { mainThreadException = e; } });
             simThread.Start();
+            isPaused = true;
         }
 
         // Update is called once per frame
