@@ -55,13 +55,10 @@ namespace Assets.Scripts
         public VectorS GetPositionSphere(DateTime time)
         {
             if (SMA == 0) return new VectorS(0, 0, 0);
-            VectorS ret = new VectorS();
             double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
             double meanAnomaly = MAaE + (time - EPOCH).TotalSeconds / n;
             double EA = EccentricAnomaly(meanAnomaly);
-            ret.r = SMA * (1 - e * Math.Cos(EA));
-            ret.u = LAN + Math.Atan2(Math.Sin(AOP + EA) * Math.Cos(i), Math.Cos(AOP + EA));
-            ret.v = Math.Asin(Math.Sin(i) * Math.Sin(AOP + EA));
+            VectorS ret = new VectorS(this, EA);
             return ret;
         }
 
@@ -91,12 +88,7 @@ namespace Assets.Scripts
             {
                 double meanAnomaly = MAaE + j * 2 * Math.PI / number + (time - EPOCH).TotalSeconds / n;
                 double EA = EccentricAnomaly(meanAnomaly);
-                double AoA = AOP + EA;
-                VectorS point = new VectorS(
-                    SMA * (1 - e * Math.Cos(EA)),
-                    LAN + Math.Atan2(Math.Sin(AoA) * Math.Cos(i), Math.Cos(AoA)),
-                    Math.Asin(Math.Sin(i) * Math.Sin(AOP + EA))
-                );
+                VectorS point = new VectorS(this, EA);
                 //UnityEngine.Debug.Log(j + ": " + (j * 2 * Math.PI / number).ToString("0.00") + " rad, i: " + i.ToString("0.00") + "rad, MA: " + meanAnomaly.ToString("0.00") + " rad, EA: " + EA.ToString("0.00") + " rad, AoA: " + AoA.ToString("0.00") + " rad, u:" + (point.u - LAN).ToString("0.00") + " rad, r:"+point.r.ToString("0.000'000"));
                 ret[j] = point;
             }
@@ -136,6 +128,19 @@ namespace Assets.Scripts
             this.r = r;
             this.u = u % (2 * Math.PI);
             this.v = Math.IEEERemainder(v, Math.PI);
+        }
+
+        /// <summary>
+        /// The position of a point on an orbit at a certain eccentric anomaly.
+        /// </summary>
+        /// <param name="el"></param>
+        /// <param name="EA"></param>
+        public VectorS(OrbitalElements el, double EA)
+        {
+            double AoA = el.AOP + EA;  // Argument of anomaly
+            r = el.SMA * (1 - el.e * Math.Cos(EA));
+            u = el.LAN + Math.Atan2(Math.Sin(AoA) * Math.Cos(el.i), Math.Cos(AoA) * Math.Cos(el.i));
+            v = Math.Asin(Math.Sin(el.i) * Math.Sin(AoA));
         }
 
         public static explicit operator UnityEngine.Vector3(VectorS vs)

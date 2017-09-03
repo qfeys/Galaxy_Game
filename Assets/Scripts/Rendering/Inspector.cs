@@ -81,7 +81,8 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, Func<object>>("Pressure",()=>p.PressureAtSeaLevel),
                     new Tuple<string, Func<object>>("Day (hours)",()=>p.SolarDay),
                     new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays),
-                    new Tuple<string, Func<object>>("Semi-Major Axis",()=>p.OrbElements.SMA)
+                    new Tuple<string, Func<object>>("Semi-Major Axis",()=>p.OrbElements.SMA),
+                    new Tuple<string, Func<object>>("Inclination (deg)",()=>p.OrbElements.i * Mathf.Rad2Deg)
                 });
             else if (p.type == Bodies.Planet.Type.Gas_Giant || p.type == Bodies.Planet.Type.Superjovian)
                 info.SetInfo(new List<Tuple<string, Func<object>>>() {
@@ -89,7 +90,8 @@ namespace Assets.Scripts.Rendering
                     new Tuple<string, Func<object>>("Temperature",()=>p.BaseTemperature),
                     new Tuple<string, Func<object>>("Day (hours)",()=>p.SolarDay),
                     new Tuple<string, Func<object>>("Year (24h days)",()=>p.OrbElements.T.TotalDays),
-                    new Tuple<string, Func<object>>("Semi-Major Axis",()=>p.OrbElements.SMA)
+                    new Tuple<string, Func<object>>("Semi-Major Axis",()=>p.OrbElements.SMA),
+                    new Tuple<string, Func<object>>("Inclination (deg)",()=>p.OrbElements.i * Mathf.Rad2Deg)
                 });
             info.Redraw();
         }
