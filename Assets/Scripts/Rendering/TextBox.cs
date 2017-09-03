@@ -97,8 +97,15 @@ namespace Assets.Scripts.Rendering
             if (isData)
             {
                 object d = Data_();
-                if (d.GetType() == typeof(double))
-                        text.text = ToSI((double)d,"0.##");
+                Type t = d.GetType();
+                if (t == typeof(double))
+                    text.text = ToSI((double)d, "0.##");
+                else if (t == typeof(float))
+                    text.text = ToSI((float)d, "0.##");
+                else if (t == typeof(int))
+                    text.text = ToSI((int)d, "0.##");
+                else if (t == typeof(long))
+                    text.text = ToSI((long)d, "0.##");
                 else
                     text.text = Data_().ToString();
             }
