@@ -52,9 +52,9 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable New(Transform parent, List<Tuple<string, List<Func<object>>>> info, int width = 200, int fontSize = 12, string title = null)
+        static public InfoTable New(Transform parent, List<Tuple<string, List<Func<object>>>> info, int width = 200, int fontSize = 12, string title = null, List<string> headers = null)
         {
-            return new MultiColumnPassive(parent, info, width, fontSize, title);
+            return new MultiColumnPassive(parent, info, width, fontSize, title, headers);
         }
 
         /// <summary>
@@ -66,9 +66,9 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable New(Transform parent, Func<List<Tuple<string, List<Func<object>>>>> script, int width = 200, int fontSize = 12, string title = null)
+        static public InfoTable New(Transform parent, Func<List<Tuple<string, List<Func<object>>>>> script, int width = 200, int fontSize = 12, string title = null, List<string> headers = null)
         {
-            return new MultiColumnActive(parent, script, width, fontSize, title);
+            return new MultiColumnActive(parent, script, width, fontSize, title, headers);
         }
 
         InfoTable(Transform parent, int width = 200, int fontSize = 12, string title = null)
@@ -346,6 +346,7 @@ namespace Assets.Scripts.Rendering
         {
             List<Tuple<string, List<Func<object>>>> info;
             int colms;
+            private List<string> headers;
 
             /// <summary>
             /// Use this constructor if you want to make a 2 column table where the number of elements is fixed
@@ -355,7 +356,7 @@ namespace Assets.Scripts.Rendering
             /// <param name="width"></param>
             /// <param name="fontSize"></param>
             /// <param name="title"></param>
-            public MultiColumnPassive(Transform parent, List<Tuple<string, List<Func<object>>>> info, int width, int fontSize, string title) :
+            public MultiColumnPassive(Transform parent, List<Tuple<string, List<Func<object>>>> info, int width, int fontSize, string title, List<string> headers) :
             base(parent, width, fontSize, title)
             {
                 if (info == null || info.Count == 0)
@@ -365,6 +366,7 @@ namespace Assets.Scripts.Rendering
                     if (info[i].Item2.Count != colms)
                         throw new ArgumentException("The info of this infotable has an inconsistant number of colums.");
                 this.info = info;
+                AddHeaders();
                 Redraw();
             }
 
@@ -376,6 +378,7 @@ namespace Assets.Scripts.Rendering
             public new void SetInfo(List<Tuple<string, List<Func<object>>>> newInfo)
             {
                 info = newInfo;
+                AddHeaders();
             }
 
             public new void AddInfo(Tuple<string, List<Func<object>>> newInfo)
@@ -386,6 +389,17 @@ namespace Assets.Scripts.Rendering
             public override void ResetInfo()
             {
                 info = new List<Tuple<string, List<Func<object>>>>();
+                AddHeaders();
+            }
+
+            private void AddHeaders()
+            {
+                if (headers != null && headers.Count == colms)
+                    info.Insert(0, new Tuple<string, List<Func<object>>>("", headers.ConvertAll<Func<object>>(h => () => { return h; })));
+                else if (headers != null && headers.Count == colms + 1)
+                    info.Insert(0, new Tuple<string, List<Func<object>>>(headers[0], headers.GetRange(1, colms).ConvertAll<Func<object>>(h => () => { return h; })));
+                else if (headers != null)
+                    throw new ArgumentException("The headers of this infotable do not have a valid count. Use 'number of colums' or 'number of colums + 1'");
             }
         }
 
@@ -393,6 +407,7 @@ namespace Assets.Scripts.Rendering
         {
             List<Tuple<string, List<Func<object>>>> info;
             Func<List<Tuple<string, List<Func<object>>>>> script;
+            List<string> headers;
             int colms;
 
             /// <summary>
@@ -404,14 +419,13 @@ namespace Assets.Scripts.Rendering
             /// <param name="width"></param>
             /// <param name="fontSize"></param>
             /// <param name="title"></param>
-            public MultiColumnActive(Transform parent, Func<List<Tuple<string, List<Func<object>>>>> script, int width, int fontSize, string title) :
+            public MultiColumnActive(Transform parent, Func<List<Tuple<string, List<Func<object>>>>> script, int width, int fontSize, string title, List<string> headers) :
             base(parent, width, fontSize, title)
             {
                 info = null;
                 ActiveInfoTable ait = go.AddComponent<ActiveInfoTable>();
                 ait.parent = this;
                 this.script = script;
-                info = script();
                 Redraw();
             }
 
@@ -427,6 +441,7 @@ namespace Assets.Scripts.Rendering
                 if (newinfo != info)
                 {
                     info = newinfo;
+                    AddHeaders();
                     BaseRedrawMulticolumn(info, colms);
                 }
             }
@@ -435,6 +450,16 @@ namespace Assets.Scripts.Rendering
             {
                 info = new List<Tuple<string, List<Func<object>>>>();
                 script = null;
+            }
+
+            private void AddHeaders()
+            {
+                if (headers != null && headers.Count == colms)
+                    info.Insert(0, new Tuple<string, List<Func<object>>>("", headers.ConvertAll<Func<object>>(h => () => { return h; })));
+                else if (headers != null && headers.Count == colms + 1)
+                    info.Insert(0, new Tuple<string, List<Func<object>>>(headers[0], headers.GetRange(1, colms).ConvertAll<Func<object>>(h => () => { return h; })));
+                else if (headers != null)
+                    throw new ArgumentException("The headers of this infotable do not have a valid count. Use 'number of colums' or 'number of colums + 1'");
             }
         }
     }
