@@ -35,7 +35,7 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, "empire_window_title", null, 24, TextAnchor.MiddleCenter);
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
-            InfoTable table = new InfoTable(go.transform, new List<Tuple<string, Func<object>>>() {
+            InfoTable table = InfoTable.New(go.transform, new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("population", ()=>Simulation.God.PlayerEmpire.Population),
                     new Tuple<string, Func<object>>("Wealth", () => Simulation.God.PlayerEmpire.Wealth)
                 }, 200, 12, "Populations");
@@ -50,7 +50,7 @@ namespace Assets.Scripts.Rendering
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
 
-            InfoTable tablePops = new InfoTable(go.transform, () =>
+            InfoTable tablePops = InfoTable.New(go.transform, () =>
             {
                 List<Tuple<string, Func<object>>> list = new List<Tuple<string, Func<object>>>();
                 foreach (Empires.Population pop in Simulation.God.PlayerEmpire.Populations)
@@ -71,7 +71,7 @@ namespace Assets.Scripts.Rendering
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
 
-            InfoTable tableSectors = new InfoTable(go.transform, () =>
+            InfoTable tableSectors = InfoTable.New(go.transform, () =>
             {
                 List<Tuple<string, Func<object>>> list = new List<Tuple<string, Func<object>>>();
                 foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in Simulation.God.PlayerEmpire.Academy.Funding)
@@ -83,7 +83,7 @@ namespace Assets.Scripts.Rendering
             Center(tableSectors.transform, new Vector2(-100, -100));
 
 
-            InfoTable tableTechs = new InfoTable(go.transform, () =>
+            InfoTable tableTechs = InfoTable.New(go.transform, () =>
             {
                 List<Tuple<string, Func<object>>> list = new List<Tuple<string, Func<object>>>();
                 foreach (var tech in Simulation.God.PlayerEmpire.Academy.Unlocks)
