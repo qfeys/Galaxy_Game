@@ -42,7 +42,7 @@ namespace Assets.Scripts.Rendering
             img.type = Image.Type.Sliced;
             img.fillCenter = true;
 
-            TextBox text = new TextBox(close.transform, "X", null, 8,TextAnchor.MiddleCenter);
+            TextBox text = new TextBox(close.transform, TextRef.Create("X", false), 8,TextAnchor.MiddleCenter);
             
             close.AddComponent<Button>().onClick.AddListener(() => { CloseInspector(); });
             CloseInspector();
@@ -70,7 +70,7 @@ namespace Assets.Scripts.Rendering
         {
             Clear();
             OpenInspector();
-            TextBox title = new TextBox(go.transform, () => p, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
+            TextBox title = new TextBox(go.transform, TextRef.Create(() => p), 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
 
             InfoTable info = InfoTable.Create(go.transform, new List<Tuple<string, Func<object>>>());
@@ -112,7 +112,7 @@ namespace Assets.Scripts.Rendering
         {
             Clear();
             OpenInspector();
-            TextBox title = new TextBox(go.transform, () => s, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
+            TextBox title = new TextBox(go.transform, TextRef.Create(() => s), 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
 
             InfoTable info = InfoTable.Create(go.transform, new List<Tuple<string, Func<object>>>());
@@ -131,7 +131,7 @@ namespace Assets.Scripts.Rendering
         {
             Clear();
             OpenInspector();
-            TextBox title = new TextBox(go.transform, () => sys, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
+            TextBox title = new TextBox(go.transform, TextRef.Create(() => sys), 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
             
             GameObject buttonView = new GameObject("View System", typeof(RectTransform));
@@ -147,7 +147,7 @@ namespace Assets.Scripts.Rendering
             img.raycastTarget = true;
             img.type = Image.Type.Sliced;
             img.fillCenter = true;
-            TextBox text = new TextBox(buttonView.transform, "Go To", null, 8, TextAnchor.MiddleCenter);
+            TextBox text = new TextBox(buttonView.transform, TextRef.Create("Go To"), 8, TextAnchor.MiddleCenter);
             buttonView.AddComponent<Button>().onClick.AddListener(() =>
             {
                 DisplayManager.TheOne.DisplaySystem(sys);

@@ -244,6 +244,7 @@ namespace Assets.Scripts.Rendering
         {
             get
             {
+                if (text2nd == null && script2nd == null) return null;
                 switch (refType)
                 {
                 case RefType.direct: return text2nd;

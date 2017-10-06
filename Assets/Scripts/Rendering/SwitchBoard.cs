@@ -55,7 +55,7 @@ namespace Assets.Scripts.Rendering
             Button but = butGo.AddComponent<Button>();
             but.onClick.AddListener(()=>act());
 
-            TextBox t = new TextBox(butGo.transform, text, text + "_text", 14, TextAnchor.MiddleCenter);
+            TextBox t = new TextBox(butGo.transform, TextRef.Create(text, text + "_text"), 14, TextAnchor.MiddleCenter);
         }
     }
 }

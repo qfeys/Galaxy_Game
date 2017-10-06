@@ -26,7 +26,7 @@ namespace Assets.Scripts.Rendering
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
 
-            TextBox text = new TextBox(go.transform, () => Simulation.God.Time.ToString("yyyy.MM.dd HH:mm:ss"), null, 16, TextAnchor.UpperCenter, Data.Graphics.Color_.text);
+            TextBox text = new TextBox(go.transform, TextRef.Create(() => Simulation.God.Time.ToString("yyyy.MM.dd HH:mm:ss")), 16, TextAnchor.UpperCenter, Data.Graphics.Color_.text);
             text.transform.anchoredPosition = new Vector2(0, -3);
 
             Dictionary<string, TimeSpan> timeSteps = Simulation.God.timeSteps;
@@ -50,7 +50,7 @@ namespace Assets.Scripts.Rendering
                 img.type = Image.Type.Sliced;
                 img.fillCenter = true;
 
-                TextBox textStep = new TextBox(Step.transform, step.Key, null, 8, TextAnchor.MiddleCenter);
+                TextBox textStep = new TextBox(Step.transform, TextRef.Create(step.Key, false), 8, TextAnchor.MiddleCenter);
 
                 Step.AddComponent<Button>().onClick.AddListener(() => Simulation.God.deltaTime = step.Value);
                 i++;
@@ -69,7 +69,7 @@ namespace Assets.Scripts.Rendering
             imP.type = Image.Type.Sliced;
             imP.fillCenter = true;
 
-            TextBox textPause = new TextBox(pause.transform, "||", null, 10, TextAnchor.MiddleCenter);
+            TextBox textPause = new TextBox(pause.transform, TextRef.Create("||"), 10, TextAnchor.MiddleCenter);
 
             pause.AddComponent<Button>().onClick.AddListener(() => Simulation.God.Pause());
         }
