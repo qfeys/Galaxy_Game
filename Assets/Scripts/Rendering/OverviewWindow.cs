@@ -32,7 +32,7 @@ namespace Assets.Scripts.Rendering
         static GameObject EmpireWindow()
         {
             GameObject go = new GameObject("Empire Window", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, "empire_window_title", null, 24, TextAnchor.MiddleCenter);
+            TextBox title = new TextBox(go.transform, TextRef.Create("empire_window_title"), 24, TextAnchor.MiddleCenter);
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
             InfoTable table = InfoTable.Create(go.transform, new List<Tuple<string, Func<object>>>() {
@@ -46,7 +46,7 @@ namespace Assets.Scripts.Rendering
         static GameObject PopulationsWindow()
         {
             GameObject go = new GameObject("Populations Window", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, "populations_window_title", null, 24, TextAnchor.MiddleCenter);
+            TextBox title = new TextBox(go.transform, TextRef.Create("populations_window_title"), 24, TextAnchor.MiddleCenter);
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
 
@@ -68,7 +68,7 @@ namespace Assets.Scripts.Rendering
         static GameObject TechnologyWindow()
         {
             GameObject go = new GameObject("Technology Window", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, "technology_window_title", null, 24, TextAnchor.MiddleCenter);
+            TextBox title = new TextBox(go.transform, TextRef.Create("technology_window_title"), 24, TextAnchor.MiddleCenter);
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
 

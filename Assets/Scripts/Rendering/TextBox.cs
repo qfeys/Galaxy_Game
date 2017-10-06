@@ -65,7 +65,7 @@ namespace Assets.Scripts.Rendering
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
             TextBoxScript tbs = go.AddComponent<TextBoxScript>();
             tbs.parent = this;
-            tbs.hasMouseover = MousoverID != null;
+            tbs.hasMouseover = Text.AltText != null;
         }
 
         public void SetColor(Color col)
@@ -94,7 +94,7 @@ namespace Assets.Scripts.Rendering
                     mouseTimeActive += Time.deltaTime;
                     if(mouseTimeActive > MOUSE_OVER_DISPLAY_TRESHOLD)
                     {
-                        MouseOver.Activate(Data.Localisation.GetText(parent.MousoverID));
+                        MouseOver.Activate(parent.Text.AltText);
                     }
                 }
             }

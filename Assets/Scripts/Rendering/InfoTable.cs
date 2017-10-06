@@ -87,7 +87,7 @@ namespace Assets.Scripts.Rendering
 
         private void CreateTitle()
         {
-            TextBox titleTxt = new TextBox(go.transform, title, null, (int)(fontSize * 1.2f), TextAnchor.MiddleCenter);
+            TextBox titleTxt = new TextBox(go.transform, TextRef.Create(title), (int)(fontSize * 1.2f), TextAnchor.MiddleCenter);
             LayoutElement LayEl = titleTxt.gameObject.AddComponent<LayoutElement>();
             LayEl.minHeight = fontSize * 1.2f;
             LayEl.preferredHeight = fontSize * 2 * 1.2f;
@@ -181,12 +181,12 @@ namespace Assets.Scripts.Rendering
                 GameObject line = CreateLine();
                 GameObject nameCont = new GameObject("Name Container", typeof(RectTransform));
                 nameCont.transform.SetParent(line.transform);
-                TextBox name = new TextBox(nameCont.transform, "#####", "#####", fontSize, TextAnchor.MiddleLeft);
+                TextBox name = new TextBox(nameCont.transform, TextRef.Create("#####", false), fontSize, TextAnchor.MiddleLeft);
                 nameCont.AddComponent<LayoutElement>().flexibleWidth = 1;
 
                 GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
                 dataCont.transform.SetParent(line.transform);
-                TextBox data = new TextBox(dataCont.transform, "#####", "#####", fontSize, TextAnchor.MiddleRight);
+                TextBox data = new TextBox(dataCont.transform, TextRef.Create("#####", false), fontSize, TextAnchor.MiddleRight);
             }
             else
             {
@@ -195,12 +195,12 @@ namespace Assets.Scripts.Rendering
                     GameObject line = CreateLine();
                     GameObject nameCont = new GameObject("Name Container", typeof(RectTransform));
                     nameCont.transform.SetParent(line.transform);
-                    TextBox name = new TextBox(nameCont.transform, info[i].Item1, "#####", fontSize, TextAnchor.MiddleLeft);
+                    TextBox name = new TextBox(nameCont.transform, TextRef.Create(info[i].Item1), fontSize, TextAnchor.MiddleLeft);
                     nameCont.AddComponent<LayoutElement>().flexibleWidth = 1;
 
                     GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
                     dataCont.transform.SetParent(line.transform);
-                    TextBox data = new TextBox(dataCont.transform, info[i].Item2, "#####", fontSize, TextAnchor.MiddleRight);
+                    TextBox data = new TextBox(dataCont.transform, TextRef.Create(info[i].Item2), fontSize, TextAnchor.MiddleRight);
                 }
             }
         }
@@ -221,14 +221,14 @@ namespace Assets.Scripts.Rendering
                 GameObject line = CreateLine();
                 GameObject nameCont = new GameObject("Name Container", typeof(RectTransform));
                 nameCont.transform.SetParent(line.transform);
-                TextBox name = new TextBox(nameCont.transform, "#####", null, fontSize, TextAnchor.MiddleLeft);
+                TextBox name = new TextBox(nameCont.transform, TextRef.Create("#####", false), fontSize, TextAnchor.MiddleLeft);
                 nameCont.AddComponent<LayoutElement>().flexibleWidth = 1;
 
                 for (int i = 0; i < numberOfCol; i++)
                 {
                     GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
                     dataCont.transform.SetParent(line.transform);
-                    TextBox data = new TextBox(dataCont.transform, "#####", null, fontSize, TextAnchor.MiddleRight);
+                    TextBox data = new TextBox(dataCont.transform, TextRef.Create("#####", false), fontSize, TextAnchor.MiddleRight);
                 }
             }
             else
@@ -238,14 +238,14 @@ namespace Assets.Scripts.Rendering
                     GameObject line = CreateLine();
                     GameObject nameCont = new GameObject("Name Container", typeof(RectTransform));
                     nameCont.transform.SetParent(line.transform);
-                    TextBox name = new TextBox(nameCont.transform, info[i].Item1, null, fontSize, TextAnchor.MiddleLeft);
+                    TextBox name = new TextBox(nameCont.transform, TextRef.Create(info[i].Item1), fontSize, TextAnchor.MiddleLeft);
                     nameCont.AddComponent<LayoutElement>().flexibleWidth = 1;
 
                     for (int j = 0; j < numberOfCol; j++)
                     {
                         GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
                         dataCont.transform.SetParent(line.transform);
-                        TextBox data = new TextBox(dataCont.transform, info[i].Item2[j], null, fontSize, TextAnchor.MiddleRight);
+                        TextBox data = new TextBox(dataCont.transform, TextRef.Create(info[i].Item2[j]), fontSize, TextAnchor.MiddleRight);
                     }
                 }
             }

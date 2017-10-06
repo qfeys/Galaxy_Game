@@ -57,7 +57,7 @@ namespace Assets.Scripts.Rendering
                 img.type = Image.Type.Sliced;
                 img.fillCenter = true;
 
-                TextBox text = new TextBox(tab.transform, tabs[i].Item1,null,tabFontSize);
+                TextBox text = new TextBox(tab.transform, TextRef.Create(tabs[i].Item1), tabFontSize);
                 text.transform.anchoredPosition += new Vector2(5, 0);
 
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
@@ -88,7 +88,7 @@ namespace Assets.Scripts.Rendering
                 img.type = Image.Type.Sliced;
                 img.fillCenter = true;
 
-                TextBox text = new TextBox(tab.transform, "X", null, tabFontSize);
+                TextBox text = new TextBox(tab.transform, TextRef.Create("X", false), tabFontSize);
                 ((RectTransform)text.gameObject.transform).anchoredPosition += new Vector2(5, 0);
 
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
