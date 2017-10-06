@@ -174,4 +174,124 @@ namespace Assets.Scripts.Rendering
             }
         }
     }
+
+    /// <summary>
+    /// Text reference class. This is a container class for all text that has to be send to
+    /// the UI system. This can be a simple string, a reference to the localisation file or
+    /// a reference to a value somewhere.
+    /// You can use a TextRef implicitly as a string.
+    /// </summary>
+    public class TextRef
+    {
+        TextRef() { }
+
+        string text;
+        string text2nd;
+
+        Func<object> script;
+        Func<object> script2nd;
+
+        enum RefType { direct, localised, reference}
+        RefType refType;
+
+        /// <summary>
+        /// Create a new text reference that can store a string which can be read from the localisation files.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="localised">Whether or not this value is a key in the localisation files.</param>
+        /// <returns></returns>
+        public static TextRef Create(string text, bool localised = true)
+        {
+            TextRef tr = new TextRef();
+            tr.text = text;
+            if (localised)
+                tr.refType = RefType.localised;
+            else
+                tr.refType = RefType.direct;
+            return tr;
+        }
+
+        /// <summary>
+        /// Create a new text reference that can store a string and an alternative string which can be read
+        /// from the localisation files.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="altText">This is mainly used for mouseover text.</param>
+        /// <param name="localised">Whether or not this value is a key in the localisation files.</param>
+        /// <returns></returns>
+        public static TextRef Create(string text, string altText, bool localised = true)
+        {
+            TextRef tr = new TextRef() {
+                text = text,
+                text2nd = altText
+            };
+            if (localised)
+                tr.refType = RefType.localised;
+            else
+                tr.refType = RefType.direct;
+            return tr;
+        }
+
+        /// <summary>
+        /// Create a new text reference that will remember the reference to a value in
+        /// the program. Refer to the object, not to the ToString of the object. The
+        /// TextRef object will make sure numbers are properly formatted.
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <returns></returns>
+        public static TextRef Create(Func<object> reference)
+        {
+            TextRef tr = new TextRef() {
+                script = reference,
+                refType = RefType.reference
+            };
+            return tr;
+        }
+
+        /// <summary>
+        /// Create a new text reference that will remember the reference to a value in
+        /// the program. Refer to the object, not to the ToString of the object. The
+        /// TextRef object will make sure numbers are properly formatted. This version
+        /// of Create can also link an alternative text.
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <param name="altRef"></param>
+        /// <returns></returns>
+        public static TextRef Create(Func<object> reference, Func<object> altRef)
+        {
+            TextRef tr = new TextRef() {
+                script = reference,
+                script2nd = altRef,
+                refType = RefType.reference
+            };
+            return tr;
+        }
+
+        public static implicit operator string(TextRef tr)
+        {
+            switch (tr.refType)
+            {
+            case RefType.direct: return tr.text;
+            case RefType.localised: return Data.Localisation.GetText(tr.text);
+            case RefType.reference: return tr.script().ToString();
+            }
+            throw new Exception("There exist another text ref type?");
+        }
+
+        public string Text { get { return this; } }
+
+        public string AltText
+        {
+            get
+            {
+                switch (refType)
+                {
+                case RefType.direct: return text2nd;
+                case RefType.localised: return Data.Localisation.GetText(text2nd);
+                case RefType.reference: return script2nd();
+                }
+                throw new Exception("There exist another text ref type?");
+            }
+        }
+    }
 }
