@@ -35,7 +35,7 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, "empire_window_title", null, 24, TextAnchor.MiddleCenter);
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
-            InfoTable table = InfoTable.New(go.transform, new List<Tuple<string, Func<object>>>() {
+            InfoTable table = InfoTable.Create(go.transform, new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("population", ()=>Simulation.God.PlayerEmpire.Population),
                     new Tuple<string, Func<object>>("Wealth", () => Simulation.God.PlayerEmpire.Wealth)
                 }, 200, 12, "Populations");
@@ -50,12 +50,13 @@ namespace Assets.Scripts.Rendering
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
 
-            InfoTable tablePops = InfoTable.New(go.transform, () =>
+            InfoTable tablePops = InfoTable.Create(go.transform, () =>
             {
-                List<Tuple<string, Func<object>>> list = new List<Tuple<string, Func<object>>>();
+                List<Tuple<string, List<Func<object>>>> list = new List<Tuple<string, List<Func<object>>>>();
+                list.Add(new Tuple<string, List<Func<object>>>("Population", new List<Func<object>>() { () => "Inhabitants", () => "Wealth" }));
                 foreach (Empires.Population pop in Simulation.God.PlayerEmpire.Populations)
                 {
-                    list.Add(new Tuple<string, Func<object>>(pop.ToString(), () => pop.Count));
+                    list.Add(new Tuple<string, List<Func<object>>>(pop.ToString(), new List<Func<object>>() { () => pop.Count, () => pop.Wealth }));
                 }
                 return list;
             }, 200);
@@ -71,7 +72,7 @@ namespace Assets.Scripts.Rendering
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
 
-            InfoTable tableSectors = InfoTable.New(go.transform, () =>
+            InfoTable tableSectors = InfoTable.Create(go.transform, () =>
             {
                 List<Tuple<string, Func<object>>> list = new List<Tuple<string, Func<object>>>();
                 foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in Simulation.God.PlayerEmpire.Academy.Funding)
@@ -83,7 +84,7 @@ namespace Assets.Scripts.Rendering
             Center(tableSectors.transform, new Vector2(-100, -100));
 
 
-            InfoTable tableTechs = InfoTable.New(go.transform, () =>
+            InfoTable tableTechs = InfoTable.Create(go.transform, () =>
             {
                 List<Tuple<string, Func<object>>> list = new List<Tuple<string, Func<object>>>();
                 foreach (var tech in Simulation.God.PlayerEmpire.Academy.Unlocks)

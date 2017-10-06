@@ -25,7 +25,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable New(Transform parent, List<Tuple<string, Func<object>>> info, int width = 200, int fontSize = 12, string title = null)
+        static public InfoTable Create(Transform parent, List<Tuple<string, Func<object>>> info, int width = 200, int fontSize = 12, string title = null)
         {
             return new TwoColumnPassive(parent, info, width, fontSize, title);
         }
@@ -39,7 +39,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable New(Transform parent, Func<List<Tuple<string, Func<object>>>> script, int width = 200, int fontSize = 12, string title = null)
+        static public InfoTable Create(Transform parent, Func<List<Tuple<string, Func<object>>>> script, int width = 200, int fontSize = 12, string title = null)
         {
             return new TwoColumnActive(parent, script, width, fontSize, title);
         }
@@ -52,7 +52,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable New(Transform parent, List<Tuple<string, List<Func<object>>>> info, int width = 200, int fontSize = 12, string title = null, List<string> headers = null)
+        static public InfoTable Create(Transform parent, List<Tuple<string, List<Func<object>>>> info, int width = 200, int fontSize = 12, string title = null, List<string> headers = null)
         {
             return new MultiColumnPassive(parent, info, width, fontSize, title, headers);
         }
@@ -66,7 +66,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable New(Transform parent, Func<List<Tuple<string, List<Func<object>>>>> script, int width = 200, int fontSize = 12, string title = null, List<string> headers = null)
+        static public InfoTable Create(Transform parent, Func<List<Tuple<string, List<Func<object>>>>> script, int width = 200, int fontSize = 12, string title = null, List<string> headers = null)
         {
             return new MultiColumnActive(parent, script, width, fontSize, title, headers);
         }
@@ -245,7 +245,7 @@ namespace Assets.Scripts.Rendering
                     {
                         GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
                         dataCont.transform.SetParent(line.transform);
-                        TextBox data = new TextBox(dataCont.transform, info[j].Item2[j], null, fontSize, TextAnchor.MiddleRight);
+                        TextBox data = new TextBox(dataCont.transform, info[i].Item2[j], null, fontSize, TextAnchor.MiddleRight);
                     }
                 }
             }
@@ -435,7 +435,7 @@ namespace Assets.Scripts.Rendering
                 if (newinfo == null || newinfo.Count == 0)
                     throw new ArgumentException("The info of this infotable is empty. Please don't do this to me.");
                 colms = newinfo[0].Item2.Count;
-                for (int i = 1; i < info.Count; i++)
+                for (int i = 1; i < newinfo.Count; i++)
                     if (newinfo[i].Item2.Count != colms)
                         throw new ArgumentException("The info of this infotable has an inconsistant number of colums.");
                 if (newinfo != info)

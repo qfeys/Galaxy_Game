@@ -73,7 +73,7 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, () => p, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
 
-            InfoTable info = InfoTable.New(go.transform, new List<Tuple<string, Func<object>>>());
+            InfoTable info = InfoTable.Create(go.transform, new List<Tuple<string, Func<object>>>());
             if (p.type == Bodies.Planet.Type.Chunk || p.type == Bodies.Planet.Type.Terrestial_planet)
                 if (p.IsPopulated == false)
                     info.SetInfo(new List<Tuple<string, Func<object>>>() {
@@ -115,7 +115,7 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, () => s, null, 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
 
-            InfoTable info = InfoTable.New(go.transform, new List<Tuple<string, Func<object>>>());
+            InfoTable info = InfoTable.Create(go.transform, new List<Tuple<string, Func<object>>>());
                 info.SetInfo(new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("Mass", ()=>s.Mass),
                     new Tuple<string, Func<object>>("Temperature",()=>s.Temperature),
@@ -155,7 +155,7 @@ namespace Assets.Scripts.Rendering
                 CloseInspector();
             });
 
-            InfoTable info = InfoTable.New(go.transform, new List<Tuple<string, Func<object>>>());
+            InfoTable info = InfoTable.Create(go.transform, new List<Tuple<string, Func<object>>>());
             info.SetInfo(new List<Tuple<string, Func<object>>>() {
                     new Tuple<string, Func<object>>("Primary", ()=>sys.Primary),
                     new Tuple<string, Func<object>>("# Stars",()=>sys.Tertiary == null? sys.Secondary == null? 1:2:3),
