@@ -273,9 +273,29 @@ namespace Assets.Scripts.Rendering
             {
             case RefType.direct: return tr.text;
             case RefType.localised: return Data.Localisation.GetText(tr.text);
-            case RefType.reference: return tr.script().ToString();
+            case RefType.reference: return tr.ExtractData();
             }
             throw new Exception("There exist another text ref type?");
+        }
+
+        private string ExtractData(bool alt = false)
+        {
+            object d;
+            if (alt)
+                d = script2nd();
+            else
+                d = script();
+            Type t = d.GetType();
+            if (t == typeof(double))
+                return ToSI((double)d, "0.##");
+            else if (t == typeof(float))
+                return ToSI((float)d, "0.##");
+            else if (t == typeof(int))
+                return ToSI((int)d, "0.##");
+            else if (t == typeof(long))
+                return ToSI((long)d, "0.##");
+            else
+                return d.ToString();
         }
 
         public string Text { get { return this; } }
@@ -288,10 +308,40 @@ namespace Assets.Scripts.Rendering
                 {
                 case RefType.direct: return text2nd;
                 case RefType.localised: return Data.Localisation.GetText(text2nd);
-                case RefType.reference: return script2nd();
+                case RefType.reference: return ExtractData(true);
                 }
                 throw new Exception("There exist another text ref type?");
             }
+        }
+
+
+        /// <summary>
+        /// Found on stackoverflow
+        /// https://stackoverflow.com/questions/12181024/formatting-a-number-with-a-metric-prefix
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        string ToSI(double d, string format = null)
+        {
+            if (d == 0 || (d >= 0.1 && d < 10000)) return d.ToString(format);
+
+            char[] incPrefixes = new[] { 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' };
+            char[] decPrefixes = new[] { 'm', '\u03bc', 'n', 'p', 'f', 'a', 'z', 'y' };
+
+            int degree = (int)Math.Floor(Math.Log10(Math.Abs(d)) / 3);
+            double scaled = d * Math.Pow(1000, -degree);
+
+            if (degree - 1 >= incPrefixes.Length) return "~inf";
+            if (-degree - 1 >= decPrefixes.Length) return "~0";
+            char? prefix = null;
+            switch (Math.Sign(degree))
+            {
+            case 1: prefix = incPrefixes[degree - 1]; break;
+            case -1: prefix = decPrefixes[-degree - 1]; break;
+            }
+
+            return scaled.ToString(format) + prefix;
         }
     }
 }
