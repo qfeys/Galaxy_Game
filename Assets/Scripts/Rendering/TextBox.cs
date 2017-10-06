@@ -8,16 +8,9 @@ namespace Assets.Scripts.Rendering
 {
     public class TextBox
     {
-        public string TextID { get { return _textID; } set { _textID = value; } }
-        public string _textID;
-        public string MousoverID { get { return _mousoverID; } set { _mousoverID = value; } }
-        public string _mousoverID;
-        public Func<object> Data_ { get { return _data; } set { _data = value; } }
-        public Func<object> _data;
+        public TextRef Text;
 
         public float Width { get { return text.preferredWidth / 2; } }
-
-        bool isData;
 
         GameObject go;
         Text text;
@@ -32,25 +25,13 @@ namespace Assets.Scripts.Rendering
 
         const float MOUSE_OVER_DISPLAY_TRESHOLD = 0.0f;
 
-        public TextBox(Transform parent, string textID, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
+        public TextBox(Transform parent, TextRef Text, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
         {
-            TextID = textID; MousoverID = mousoverID;
-            isData = false;
-            go = new GameObject(textID, typeof(RectTransform));
+            this.Text = Text;
+            go = new GameObject(Text, typeof(RectTransform));
             StandardConstructor(parent, size, allignment);
-            text.text = Data.Localisation.GetText(textID);
+            text.text = Data.Localisation.GetText(Text);
             text.color = color ?? Data.Graphics.Color_.text;
-        }
-
-        public TextBox(Transform parent, Func<object> data, string mousoverID, int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
-        {
-            TextID = null; MousoverID = mousoverID;
-            isData = true;
-            Data_ = data;
-            go = new GameObject("dataText", typeof(RectTransform));
-            StandardConstructor(parent, size, allignment);
-            text.color = color ?? Color.red;
-            Update();
         }
 
         private void StandardConstructor(Transform parent, int size, TextAnchor allignment)
@@ -94,50 +75,8 @@ namespace Assets.Scripts.Rendering
 
         private void Update()
         {
-            if (isData)
-            {
-                object d = Data_();
-                Type t = d.GetType();
-                if (t == typeof(double))
-                    text.text = ToSI((double)d, "0.##");
-                else if (t == typeof(float))
-                    text.text = ToSI((float)d, "0.##");
-                else if (t == typeof(int))
-                    text.text = ToSI((int)d, "0.##");
-                else if (t == typeof(long))
-                    text.text = ToSI((long)d, "0.##");
-                else
-                    text.text = Data_().ToString();
-            }
-        }
-
-        /// <summary>
-        /// Found on stackoverflow
-        /// https://stackoverflow.com/questions/12181024/formatting-a-number-with-a-metric-prefix
-        /// </summary>
-        /// <param name="d"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        string ToSI(double d, string format = null)
-        {
-            if (d == 0 || (d >= 0.1 && d < 10000)) return d.ToString(format);
-
-            char[] incPrefixes = new[] { 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' };
-            char[] decPrefixes = new[] { 'm', '\u03bc', 'n', 'p', 'f', 'a', 'z', 'y' };
-
-            int degree = (int)Math.Floor(Math.Log10(Math.Abs(d)) / 3);
-            double scaled = d * Math.Pow(1000, -degree);
-
-            if (degree - 1 >= incPrefixes.Length) return "~inf";
-            if (-degree - 1 >= decPrefixes.Length) return "~0";
-            char? prefix = null;
-            switch (Math.Sign(degree))
-            {
-            case 1: prefix = incPrefixes[degree - 1]; break;
-            case -1: prefix = decPrefixes[-degree - 1]; break;
-            }
-
-            return scaled.ToString(format) + prefix;
+            if (Text.isChanging)
+                text.text = Text;
         }
 
         class TextBoxScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
@@ -193,6 +132,7 @@ namespace Assets.Scripts.Rendering
 
         enum RefType { direct, localised, reference}
         RefType refType;
+        public bool isChanging { get { return refType == RefType.reference; } }
 
         /// <summary>
         /// Create a new text reference that can store a string which can be read from the localisation files.
