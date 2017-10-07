@@ -130,8 +130,11 @@ namespace Assets.Scripts.Rendering
         Func<object> script;
         Func<object> script2nd;
 
+        Action link;
+
         enum RefType { direct, localised, reference}
         RefType refType;
+        RefType refType2nd;
         public bool isChanging { get { return refType == RefType.reference; } }
 
         /// <summary>
@@ -169,6 +172,29 @@ namespace Assets.Scripts.Rendering
                 tr.refType = RefType.localised;
             else
                 tr.refType = RefType.direct;
+            tr.refType2nd = RefType.localised;
+            return tr;
+        }
+
+        /// <summary>
+        /// Create a new text reference that can store a string and an alternative string which can be read
+        /// from the localisation files.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="altRef">This is mainly used for mouseover text.</param>
+        /// <param name="localised">Whether or not this value is a key in the localisation files.</param>
+        /// <returns></returns>
+        public static TextRef Create(string text, Func<object> altRef, bool localised = true)
+        {
+            TextRef tr = new TextRef() {
+                text = text,
+                script2nd = altRef
+            };
+            if (localised)
+                tr.refType = RefType.localised;
+            else
+                tr.refType = RefType.direct;
+            tr.refType2nd = RefType.reference;
             return tr;
         }
 
@@ -195,6 +221,26 @@ namespace Assets.Scripts.Rendering
         /// of Create can also link an alternative text.
         /// </summary>
         /// <param name="reference"></param>
+        /// <param name="altText"></param>
+        /// <returns></returns>
+        public static TextRef Create(Func<object> reference, string altText)
+        {
+            TextRef tr = new TextRef() {
+                script = reference,
+                text2nd = altText,
+                refType = RefType.reference,
+                refType2nd = RefType.localised
+            };
+            return tr;
+        }
+
+        /// <summary>
+        /// Create a new text reference that will remember the reference to a value in
+        /// the program. Refer to the object, not to the ToString of the object. The
+        /// TextRef object will make sure numbers are properly formatted. This version
+        /// of Create can also link an alternative text.
+        /// </summary>
+        /// <param name="reference"></param>
         /// <param name="altRef"></param>
         /// <returns></returns>
         public static TextRef Create(Func<object> reference, Func<object> altRef)
@@ -202,9 +248,15 @@ namespace Assets.Scripts.Rendering
             TextRef tr = new TextRef() {
                 script = reference,
                 script2nd = altRef,
-                refType = RefType.reference
+                refType = RefType.reference,
+                refType2nd = RefType.reference
             };
             return tr;
+        }
+
+        public void AddLink(Action link)
+        {
+            this.link = link;
         }
 
         public static implicit operator string(TextRef tr)
@@ -245,7 +297,7 @@ namespace Assets.Scripts.Rendering
             get
             {
                 if (text2nd == null && script2nd == null) return null;
-                switch (refType)
+                switch (refType2nd)
                 {
                 case RefType.direct: return text2nd;
                 case RefType.localised: return Data.Localisation.GetText(text2nd);
