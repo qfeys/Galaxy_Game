@@ -17,7 +17,7 @@ namespace Assets.Scripts.Rendering
 
         /// <summary>
         /// The gameobject that contains the text.
-        /// WARNING: Do not attach a layout element to this gameobjet. If you need one, use a container
+        /// WARNING: Do not attach a layout element to this gameobject. If you need one, use a container
         /// as parent for the TextBox.
         /// </summary>
         public GameObject gameObject { get { return go; } }
@@ -29,13 +29,6 @@ namespace Assets.Scripts.Rendering
         {
             this.Text = Text;
             go = new GameObject(Text, typeof(RectTransform));
-            StandardConstructor(parent, size, allignment);
-            text.text = Data.Localisation.GetText(Text);
-            text.color = color ?? Data.Graphics.Color_.text;
-        }
-
-        private void StandardConstructor(Transform parent, int size, TextAnchor allignment)
-        {
             go.transform.SetParent(parent, false);
             RectTransform tr = (RectTransform)go.transform;
             float anchX = 0; float anchY = 0;
@@ -50,27 +43,81 @@ namespace Assets.Scripts.Rendering
             case TextAnchor.LowerRight: anchX = 1; anchY = 0; break;
             case TextAnchor.MiddleRight: anchX = 1; anchY = 0.5f; break;
             case TextAnchor.UpperRight: anchX = 1; anchY = 1; break;
-
             }
             tr.anchorMin = new Vector2(anchX, anchY);
             tr.anchorMax = new Vector2(anchX, anchY);
             tr.pivot = new Vector2(anchX, anchY);
             tr.anchoredPosition = new Vector2(0, 0);
-            tr.localScale = new Vector3(0.5f, 0.5f, 1);
-            tr.sizeDelta = new Vector2(((RectTransform)parent).sizeDelta.x * 2, (size + 2) * 2);
-            text = go.AddComponent<Text>();
-            text.font = Data.Graphics.GetStandardFont();
-            text.fontSize = size * 2;
-            text.alignment = allignment;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
-            TextBoxScript tbs = go.AddComponent<TextBoxScript>();
-            tbs.parent = this;
-            tbs.hasMouseover = Text.AltText != null;
+
+            if (Text.link == null)      // Just text
+            {
+                tr.localScale = new Vector3(0.5f, 0.5f, 1);
+                tr.sizeDelta = new Vector2(((RectTransform)parent).sizeDelta.x * 2, (size + 2) * 2);
+                text = go.AddComponent<Text>();
+                text.font = Data.Graphics.GetStandardFont();
+                text.fontSize = size * 2;
+                text.alignment = allignment;
+                text.horizontalOverflow = HorizontalWrapMode.Overflow;
+                TextBoxScript tbs = go.AddComponent<TextBoxScript>();
+                tbs.parent = this;
+                tbs.hasMouseover = Text.AltText != null;
+                text.text = Text;
+                text.color = color ?? Data.Graphics.Color_.text;
+            }
+            else                        // Make a button
+            {
+                tr.sizeDelta = new Vector2(((RectTransform)parent).sizeDelta.x, (size + 4));
+                Image img = go.AddComponent<Image>();
+                img.sprite = Data.Graphics.GetSprite("tab_image_low");
+                img.type = Image.Type.Sliced;
+                Button but = go.AddComponent<Button>();
+                but.onClick.AddListener(() => Text.link());
+
+                GameObject sGo = new GameObject(Text, typeof(RectTransform));
+                sGo.transform.SetParent(tr, false);
+                RectTransform sTr = (RectTransform)sGo.transform;
+
+                sTr.anchorMin = new Vector2(anchX, anchY);
+                sTr.anchorMax = new Vector2(anchX, anchY);
+                sTr.pivot = new Vector2(anchX, anchY);
+                switch (allignment)
+                {
+                case TextAnchor.LowerLeft:
+                case TextAnchor.MiddleLeft:
+                case TextAnchor.UpperLeft: sTr.anchoredPosition = new Vector2(4, 0); break;
+                case TextAnchor.LowerCenter:
+                case TextAnchor.MiddleCenter:
+                case TextAnchor.UpperCenter: sTr.anchoredPosition = new Vector2(0, 0); break;
+                case TextAnchor.LowerRight:
+                case TextAnchor.MiddleRight:
+                case TextAnchor.UpperRight: sTr.anchoredPosition = new Vector2(-4, 0); break;
+                }
+                sTr.localScale = new Vector3(0.5f, 0.5f, 1);
+                sTr.sizeDelta = new Vector2(((RectTransform)parent).sizeDelta.x * 2, (size + 2) * 2);
+                text = sGo.AddComponent<Text>();
+                text.font = Data.Graphics.GetStandardFont();
+                text.fontSize = size * 2;
+                text.alignment = allignment;
+                text.horizontalOverflow = HorizontalWrapMode.Overflow;
+                TextBoxScript tbs = go.AddComponent<TextBoxScript>();
+                tbs.parent = this;
+                tbs.hasMouseover = Text.AltText != null;
+                text.text = Text;
+                text.color = color ?? Data.Graphics.Color_.text;
+            }
         }
 
         public void SetColor(Color col)
         {
             text.color = col;
+        }
+
+        private void AddButton(Action act)
+        {
+            GameObject butGo = new GameObject("button", typeof(RectTransform));
+            butGo.transform.SetParent(go.transform);
+            ((RectTransform)butGo.transform).anchorMin = new Vector2(0, 0);
+            ((RectTransform)butGo.transform).anchorMax = new Vector2(1, 1);
         }
 
         private void Update()
@@ -130,7 +177,7 @@ namespace Assets.Scripts.Rendering
         Func<object> script;
         Func<object> script2nd;
 
-        Action link;
+        public Action link { get; private set; }
 
         enum RefType { direct, localised, reference}
         RefType refType;
@@ -254,9 +301,10 @@ namespace Assets.Scripts.Rendering
             return tr;
         }
 
-        public void AddLink(Action link)
+        public TextRef AddLink(Action link)
         {
             this.link = link;
+            return this;
         }
 
         public static implicit operator string(TextRef tr)
