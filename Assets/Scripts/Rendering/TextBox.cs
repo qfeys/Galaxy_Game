@@ -325,6 +325,7 @@ namespace Assets.Scripts.Rendering
                 d = script2nd();
             else
                 d = script();
+            if (d == null) return "INVALID";
             Type t = d.GetType();
             if (t == typeof(double))
                 return ToSI((double)d, "0.##");

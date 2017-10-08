@@ -31,10 +31,12 @@ namespace Assets.Scripts.Rendering
 
         internal void Init()
         {
-            OverviewWindow.Create(GameObject.FindWithTag("MainCanvas"));
-            Inspector.Create(GameObject.FindWithTag("MainCanvas"));
-            Clock.Create(GameObject.FindWithTag("MainCanvas"));
-            SwitchBoard.Create(GameObject.FindWithTag("MainCanvas"));
+            GameObject mainCanvas = GameObject.FindWithTag("MainCanvas");
+            OverviewWindow.Create(mainCanvas);
+            Inspector.Create(mainCanvas);
+            Clock.Create(mainCanvas);
+            SwitchBoard.Create(mainCanvas);
+            PopDetails.Create(mainCanvas);
             MouseOver.Create();
             SystemRenderer.Init();
             StarMap.Init();

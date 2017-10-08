@@ -425,14 +425,22 @@ namespace Assets.Scripts.Rendering
 
             public override void Redraw()
             {
-                var newinfo = script();
+                List<List<TextRef>> newinfo = script();
                 if (newinfo == null || newinfo.Count == 0)
                     throw new ArgumentException("The info of this infotable is empty. Please don't do this to me.");
                 colms = newinfo[0].Count;
                 for (int i = 1; i < newinfo.Count; i++)
                     if (newinfo[i].Count != colms)
                         throw new ArgumentException("The info of this infotable has an inconsistant number of colums.");
-                if (newinfo != info)
+                bool isEqual = true;
+                if (info == null || newinfo == null) isEqual = false;
+                else if (info.Count != newinfo.Count) isEqual = false;
+                else
+                    for (int i = 0; i < info.Count; i++)
+                    {
+                        if ((string)info[i][0] != newinfo[i][0]) { isEqual = false; break; }
+                    }
+                if (isEqual == false)
                 {
                     info = newinfo;
                     AddHeaders();

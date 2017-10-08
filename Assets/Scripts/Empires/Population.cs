@@ -48,6 +48,12 @@ namespace Assets.Scripts.Empires
 
         Population() { }
 
+        /// <summary>
+        /// Creates a new population to function as a capital on the planet given.
+        /// This does not check the validity of this planet.
+        /// </summary>
+        /// <param name="capital"></param>
+        /// <returns></returns>
         internal static Population InitCapital(Planet capital)
         {
             var p = new Population() {
@@ -72,5 +78,10 @@ namespace Assets.Scripts.Empires
         {
             return Name;
         }
+
+        /// <summary>
+        /// Use this only as a dummy.
+        /// </summary>
+        public static Population NullPop { get { return new Population(); } }
     }
 }

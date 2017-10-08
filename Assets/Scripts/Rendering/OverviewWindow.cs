@@ -53,10 +53,21 @@ namespace Assets.Scripts.Rendering
             InfoTable tablePops = InfoTable.Create(go.transform, () =>
             {
                 List<List<TextRef>> list = new List<List<TextRef>>();
-                list.Add(new List<TextRef>() { TextRef.Create("Population"), TextRef.Create(() => "Inhabitants"), TextRef.Create(() => "Wealth") });
+                list.Add(new List<TextRef>() {
+                    TextRef.Create("Population"),
+                    TextRef.Create("Inhabitants"),
+                    TextRef.Create("Wealth"),
+                    TextRef.Create("Details")
+                });
                 foreach (Empires.Population pop in Simulation.God.PlayerEmpire.Populations)
                 {
-                    list.Add(new List<TextRef>() { TextRef.Create(pop.ToString()), TextRef.Create(() => pop.Count), TextRef.Create(() => pop.Wealth) });
+                    list.Add(new List<TextRef>()
+                    {
+                        TextRef.Create(pop.ToString()),
+                        TextRef.Create(() => pop.Count),
+                        TextRef.Create(() => pop.Wealth),
+                        TextRef.Create("show").AddLink(()=>PopDetails.OpenDetails(pop))
+                    });
                 }
                 return list;
             }, 200);
