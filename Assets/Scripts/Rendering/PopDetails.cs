@@ -62,6 +62,52 @@ namespace Assets.Scripts.Rendering
                 trTtl.anchoredPosition = new Vector2(-10, -10);
                 TextBox text = new TextBox(trTtl, TextRef.Create(() => activePopulation.Name), 24, TextAnchor.UpperCenter);
             }
+
+            // List
+            // TODO
+
+            // Tabs
+            {
+                List<Tuple<TextRef, GameObject>> tabsList = new List<Tuple<TextRef, GameObject>> {
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Overview"), OverviewTab()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Construction"), ConstructionTab()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Mining"), MiningTab()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Enviroment"), EnviromentTab()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Economy"), EconomyTab()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Research"), ResearchTab())
+                };
+                TabbedWindow tabs = new TabbedWindow(go.transform, new Vector2(600, 550), tabsList);
+            }
+        }
+
+        private static GameObject OverviewTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject ConstructionTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject MiningTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject EnviromentTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject EconomyTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject ResearchTab()
+        {
+            return new GameObject();
         }
 
         private static void OpenDetails()
