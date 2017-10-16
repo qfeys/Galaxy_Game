@@ -69,7 +69,7 @@ namespace Assets.Scripts.Rendering
             imP.type = Image.Type.Sliced;
             imP.fillCenter = true;
 
-            TextBox textPause = new TextBox(pause.transform, TextRef.Create("||"), 10, TextAnchor.MiddleCenter);
+            TextBox textPause = new TextBox(pause.transform, TextRef.Create("||", false), 10, TextAnchor.MiddleCenter);
 
             pause.AddComponent<Button>().onClick.AddListener(() => Simulation.God.Pause());
         }

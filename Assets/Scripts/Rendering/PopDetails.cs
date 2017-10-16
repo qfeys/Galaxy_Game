@@ -27,6 +27,7 @@ namespace Assets.Scripts.Rendering
             Image im = go.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
+            go.AddComponent<Dragable>();
             go.SetActive(false);
 
             activePopulation = Population.NullPop;
@@ -76,7 +77,7 @@ namespace Assets.Scripts.Rendering
                     new Tuple<TextRef, GameObject>(TextRef.Create("Economy"), EconomyTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Research"), ResearchTab())
                 };
-                TabbedWindow tabs = new TabbedWindow(go.transform, new Vector2(600, 550), tabsList);
+                TabbedWindow tabs = new TabbedWindow(go.transform, new Vector2(600, 550), tabsList, 12, false);
                 tabs.transform.pivot = new Vector2(0, 1);
                 tabs.transform.anchorMin = new Vector2(0, 1);
                 tabs.transform.anchorMax = new Vector2(0, 1);
