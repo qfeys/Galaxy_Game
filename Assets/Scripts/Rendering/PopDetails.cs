@@ -59,7 +59,7 @@ namespace Assets.Scripts.Rendering
                 trTtl.anchorMin = new Vector2(0, 1);
                 trTtl.anchorMax = new Vector2(1, 1);
                 trTtl.pivot = new Vector2(0.5f, 1);
-                trTtl.anchoredPosition = new Vector2(-10, -10);
+                trTtl.anchoredPosition = new Vector2(0, -10);
                 TextBox text = new TextBox(trTtl, TextRef.Create(() => activePopulation.Name), 24, TextAnchor.UpperCenter);
             }
 
@@ -77,6 +77,10 @@ namespace Assets.Scripts.Rendering
                     new Tuple<TextRef, GameObject>(TextRef.Create("Research"), ResearchTab())
                 };
                 TabbedWindow tabs = new TabbedWindow(go.transform, new Vector2(600, 550), tabsList);
+                tabs.transform.pivot = new Vector2(0, 1);
+                tabs.transform.anchorMin = new Vector2(0, 1);
+                tabs.transform.anchorMax = new Vector2(0, 1);
+                tabs.transform.anchoredPosition = new Vector2(140, -40);
             }
         }
 
