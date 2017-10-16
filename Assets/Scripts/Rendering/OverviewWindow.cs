@@ -15,10 +15,10 @@ namespace Assets.Scripts.Rendering
         internal static void Create(GameObject canvas)
         {
             window = new TabbedWindow(canvas.transform, new Vector2(600, 400),
-                new List<Tuple<string, GameObject>>() {
-                    new Tuple<string, GameObject>("Empire", EmpireWindow()),
-                    new Tuple<string, GameObject>("Populations", PopulationsWindow()),
-                    new Tuple<string, GameObject>("Technology", TechnologyWindow())
+                new List<Tuple<TextRef, GameObject>>() {
+                    new Tuple<TextRef, GameObject>(TextRef.Create("OW_empire"), EmpireWindow()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("OW_populations"), PopulationsWindow()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("OW_technology"), TechnologyWindow())
                 });
             window.transform.pivot = new Vector2(0, 1);
             window.transform.anchorMin = new Vector2(0, 1);

@@ -20,7 +20,7 @@ namespace Assets.Scripts.Rendering
         public GameObject gameobject { get { return go; } }
         public RectTransform transform { get { return go.transform as RectTransform; } }
 
-        public TabbedWindow(Transform parent, Vector2 size, List<Tuple<string,GameObject>> tabs, int tabFontSize = 12, bool canBeMinimised = true)
+        public TabbedWindow(Transform parent, Vector2 size, List<Tuple<TextRef,GameObject>> tabs, int tabFontSize = 12, bool canBeMinimised = true)
         {
             go = new GameObject("TabWindow", typeof(RectTransform));
             go.transform.SetParent(parent, false);
@@ -57,7 +57,7 @@ namespace Assets.Scripts.Rendering
                 img.type = Image.Type.Sliced;
                 img.fillCenter = true;
 
-                TextBox text = new TextBox(tab.transform, TextRef.Create(tabs[i].Item1), tabFontSize);
+                TextBox text = new TextBox(tab.transform, tabs[i].Item1, tabFontSize);
                 text.transform.anchoredPosition += new Vector2(5, 0);
 
                 tab.AddComponent<LayoutElement>().flexibleHeight = 1;
