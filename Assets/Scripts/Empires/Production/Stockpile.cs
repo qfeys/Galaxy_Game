@@ -24,7 +24,7 @@ namespace Assets.Scripts.Empires.Production
         public class ResourceType
         {
             static List<string> resourceTypes = new List<string> {
-                "iron",
+                "steel",
                 "nonFerrous",
                 "carbon",
                 "silicates",
