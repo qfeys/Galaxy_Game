@@ -29,9 +29,9 @@ namespace Assets.Scripts.Empires
         // species
         // culture
         // List<policies>
-        Dictionary<Installations.Installation, int> installations;
-        Production.Stockpile stockpile;
-        
+        public Dictionary<Installations.Installation, int> installations { get; private set; }
+        public Production.Stockpile stockpile { get; private set; }
+
         public Population(Planet location, long initPop, string name = null)
         {
             Name = name ?? location.ToString();
@@ -82,6 +82,6 @@ namespace Assets.Scripts.Empires
         /// <summary>
         /// Use this only as a dummy.
         /// </summary>
-        public static Population NullPop { get { return new Population(); } }
+        public static Population NullPop { get { return new Population() {stockpile = new Production.Stockpile() }; } }
     }
 }

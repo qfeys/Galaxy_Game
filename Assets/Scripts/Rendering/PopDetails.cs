@@ -73,6 +73,7 @@ namespace Assets.Scripts.Rendering
                     new Tuple<TextRef, GameObject>(TextRef.Create("Overview"), OverviewTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Construction"), ConstructionTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Mining"), MiningTab()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Stockpile"), StockpileTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Enviroment"), EnviromentTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Demographics"), DemographicsTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Economy"), EconomyTab()),
@@ -101,6 +102,31 @@ namespace Assets.Scripts.Rendering
             return new GameObject();
         }
 
+        private static GameObject StockpileTab()
+        {
+            GameObject go = new GameObject("Stockpile", typeof(RectTransform));
+            TextBox title = new TextBox(go.transform, TextRef.Create("StockpileTab_title"), 24, TextAnchor.MiddleCenter);
+            Center(title.transform);
+            title.transform.sizeDelta = new Vector2(200, 36);
+            var a = activePopulation.stockpile;
+            InfoTable tablePops = InfoTable.Create(go.transform, ()=> {
+                List<List<TextRef>> list = new List<List<TextRef>>();
+                for (int i = 0; i < Empires.Production.Stockpile.ResourceType.ResourceTypes.Count; i++)
+                {
+                    Empires.Production.Stockpile.ResourceType current = Empires.Production.Stockpile.ResourceType.ResourceTypes[i];
+                    list.Add(new List<TextRef>() {
+                        TextRef.Create(current.ToString()),
+                        TextRef.Create(() => activePopulation.stockpile.pile.ContainsKey(current) ? activePopulation.stockpile.pile[current] : 0),
+                        TextRef.Create("Add").AddLink(()=>activePopulation.stockpile.Add(current,100))
+                    });
+                }
+                return list;
+            }, 200);
+            Center(tablePops.transform, new Vector2(-100, -100));
+
+            return go;
+        }
+
         private static GameObject EnviromentTab()
         {
             return new GameObject();
@@ -119,6 +145,14 @@ namespace Assets.Scripts.Rendering
         private static GameObject ResearchTab()
         {
             return new GameObject();
+        }
+
+        static void Center(RectTransform tr, Vector2? offset = null)
+        {
+            tr.anchorMin = new Vector2(0.5f, 1);
+            tr.anchorMax = new Vector2(0.5f, 1);
+            tr.pivot = new Vector2(0.5f, 1);
+            tr.anchoredPosition = offset ?? Vector2.zero;
         }
 
         private static void OpenDetails()

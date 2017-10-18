@@ -7,7 +7,7 @@ namespace Assets.Scripts.Empires.Production
 {
     class Stockpile
     {
-        Dictionary<ResourceType, double> pile;
+        public Dictionary<ResourceType, double> pile { get; private set; }
 
         public Stockpile(int init = 0)
         {
@@ -19,6 +19,11 @@ namespace Assets.Scripts.Empires.Production
         {
             ResourceType r = new ResourceType(resource);
             pile[r] += amount;
+        }
+
+        public void Add(ResourceType resource, double amount)
+        {
+            pile[resource] += amount;
         }
 
         public class ResourceType
