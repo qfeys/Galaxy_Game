@@ -74,6 +74,7 @@ namespace Assets.Scripts.Rendering
                     new Tuple<TextRef, GameObject>(TextRef.Create("Construction"), ConstructionTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Mining"), MiningTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Enviroment"), EnviromentTab()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Demographics"), DemographicsTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Economy"), EconomyTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Research"), ResearchTab())
                 };
@@ -101,6 +102,11 @@ namespace Assets.Scripts.Rendering
         }
 
         private static GameObject EnviromentTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject DemographicsTab()
         {
             return new GameObject();
         }

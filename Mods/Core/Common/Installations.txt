@@ -13,7 +13,7 @@ installations = {
 			components = 30
 			electronics = 10
 		}
-		modefiers = {
+		modifiers = {
 			add_industry_capacity = 10
 			income = 10
 		}
@@ -29,7 +29,7 @@ installations = {
 			components = 30
 			electronics = 10
 		}
-		modefiers = {
+		modifiers = {
 			add_construction_capacity = 10
 		}
 		prerequisites = {}
@@ -44,7 +44,7 @@ installations = {
 			components = 30
 			electronics = 10
 		}
-		modefiers = {
+		modifiers = {
 			add_production_capacity = 10
 		}
 		prerequisites = {}
@@ -59,7 +59,7 @@ installations = {
 			components = 30
 			electronics = 10
 		}
-		modefiers = {
+		modifiers = {
 			add_mining_capacity = 10
 		}
 		prerequisites = {}

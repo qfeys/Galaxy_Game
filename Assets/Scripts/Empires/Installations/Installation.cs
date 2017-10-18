@@ -21,12 +21,12 @@ namespace Assets.Scripts.Empires.Installations
         static List<Installation> installationList;
 
         public Installation(string name, double costWork,
-            Dictionary<Production.Stockpile.ResourceType, double> costResources, List<Modifier> modefiers)
+            Dictionary<Production.Stockpile.ResourceType, double> costResources, List<Modifier> modifiers)
         {
             this.name = name;
             this.costWork = costWork;
             this.costResources = costResources;
-            this.Modefiers = modefiers;
+            this.Modefiers = modifiers;
         }
 
         Installation() { }
@@ -54,8 +54,8 @@ namespace Assets.Scripts.Empires.Installations
                 new ModParser.Signature("cost_work", ModParser.SignatueType.floating),
                 new ModParser.Signature("cost_resources", ModParser.SignatueType.list,
                 new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.floating) }),
-                // new ModParser.Signature("modefiers", ModParser.SignatueType.words, Enum.GetNames(typeof(Modifier.Name)).ToList()),
-                new ModParser.Signature("modefiers", ModParser.SignatueType.list,
+                // new ModParser.Signature("modifiers", ModParser.SignatueType.words, Enum.GetNames(typeof(Modifier.Name)).ToList()),
+                new ModParser.Signature("modifiers", ModParser.SignatueType.list,
                     new List<ModParser.Signature>(){ new ModParser.Signature(null,ModParser.SignatueType.floating) }),
                 new ModParser.Signature("prerequisites", ModParser.SignatueType.list,
                 new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.list,
@@ -82,9 +82,9 @@ namespace Assets.Scripts.Empires.Installations
             }
 
             inst.Modefiers = new List<Modifier>();
-            if (i.entries.Find(e => e.Item1.id == "modefiers").Item2 != null)
+            if (i.entries.Find(e => e.Item1.id == "modifiers").Item2 != null)
             {
-                List<Tuple<string, double>> res = (i.entries.Find(e => e.Item1.id == "modefiers").Item2 as ModParser.Item).entries.
+                List<Tuple<string, double>> res = (i.entries.Find(e => e.Item1.id == "modifiers").Item2 as ModParser.Item).entries.
                     ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1, (double)e.Item2));
                 res.ForEach(r => inst.Modefiers.Add(new Modifier(r.Item1, r.Item2)));
             }
