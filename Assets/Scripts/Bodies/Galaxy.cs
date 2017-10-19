@@ -20,7 +20,18 @@ namespace Assets.Scripts.Bodies
                 systems.Add(new SystemContainer(new StarSystem(rand.Next()), positions[i]));
             }
             //systems.ForEach(sys => sys.sys.Generate());
-            Parallel.ForEach(systems, sys => sys.sys.Generate());
+            try
+            {
+                Parallel.ForEach(systems, sys => sys.sys.Generate());
+            }
+            catch (TypeLoadException e)
+            {
+                UnityEngine.Debug.LogError("TYPELOADEXEPTION");
+                UnityEngine.Debug.LogError(e.TypeName);
+            }catch(Exception e)
+            {
+                UnityEngine.Debug.LogError("TYPELOADEXEPTION, probably. This is the failsave catch.");
+            }
         }
 
         /// <summary>
