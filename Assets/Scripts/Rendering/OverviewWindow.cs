@@ -55,7 +55,7 @@ namespace Assets.Scripts.Rendering
                 List<List<TextRef>> list = new List<List<TextRef>>();
                 list.Add(new List<TextRef>() {
                     TextRef.Create("Population"),
-                    TextRef.Create("Inhabitants"),
+                    TextRef.Create("Citizens"),
                     TextRef.Create("Wealth"),
                     TextRef.Create("Details")
                 });
@@ -70,7 +70,7 @@ namespace Assets.Scripts.Rendering
                     });
                 }
                 return list;
-            }, 200);
+            }, 300);
             Center(tablePops.transform, new Vector2(-100, -100));
 
             return go;
