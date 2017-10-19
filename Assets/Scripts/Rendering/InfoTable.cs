@@ -9,7 +9,7 @@ namespace Assets.Scripts.Rendering
 {
     abstract public class InfoTable
     {
-        string title = null;
+        TextRef title = null;
 
         GameObject go;
         public GameObject gameObject { get { return go; } }
@@ -25,7 +25,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable Create(Transform parent, List<Tuple<TextRef, TextRef>> info, int width = 200, int fontSize = 12, string title = null)
+        static public InfoTable Create(Transform parent, List<Tuple<TextRef, TextRef>> info, int width = 200, int fontSize = 12, TextRef title = null)
         {
             return new TwoColumnPassive(parent, info, width, fontSize, title);
         }
@@ -39,7 +39,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable Create(Transform parent, Func<List<Tuple<TextRef, TextRef>>> script, int width = 200, int fontSize = 12, string title = null)
+        static public InfoTable Create(Transform parent, Func<List<Tuple<TextRef, TextRef>>> script, int width = 200, int fontSize = 12, TextRef title = null)
         {
             return new TwoColumnActive(parent, script, width, fontSize, title);
         }
@@ -52,7 +52,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable Create(Transform parent, List<List<TextRef>> info, int width = 200, int fontSize = 12, string title = null, List<string> headers = null)
+        static public InfoTable Create(Transform parent, List<List<TextRef>> info, int width = 200, int fontSize = 12, TextRef title = null, List<TextRef> headers = null)
         {
             return new MultiColumnPassive(parent, info, width, fontSize, title, headers);
         }
@@ -66,12 +66,12 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable Create(Transform parent, Func<List<List<TextRef>>> script, int width = 200, int fontSize = 12, string title = null, List<string> headers = null)
+        static public InfoTable Create(Transform parent, Func<List<List<TextRef>>> script, int width = 200, int fontSize = 12, TextRef title = null, List<TextRef> headers = null)
         {
             return new MultiColumnActive(parent, script, width, fontSize, title, headers);
         }
 
-        InfoTable(Transform parent, int width = 200, int fontSize = 12, string title = null)
+        InfoTable(Transform parent, int width = 200, int fontSize = 12, TextRef title = null)
         {
             this.title = title;
             this.fontSize = fontSize;
@@ -236,8 +236,12 @@ namespace Assets.Scripts.Rendering
                     {
                         GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
                         dataCont.transform.SetParent(line.transform);
-                        TextBox data = new TextBox(dataCont.transform, info[i][j], fontSize, j==0? TextAnchor.MiddleLeft : TextAnchor.MiddleRight);
-                        if(j==0) dataCont.AddComponent<LayoutElement>().flexibleWidth = 1;
+                        ((RectTransform)dataCont.transform).sizeDelta = new Vector2(((RectTransform)line.transform.parent).rect.width / numberOfCol, 50);
+                        Debug.Log("rect width: " + ((RectTransform)line.transform.parent).rect.width);
+                        Debug.Log("size delta x: " + ((RectTransform)dataCont.transform).sizeDelta.x);
+                        TextBox data = new TextBox(dataCont.transform, info[i][j], fontSize, j == 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight);
+                        dataCont.AddComponent<LayoutElement>();
+                        if (j==0) dataCont.GetComponent<LayoutElement>().flexibleWidth = 1;
                     }
                 }
             }
@@ -265,7 +269,7 @@ namespace Assets.Scripts.Rendering
             /// <param name="width"></param>
             /// <param name="fontSize"></param>
             /// <param name="title"></param>
-            public TwoColumnPassive(Transform parent, List<Tuple<TextRef, TextRef>> info, int width, int fontSize, string title) :
+            public TwoColumnPassive(Transform parent, List<Tuple<TextRef, TextRef>> info, int width, int fontSize, TextRef title) :
             base(parent, width, fontSize, title)
             {
                 this.info = info;
@@ -307,7 +311,7 @@ namespace Assets.Scripts.Rendering
             /// <param name="width"></param>
             /// <param name="fontSize"></param>
             /// <param name="title"></param>
-            public TwoColumnActive(Transform parent, Func<List<Tuple<TextRef, TextRef>>> script, int width, int fontSize, string title) :
+            public TwoColumnActive(Transform parent, Func<List<Tuple<TextRef, TextRef>>> script, int width, int fontSize, TextRef title) :
             base(parent, width, fontSize, title)
             {
                 info = null;
@@ -348,7 +352,7 @@ namespace Assets.Scripts.Rendering
             /// <param name="width"></param>
             /// <param name="fontSize"></param>
             /// <param name="title"></param>
-            public MultiColumnPassive(Transform parent, List<List<TextRef>> info, int width, int fontSize, string title, List<string> headers) :
+            public MultiColumnPassive(Transform parent, List<List<TextRef>> info, int width, int fontSize, TextRef title, List<TextRef> headers) :
             base(parent, width, fontSize, title)
             {
                 if (info == null || info.Count == 0)
@@ -358,6 +362,7 @@ namespace Assets.Scripts.Rendering
                     if (info[i].Count != colms)
                         throw new ArgumentException("The info of this infotable has an inconsistant number of colums.");
                 this.info = info;
+                this.headers = headers;
                 AddHeaders();
                 Redraw();
             }
@@ -413,13 +418,14 @@ namespace Assets.Scripts.Rendering
             /// <param name="width"></param>
             /// <param name="fontSize"></param>
             /// <param name="title"></param>
-            public MultiColumnActive(Transform parent, Func<List<List<TextRef>>> script, int width, int fontSize, string title, List<string> headers) :
+            public MultiColumnActive(Transform parent, Func<List<List<TextRef>>> script, int width, int fontSize, TextRef title, List<TextRef> headers) :
             base(parent, width, fontSize, title)
             {
                 info = null;
                 ActiveInfoTable ait = go.AddComponent<ActiveInfoTable>();
                 ait.parent = this;
                 this.script = script;
+                this.headers = headers;
                 Redraw();
             }
 
