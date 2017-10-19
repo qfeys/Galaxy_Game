@@ -51,8 +51,6 @@ namespace Assets.Scripts.Rendering
 
             if (Text.link == null)      // Just text
             {
-                tr.localScale = new Vector3(0.5f, 0.5f, 1);
-                tr.sizeDelta = new Vector2(((RectTransform)parent).sizeDelta.x * 2, (size + 2) * 2);
                 text = go.AddComponent<Text>();
                 text.font = Data.Graphics.GetStandardFont();
                 text.fontSize = size * 2;
@@ -63,10 +61,12 @@ namespace Assets.Scripts.Rendering
                 tbs.hasMouseover = Text.AltText != null;
                 text.text = Text;
                 text.color = color ?? Data.Graphics.Color_.text;
+
+                tr.localScale = new Vector3(0.5f, 0.5f, 1);
+                tr.sizeDelta = new Vector2(text.preferredWidth / 2 + size, (size + 2) * 2);
             }
             else                        // Make a button
             {
-                tr.sizeDelta = new Vector2(((RectTransform)parent).sizeDelta.x, (size + 4));
                 Image img = go.AddComponent<Image>();
                 img.sprite = Data.Graphics.GetSprite("tab_image_low");
                 img.type = Image.Type.Sliced;
@@ -92,8 +92,6 @@ namespace Assets.Scripts.Rendering
                 case TextAnchor.MiddleRight:
                 case TextAnchor.UpperRight: sTr.anchoredPosition = new Vector2(-4, 0); break;
                 }
-                sTr.localScale = new Vector3(0.5f, 0.5f, 1);
-                sTr.sizeDelta = new Vector2(((RectTransform)parent).sizeDelta.x * 2, (size + 2) * 2);
                 text = sGo.AddComponent<Text>();
                 text.font = Data.Graphics.GetStandardFont();
                 text.fontSize = size * 2;
@@ -104,6 +102,10 @@ namespace Assets.Scripts.Rendering
                 tbs.hasMouseover = Text.AltText != null;
                 text.text = Text;
                 text.color = color ?? Data.Graphics.Color_.text;
+                
+                tr.sizeDelta = new Vector2(text.preferredWidth / 2 + size, (size + 4));
+                sTr.localScale = new Vector3(0.5f, 0.5f, 1);
+                sTr.sizeDelta = new Vector2(text.preferredWidth / 2 + size, (size + 2) * 2);
             }
         }
 
@@ -316,6 +318,11 @@ namespace Assets.Scripts.Rendering
             case RefType.reference: return tr.ExtractData();
             }
             throw new Exception("There exist another text ref type?");
+        }
+
+        public static implicit operator TextRef(string st)
+        {
+            return Create(st);
         }
 
         private string ExtractData(bool alt = false)
