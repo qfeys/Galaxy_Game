@@ -151,6 +151,9 @@ namespace Assets.Scripts.Empires.Technology
             }
         }
 
+        internal class Project
+        {
+        }
     }
 
     class TechnologyInstance

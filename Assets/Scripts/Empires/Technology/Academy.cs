@@ -12,7 +12,7 @@ namespace Assets.Scripts.Empires.Technology
         const double STANDARD_DEVELOPMENT_TIME = 5; // Years
 
         public List<TechnologyInstance> Unlocks { get; private set; }
-        public Dictionary<Technology.Sector, double> Funding { get; private set; }
+        List<Laboratory> labs;
 
         public DateTime LastUpdate { get; private set; }
 
@@ -23,8 +23,8 @@ namespace Assets.Scripts.Empires.Technology
 
         public Academy()
         {
-            Funding = Enum.GetValues(typeof(Technology.Sector)).Cast<Technology.Sector>().ToDictionary<Technology.Sector, Technology.Sector, double>(d => d, d => 100);
             Unlocks = new List<TechnologyInstance>();
+            labs = new List<Laboratory>();
             CheckUnlocks(Simulation.God.Time);
             NextMandatoryUpdate = Simulation.God.Time;
             Simulation.EventSchedule.Add(this);
@@ -82,6 +82,41 @@ namespace Assets.Scripts.Empires.Technology
             NextMandatoryUpdate = date.AddDays(5);
             CheckUnlocks(date);
             LastUpdate = date;
+        }
+
+        public List<Laboratory> GetLabsAt(Population pop)
+        {
+            var ret = new List<Laboratory>();
+            foreach (Laboratory  lab in labs)
+            {
+                if (lab.pop == pop) ret.Add(lab);
+            }
+            return ret;
+        }
+
+        public class Laboratory
+        {
+            public readonly Population pop;
+            public readonly int id;
+
+            public Leaders.Leader leader { get; private set; }
+
+            bool sector;
+            Technology.Sector sectorResearch;
+            Technology.Project projectResearch;
+            public string currentProject { get { return sector ? sectorResearch.ToString() : projectResearch.ToString(); } }
+
+            /// <summary>
+            /// TODO: make these integratable values
+            /// </summary>
+            public float leaderEfficiency = 0;
+            public float projectEfficiency = 0;
+
+            public Laboratory(Population pop, int id)
+            {
+                this.pop = pop;
+                this.id = id;
+            }
         }
     }
 }

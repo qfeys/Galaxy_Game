@@ -144,7 +144,30 @@ namespace Assets.Scripts.Rendering
 
         private static GameObject ResearchTab()
         {
-            return new GameObject();
+            GameObject go = new GameObject("Research", typeof(RectTransform));
+            TextBox title = new TextBox(go.transform, TextRef.Create("ResearchTab_title"), 24, TextAnchor.MiddleCenter);
+            Center(title.transform);
+            title.transform.sizeDelta = new Vector2(200, 36);
+            Empires.Technology.Academy a = Simulation.God.PlayerEmpire.Academy;
+            InfoTable tableLabs = InfoTable.Create(go.transform, () => {
+                List<List<TextRef>> list = new List<List<TextRef>>();
+                List<Empires.Technology.Academy.Laboratory> labs = a.GetLabsAt(activePopulation);
+                list.Add(new List<TextRef>() { "id", "leader", "eff", "project", "eff" });
+                foreach (var lab in labs)
+                {
+                    list.Add(new List<TextRef>() {
+                        TextRef.Create(lab.id.ToString("001")),
+                        TextRef.Create(() => lab.leader),
+                        TextRef.Create(() => lab.leaderEfficiency),
+                        TextRef.Create(() => lab.currentProject),
+                        TextRef.Create(() => lab.projectEfficiency)
+                    });
+                }
+                return list;
+            }, 200);
+            Center(tableLabs.transform, new Vector2(-100, -100));
+
+            return go;
         }
 
         static void Center(RectTransform tr, Vector2? offset = null)

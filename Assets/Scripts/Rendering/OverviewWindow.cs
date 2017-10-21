@@ -86,9 +86,9 @@ namespace Assets.Scripts.Rendering
             InfoTable tableSectors = InfoTable.Create(go.transform, () =>
             {
                 List<Tuple<TextRef, TextRef>> list = new List<Tuple<TextRef, TextRef>>();
-                foreach (KeyValuePair<Empires.Technology.Technology.Sector, double> kvp in Simulation.God.PlayerEmpire.Academy.Funding)
+                foreach (Empires.Technology.Technology.Sector sector in Enum.GetValues(typeof(Empires.Technology.Technology.Sector)).Cast<Empires.Technology.Technology.Sector>())
                 {
-                    list.Add(new Tuple<TextRef, TextRef>(TextRef.Create(kvp.Key.ToString()), TextRef.Create(() => kvp.Value)));
+                    list.Add(new Tuple<TextRef, TextRef>(TextRef.Create(sector.ToString()), TextRef.Create(() => 0)));
                 }
                 return list;
             }, 200);
