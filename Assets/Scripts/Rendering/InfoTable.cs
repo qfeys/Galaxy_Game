@@ -237,8 +237,6 @@ namespace Assets.Scripts.Rendering
                         GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
                         dataCont.transform.SetParent(line.transform);
                         ((RectTransform)dataCont.transform).sizeDelta = new Vector2(((RectTransform)line.transform.parent).rect.width / numberOfCol, 50);
-                        Debug.Log("rect width: " + ((RectTransform)line.transform.parent).rect.width);
-                        Debug.Log("size delta x: " + ((RectTransform)dataCont.transform).sizeDelta.x);
                         TextBox data = new TextBox(dataCont.transform, info[i][j], fontSize, j == 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight);
                         dataCont.AddComponent<LayoutElement>();
                         if (j==0) dataCont.GetComponent<LayoutElement>().flexibleWidth = 1;
