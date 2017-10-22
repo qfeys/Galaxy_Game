@@ -8,8 +8,8 @@ namespace Assets.Scripts.Empires.Industry
 {
     class IndustryCenter
     {
-        public readonly Industry.Stockpile stockpile = new Industry.Stockpile();
+        public readonly Stockpile stockpile = new Stockpile();
 
-        public Dictionary<Industry.Installation, int> installations { get; private set; }
+        public Dictionary<Installation, int> installations { get; private set; }
     }
 }
