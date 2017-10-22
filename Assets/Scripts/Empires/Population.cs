@@ -22,12 +22,7 @@ namespace Assets.Scripts.Empires
         /// The GDP of this population in GDP
         /// </summary>
         public double Wealth { get; private set; }
-        double poverty; // part of people living in poverty
-        double inequality; // gini-index - lower is better
-        double happiness; // negative is bad
         Leaders.Leader governer;
-        // species
-        // culture
         // List<policies>
         public Dictionary<Installations.Installation, int> installations { get; private set; }
         public Production.Stockpile stockpile { get; private set; }
@@ -39,9 +34,6 @@ namespace Assets.Scripts.Empires
             Count = initPop;
             location.AddPopulation(this);
             Wealth = Count * 0.05;
-            poverty = 0.1;
-            inequality = 0.4;
-            happiness = 0;
             installations = new Dictionary<Installations.Installation,int>();
             stockpile = new Production.Stockpile();
         }
@@ -61,9 +53,6 @@ namespace Assets.Scripts.Empires
                 Location = capital,
                 Count = (long)5e9,
                 Wealth = 5e9 * 0.05,
-                poverty = 0.1,
-                inequality = 0.4,
-                happiness = 0,
                 installations = new Dictionary<Installations.Installation, int>(),
                 stockpile = new Production.Stockpile(1000)
             };
