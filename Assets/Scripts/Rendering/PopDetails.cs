@@ -99,7 +99,31 @@ namespace Assets.Scripts.Rendering
 
         private static GameObject MiningTab()
         {
-            return new GameObject();
+            GameObject go = new GameObject("Mining", typeof(RectTransform));
+            TextBox title = new TextBox(go.transform, TextRef.Create("MiningTab_title"), 24, TextAnchor.MiddleCenter);
+            Center(title.transform);
+            title.transform.sizeDelta = new Vector2(200, 36);
+            Bodies.MiningPile pile = 
+                activePopulation != null && 
+                activePopulation.Location != null && 
+                activePopulation.Location.MiningPile != null ? activePopulation.Location.MiningPile : Bodies.MiningPile.Empty;
+            InfoTable tablePops = InfoTable.Create(go.transform, () => {
+                List<List<TextRef>> list = new List<List<TextRef>>();
+                for (int i = 0; i < pile.pile.Count; i++)
+                {
+                    int j = i;
+                    list.Add(new List<TextRef>() {
+                        TextRef.Create(() => pile.pile[j].Item1.ToString()),
+                        TextRef.Create(() => pile.pile[j].Item2[0]),
+                        TextRef.Create(() => pile.pile[j].Item2[1]),
+                        TextRef.Create(() => pile.pile[j].Item2[2])
+                    });
+                }
+                return list;
+            }, 200);
+            Center(tablePops.transform, new Vector2(-100, -100));
+
+            return go;
         }
 
         private static GameObject StockpileTab()

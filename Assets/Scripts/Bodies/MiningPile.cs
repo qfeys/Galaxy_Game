@@ -8,7 +8,7 @@ namespace Assets.Scripts.Bodies
 {
     class MiningPile
     {
-        List<Tuple<Stockpile.ResourceType, double[]>> pile;
+        public List<Tuple<Stockpile.ResourceType, double[]>> pile { get; private set; }
 
         public MiningPile(Planet parent)
         {
@@ -19,5 +19,17 @@ namespace Assets.Scripts.Bodies
                 pile.Add(new Tuple<Stockpile.ResourceType, double[]>(rt, new double[3] { 1e9, 1e10, 1e12 }));
             }
         }
+
+        MiningPile()
+        {
+            pile = new List<Tuple<Stockpile.ResourceType, double[]>>();
+
+            foreach (var rt in Stockpile.ResourceType.ResourceTypes.FindAll(rt => rt.minable == true))
+            {
+                pile.Add(new Tuple<Stockpile.ResourceType, double[]>(rt, new double[3] { 1e9, 1e10, 1e12 }));
+            }
+        }
+
+        public static MiningPile Empty { get { return new MiningPile(); } }
     }
 }
