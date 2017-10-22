@@ -132,7 +132,7 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, TextRef.Create("StockpileTab_title"), 24, TextAnchor.MiddleCenter);
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
-            var a = activePopulation.stockpile;
+            var a = activePopulation.industryCenter.stockpile;
             InfoTable tablePops = InfoTable.Create(go.transform, ()=> {
                 List<List<TextRef>> list = new List<List<TextRef>>();
                 for (int i = 0; i < Empires.Industry.Stockpile.ResourceType.ResourceTypes.Count; i++)
@@ -140,8 +140,8 @@ namespace Assets.Scripts.Rendering
                     Empires.Industry.Stockpile.ResourceType current = Empires.Industry.Stockpile.ResourceType.ResourceTypes[i];
                     list.Add(new List<TextRef>() {
                         TextRef.Create(current.ToString()),
-                        TextRef.Create(() => activePopulation.stockpile.pile.ContainsKey(current) ? activePopulation.stockpile.pile[current] : 0),
-                        TextRef.Create("Add").AddLink(()=>activePopulation.stockpile.Add(current,100))
+                        TextRef.Create(() => activePopulation.industryCenter.stockpile.pile.ContainsKey(current) ? activePopulation.industryCenter.stockpile.pile[current] : 0),
+                        TextRef.Create("Add").AddLink(()=>activePopulation.industryCenter.stockpile.Add(current,100))
                     });
                 }
                 return list;
