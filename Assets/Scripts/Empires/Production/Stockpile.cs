@@ -17,7 +17,7 @@ namespace Assets.Scripts.Empires.Production
 
         public void Add(string resource, double amount)
         {
-            ResourceType r = new ResourceType(resource);
+            ResourceType r = ResourceType.Get(resource);
             pile[r] += amount;
         }
 
@@ -28,28 +28,32 @@ namespace Assets.Scripts.Empires.Production
 
         public class ResourceType
         {
-            static List<string> resourceTypes = new List<string> {
-                "steel",
-                "nonFerrous",
-                "carbon",
-                "silicates",
-                "rareEarth",
-                "water",
-                "food",
-                "components",
-                "electronics",
-                "consumerGoods"
+            static public readonly List<ResourceType> ResourceTypes = new List<ResourceType> {
+                new ResourceType("steel",true),
+                new ResourceType("nonFerrous",true),
+                new ResourceType("carbon",true),
+                new ResourceType("silicates",true),
+                new ResourceType("rareEarth",true),
+                new ResourceType("water", true),
+                new ResourceType("food", false),
+                new ResourceType("components", false),
+                new ResourceType("electronics", false),
+                new ResourceType("consumerGoods", false)
             };
 
             string type;
+            bool minable;
 
-            public static List<ResourceType> ResourceTypes { get { return resourceTypes.ConvertAll(r=> new ResourceType(r)); } }
-
-            public ResourceType(string name)
+            ResourceType(string type, bool minable)
             {
-                if (resourceTypes.Contains(name) == false)
+                this.type = type; this.minable = minable;
+            }
+
+            public static ResourceType Get(string name)
+            {
+                if (ResourceTypes.Any(rt=>rt.type == name) == false)
                     throw new ArgumentException("The resource type: " + name + " is not valid.");
-                type = name;
+                return ResourceTypes.Find(rt => rt.type == name);
             }
 
             public override string ToString()

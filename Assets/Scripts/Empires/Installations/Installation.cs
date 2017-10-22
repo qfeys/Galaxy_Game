@@ -78,7 +78,7 @@ namespace Assets.Scripts.Empires.Installations
             {
                 List<Tuple<string, double>> mods = (i.entries.Find(e => e.Item1.id == "cost_resources").Item2 as ModParser.Item).entries.
                     ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1, (double)e.Item2));
-                mods.ForEach(r => inst.costResources.Add(new Production.Stockpile.ResourceType(r.Item1), r.Item2));
+                mods.ForEach(r => inst.costResources.Add(Production.Stockpile.ResourceType.Get(r.Item1), r.Item2));
             }
 
             inst.Modefiers = new List<Modifier>();
