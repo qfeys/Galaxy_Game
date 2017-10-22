@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Assets.Scripts.Data;
 
-namespace Assets.Scripts.Empires.Installations
+namespace Assets.Scripts.Empires.Industry
 {
     /// <summary>
     /// All installations in population centers or in space. NOTE: for installations that are free floating, use a child of this.
@@ -13,7 +13,7 @@ namespace Assets.Scripts.Empires.Installations
     {
         public string name;
         public double costWork;
-        public Dictionary<Production.Stockpile.ResourceType, double> costResources;
+        public Dictionary<Stockpile.ResourceType, double> costResources;
         public Dictionary<Technology.Technology, Tuple<double, double>> Prerequisites { get; private set; }
 
         public List<Modifier> Modefiers { get; private set; }
@@ -21,7 +21,7 @@ namespace Assets.Scripts.Empires.Installations
         static List<Installation> installationList;
 
         public Installation(string name, double costWork,
-            Dictionary<Production.Stockpile.ResourceType, double> costResources, List<Modifier> modifiers)
+            Dictionary<Stockpile.ResourceType, double> costResources, List<Modifier> modifiers)
         {
             this.name = name;
             this.costWork = costWork;
@@ -72,13 +72,13 @@ namespace Assets.Scripts.Empires.Installations
             Installation inst = new Installation() {
                 name = i.name,
                 costWork = (double)i.entries.Find(e => e.Item1.id == "cost_work").Item2,
-                costResources = new Dictionary<Production.Stockpile.ResourceType, double>()
+                costResources = new Dictionary<Stockpile.ResourceType, double>()
             };
             if (i.entries.Find(e => e.Item1.id == "cost_resources").Item2 != null)
             {
                 List<Tuple<string, double>> mods = (i.entries.Find(e => e.Item1.id == "cost_resources").Item2 as ModParser.Item).entries.
                     ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1, (double)e.Item2));
-                mods.ForEach(r => inst.costResources.Add(Production.Stockpile.ResourceType.Get(r.Item1), r.Item2));
+                mods.ForEach(r => inst.costResources.Add(Stockpile.ResourceType.Get(r.Item1), r.Item2));
             }
 
             inst.Modefiers = new List<Modifier>();

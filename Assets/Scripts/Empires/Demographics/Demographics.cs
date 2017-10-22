@@ -23,6 +23,7 @@ namespace Assets.Scripts.Empires.Demographics
             poverty = 0.1;
             inequality = 0.4;
             happiness = 0;
+            Count = (long)1e9;
         }
     }
 }

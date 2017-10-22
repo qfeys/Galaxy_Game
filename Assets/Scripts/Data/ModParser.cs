@@ -32,7 +32,7 @@ namespace Assets.Scripts.Data
                 foreach (Tuple<string, object> tree in allTrees.FindAll(t => t.Item1 == "installations"))
                 {
                     List<Item> itemList = ConvertToItems(tree.Item2 as List<Tuple<string, object>>, signatures["installations"]);
-                    Empires.Installations.Installation.SetInstallationList(itemList);
+                    Empires.Industry.Installation.SetInstallationList(itemList);
                 }
             }
             catch (FormatException e)
@@ -45,7 +45,7 @@ namespace Assets.Scripts.Data
         {
             Dictionary<string, List<Signature>> signatures = new Dictionary<string, List<Signature>> {
                 { "technology", Empires.Technology.Technology.Signature},
-                { "installations", Empires.Installations.Installation.Signature}
+                { "installations", Empires.Industry.Installation.Signature}
             };
             return signatures;
         }

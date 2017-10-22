@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Assets.Scripts.Empires.Production;
+using Assets.Scripts.Empires.Industry;
 namespace Assets.Scripts.Bodies
 {
     class MiningPile

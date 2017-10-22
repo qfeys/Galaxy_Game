@@ -12,9 +12,8 @@ namespace Assets.Scripts.Empires
         string name;
         public List<Population> Populations { get; private set; }
         public List<Leaders.Leader> Leaders { get; private set; }
-        public Production.TradeCenter TradeCenter { get; private set; }
         public Technology.Academy Academy { get; private set; }
-        List<Installations.Installation> freeInstallations;  // in contrast to assets bound to populations
+        List<Industry.Installation> freeInstallations;  // in contrast to assets bound to populations
         List<Mobiles.Mobile> mobiles;
 
         public long Population { get { return Populations.Sum(p => p.Count); } }
@@ -31,9 +30,8 @@ namespace Assets.Scripts.Empires
             this.name = name;
             Populations = new List<Population>();
             Leaders = new List<Leaders.Leader>();
-            TradeCenter = new Production.TradeCenter();
             Academy = new Technology.Academy();
-            freeInstallations = new List<Installations.Installation>();
+            freeInstallations = new List<Industry.Installation>();
             mobiles = new List<Mobiles.Mobile>();
 
             Populations.Add(Empires.Population.InitCapital(capital));

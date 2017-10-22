@@ -135,9 +135,9 @@ namespace Assets.Scripts.Rendering
             var a = activePopulation.stockpile;
             InfoTable tablePops = InfoTable.Create(go.transform, ()=> {
                 List<List<TextRef>> list = new List<List<TextRef>>();
-                for (int i = 0; i < Empires.Production.Stockpile.ResourceType.ResourceTypes.Count; i++)
+                for (int i = 0; i < Empires.Industry.Stockpile.ResourceType.ResourceTypes.Count; i++)
                 {
-                    Empires.Production.Stockpile.ResourceType current = Empires.Production.Stockpile.ResourceType.ResourceTypes[i];
+                    Empires.Industry.Stockpile.ResourceType current = Empires.Industry.Stockpile.ResourceType.ResourceTypes[i];
                     list.Add(new List<TextRef>() {
                         TextRef.Create(current.ToString()),
                         TextRef.Create(() => activePopulation.stockpile.pile.ContainsKey(current) ? activePopulation.stockpile.pile[current] : 0),

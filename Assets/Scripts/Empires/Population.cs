@@ -24,9 +24,9 @@ namespace Assets.Scripts.Empires
         public double Wealth { get; private set; }
         Leaders.Leader governer;
         // List<policies>
-        public Dictionary<Installations.Installation, int> installations { get; private set; }
-        public Production.Stockpile stockpile { get; private set; }
-        public Demographics.Demographics demographic;
+        public Dictionary<Industry.Installation, int> installations { get; private set; }
+        public Industry.Stockpile stockpile { get; private set; }
+        public Demographics.Demographics demographic = new Demographics.Demographics();
 
         public Population(Planet location, long initPop, string name = null)
         {
@@ -34,8 +34,8 @@ namespace Assets.Scripts.Empires
             Location = location;
             location.AddPopulation(this);
             Wealth = Count * 0.05;
-            installations = new Dictionary<Installations.Installation,int>();
-            stockpile = new Production.Stockpile();
+            installations = new Dictionary<Industry.Installation,int>();
+            stockpile = new Industry.Stockpile();
         }
 
         Population() { }
@@ -53,13 +53,13 @@ namespace Assets.Scripts.Empires
                 Location = capital,
                 //Count = (long)5e9,
                 Wealth = 5e9 * 0.05,
-                installations = new Dictionary<Installations.Installation, int>(),
-                stockpile = new Production.Stockpile(1000)
+                installations = new Dictionary<Industry.Installation, int>(),
+                stockpile = new Industry.Stockpile(1000)
             };
             capital.AddPopulation(p);
-            p.installations.Add(Installations.Installation.GetCopy("general_industry"), 10);
-            p.installations.Add(Installations.Installation.GetCopy("construction_factory"), 10);
-            p.installations.Add(Installations.Installation.GetCopy("mining_equipment"), 10);
+            p.installations.Add(Industry.Installation.GetCopy("general_industry"), 10);
+            p.installations.Add(Industry.Installation.GetCopy("construction_factory"), 10);
+            p.installations.Add(Industry.Installation.GetCopy("mining_equipment"), 10);
             return p;
         }
 
@@ -71,6 +71,6 @@ namespace Assets.Scripts.Empires
         /// <summary>
         /// Use this only as a dummy.
         /// </summary>
-        public static Population NullPop { get { return new Population() {stockpile = new Production.Stockpile() }; } }
+        public static Population NullPop { get { return new Population() {stockpile = new Industry.Stockpile() }; } }
     }
 }
