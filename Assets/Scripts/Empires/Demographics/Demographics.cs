@@ -8,6 +8,10 @@ namespace Assets.Scripts.Empires.Demographics
 {
     class Demographics
     {
+        /// <summary>
+        /// The number of people this population has
+        /// </summary>
+        public long Count { get; private set; }
         double poverty; // part of people living in poverty
         double inequality; // gini-index - lower is better
         double happiness; // negative is bad

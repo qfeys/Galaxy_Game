@@ -15,9 +15,9 @@ namespace Assets.Scripts.Empires
         /// </summary>
         public Planet Location { get; private set; }
         /// <summary>
-        /// The number of people this population has (TODO: full demographics)
+        /// The number of people this population has
         /// </summary>
-        public long Count { get; private set; }
+        public long Count { get { return demographic.Count; } }
         /// <summary>
         /// The GDP of this population in GDP
         /// </summary>
@@ -26,12 +26,12 @@ namespace Assets.Scripts.Empires
         // List<policies>
         public Dictionary<Installations.Installation, int> installations { get; private set; }
         public Production.Stockpile stockpile { get; private set; }
+        public Demographics.Demographics demographic;
 
         public Population(Planet location, long initPop, string name = null)
         {
             Name = name ?? location.ToString();
             Location = location;
-            Count = initPop;
             location.AddPopulation(this);
             Wealth = Count * 0.05;
             installations = new Dictionary<Installations.Installation,int>();
@@ -51,7 +51,7 @@ namespace Assets.Scripts.Empires
             var p = new Population() {
                 Name = "Capital",
                 Location = capital,
-                Count = (long)5e9,
+                //Count = (long)5e9,
                 Wealth = 5e9 * 0.05,
                 installations = new Dictionary<Installations.Installation, int>(),
                 stockpile = new Production.Stockpile(1000)
