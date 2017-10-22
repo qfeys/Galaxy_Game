@@ -114,6 +114,10 @@ namespace Assets.Scripts.Bodies
         /// The albedo of the planet, relative to Earth. A lower factor represents a higher reflectivity
         /// </summary>
         public double AlbedoFactor { get; private set; }
+        /// <summary>
+        /// This keeps track of all the minable materials on this planet.
+        /// </summary>
+        public MiningPile MiningPile { get; private set; }
 
         AstroidTypes AstroidType = AstroidTypes.NotAnAstroid;
         enum AstroidTypes { NotAnAstroid, Metallic, Silicate, Carbonaceous, Icy }
@@ -149,6 +153,7 @@ namespace Assets.Scripts.Bodies
             moons = new List<Planet>();
 
             CalculateSize();
+            MiningPile = new MiningPile(this);
         }
 
         /// <summary>
@@ -166,6 +171,7 @@ namespace Assets.Scripts.Bodies
             this.type = type;
             OrbElements = orbitalElements;
             moons = new List<Planet>();
+            MiningPile = new MiningPile(this);
         }
 
         /// <summary>
@@ -196,6 +202,7 @@ namespace Assets.Scripts.Bodies
             if (semiMajorAxis < rocheLimit)
                 type = Type.Ring;
             CalculateDay();
+            MiningPile = new MiningPile(this);
         }
 
         void CalculateSize()

@@ -41,8 +41,8 @@ namespace Assets.Scripts.Empires.Production
                 new ResourceType("consumerGoods", false)
             };
 
-            string type;
-            bool minable;
+            public readonly string type;
+            public readonly bool minable;
 
             ResourceType(string type, bool minable)
             {

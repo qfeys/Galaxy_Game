@@ -32,6 +32,8 @@ namespace Assets.Scripts.Data
                     string[] lines = File.ReadAllLines(allPaths[i]);
                     for (int j = 0; j < lines.Length; j++)
                     {
+                        if (lines[j].Count() == 0)
+                            continue;
                         if (lines[j].First() == '#')
                             continue;
                         string key = new string(lines[j].TakeWhile(c => c != ':').ToArray());
