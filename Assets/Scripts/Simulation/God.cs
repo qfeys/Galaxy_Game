@@ -82,6 +82,8 @@ namespace Assets.Scripts.Simulation
         {
             Debug.Log("Reading mod files at " + System.IO.Directory.GetCurrentDirectory());
             ModParser.ParseAllFiles();
+            Empires.Technology.Technology.LoadTechTree();
+            Empires.Industry.Installation.LoadInstallationList();
             Data.Graphics.LoadGraphics();
             Localisation.Load();
 

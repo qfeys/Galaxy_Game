@@ -14,7 +14,7 @@ namespace Assets.Scripts.Empires.Industry
         public string name;
         public double costWork;
         public Dictionary<Stockpile.ResourceType, double> costResources;
-        public Dictionary<Technology.Technology, Tuple<double, double>> Prerequisites { get; private set; }
+        public List<Technology.Technology.Prerequisite> Prerequisites { get; private set; }
 
         public List<Modifier> Modefiers { get; private set; }
 
@@ -33,71 +33,36 @@ namespace Assets.Scripts.Empires.Industry
 
 #region parsing
 
-        static public void SetInstallationList(List<ModParser.Item> itemList)
+        static public void LoadInstallationList()
         {
-            if (installationList == null)
-            {
-                UnityEngine.Debug.Log("Installation List set with " + itemList.Count + " installations.");
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("Installation List reset with " + itemList.Count + " installations.");
-            }
-            installationList = itemList.ConvertAll(i => Interpret(i));
-        }
-
-        internal static List<ModParser.Signature> Signature
-        {
-            get
-            {
-                List<ModParser.Signature> ret = new List<ModParser.Signature> {
-                new ModParser.Signature("cost_work", ModParser.SignatueType.floating),
-                new ModParser.Signature("cost_resources", ModParser.SignatueType.list,
-                new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.floating) }),
-                // new ModParser.Signature("modifiers", ModParser.SignatueType.words, Enum.GetNames(typeof(Modifier.Name)).ToList()),
-                new ModParser.Signature("modifiers", ModParser.SignatueType.list,
-                    new List<ModParser.Signature>(){ new ModParser.Signature(null,ModParser.SignatueType.floating) }),
-                new ModParser.Signature("prerequisites", ModParser.SignatueType.list,
-                new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.list,
-                    new List<ModParser.Signature>() { new ModParser.Signature("min", ModParser.SignatueType.floating),
-                                                    new ModParser.Signature("max", ModParser.SignatueType.floating)})
-                })
-            };
-                return ret;
-            }
+            ModParser.Item modItem = ModParser.RetriveMasterItem("installations");
+            installationList = modItem.GetChilderen().ConvertAll(i => Interpret(i));
         }
 
         private static Installation Interpret(ModParser.Item i)
         {
             Installation inst = new Installation() {
                 name = i.name,
-                costWork = (double)i.entries.Find(e => e.Item1.id == "cost_work").Item2,
-                costResources = new Dictionary<Stockpile.ResourceType, double>()
+                costWork = i.GetNumber("cost_work"),
+                costResources = new Dictionary<Stockpile.ResourceType, double>(),
+                Modefiers = new List<Modifier>(),
+                Prerequisites = new List<Technology.Technology.Prerequisite>()
             };
-            if (i.entries.Find(e => e.Item1.id == "cost_resources").Item2 != null)
+            ModParser.Item rsrcs = i.GetItem("cost_resources");
+            if (rsrcs != null)
             {
-                List<Tuple<string, double>> mods = (i.entries.Find(e => e.Item1.id == "cost_resources").Item2 as ModParser.Item).entries.
-                    ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1, (double)e.Item2));
-                mods.ForEach(r => inst.costResources.Add(Stockpile.ResourceType.Get(r.Item1), r.Item2));
+                rsrcs.GetChilderen().ForEach(r => inst.costResources.Add(Stockpile.ResourceType.Get(r.name), r.GetNumber()));
             }
-
-            inst.Modefiers = new List<Modifier>();
-            if (i.entries.Find(e => e.Item1.id == "modifiers").Item2 != null)
+            ModParser.Item mods = i.GetItem("modifiers");
+            if (mods != null)
             {
-                List<Tuple<string, double>> res = (i.entries.Find(e => e.Item1.id == "modifiers").Item2 as ModParser.Item).entries.
-                    ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1, (double)e.Item2));
-                res.ForEach(r => inst.Modefiers.Add(new Modifier(r.Item1, r.Item2)));
+                mods.GetChilderen().ForEach(m => inst.Modefiers.Add(new Modifier(m.name, m.GetNumber())));
             }
-
-            List<ModParser.Item> prerqs = i.entries.Find(e => e.Item1.id == "prerequisites").Item2 as List<ModParser.Item>;
-            inst.Prerequisites = new Dictionary<Technology.Technology, Tuple<double, double>>();
+            ModParser.Item prerqs = i.GetItem("prerequisites");
             if (prerqs != null)
             {
-                prerqs.ForEach(p =>
-                    inst.Prerequisites.Add(Technology.Technology.FindTech(p.name),
-                                        new Tuple<double, double>((double)p.entries.Find(e => e.Item1.id == "min").Item2,
-                                                                  (double)p.entries.Find(e => e.Item1.id == "max").Item2)
-                                       )
+                prerqs.GetChilderen().ForEach(p =>
+                    inst.Prerequisites.Add(new Technology.Technology.Prerequisite(p.name, p.GetNumber("min"), p.GetNumber("max")))
                                );
             }
             return inst;

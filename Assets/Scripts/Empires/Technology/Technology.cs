@@ -10,9 +10,17 @@ namespace Assets.Scripts.Empires.Technology
     {
         public string Name { get; private set; }
         public Sector? sector { get; private set; }
-        public Dictionary<Technology, Tuple<double,double>> Prerequisites { get; private set; } // use the max of knowledge and understanding
+        /// <summary>
+        /// The amount of knowledge we can at most acuire on this subject.
+        /// Also limits the understanding
+        /// </summary>
         public double MaxKnowledge { get; private set; }
-        public Dictionary<Technology, double> Roots { get; private set; }             // These techs will increase in understanding by using this tech.
+        public List<Prerequisite> Prerequisites { get; private set; }
+        /// <summary>
+        /// These are technologies that will increase in  understanding by using this tech
+        /// </summary>
+        public List<RootTech> Roots { get; private set; }
+        bool isProject;
 
         static List<Technology> techTree;
         internal static List<Technology> TechTree { get { return techTree; } }
@@ -21,8 +29,8 @@ namespace Assets.Scripts.Empires.Technology
 
         private Technology() { }
 
-        public Technology(string name, Sector sector, Dictionary<Technology, Tuple<double, double>> prerequisites,
-            double maxKnowledge, Dictionary<Technology, double> roots)
+        public Technology(string name, Sector sector, List<Prerequisite> prerequisites,
+            double maxKnowledge, List<RootTech> roots)
         {
             Name = name;this.sector = sector; Prerequisites = prerequisites; MaxKnowledge = maxKnowledge; Roots = roots;
         }
@@ -32,19 +40,10 @@ namespace Assets.Scripts.Empires.Technology
             Name = clone.Name; sector = clone.sector; Prerequisites = clone.Prerequisites; MaxKnowledge = clone.MaxKnowledge; Roots = clone.Roots;
         }
 
-        internal static void SetTechTree(List<ModParser.Item> itemList)
+        internal static void LoadTechTree()
         {
-            if (techTree == null)
-            {
-                UnityEngine.Debug.Log("Techtree set with " + itemList.Count + " technologies.");
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("Techtree reset with " + itemList.Count + " technologies.");
-            }
-            List<Technology> tt = itemList.ConvertAll(i => Interpret(i));
-            PointPrerequisitesAndRoots(tt);
-            techTree = tt;
+            ModParser.Item modItem = ModParser.RetriveMasterItem("technology");
+            techTree = modItem.GetChilderen().ConvertAll(i => Interpret(i));
         }
 
         public override bool Equals(object obj)
@@ -69,90 +68,80 @@ namespace Assets.Scripts.Empires.Technology
             return techTree.Find(t => t.Name == name);
         }
 
-        internal static List<ModParser.Signature> Signature
-        {
-            get
-            {
-                List<ModParser.Signature> ret = new List<ModParser.Signature> {
-                    new ModParser.Signature("starting_tech", ModParser.SignatueType.boolean),
-                    new ModParser.Signature("sector", ModParser.SignatueType.words, Enum.GetNames(typeof(Sector)).ToList()),
-                    new ModParser.Signature("max_progress", ModParser.SignatueType.floating),
-                    new ModParser.Signature("prerequisites", ModParser.SignatueType.list,
-                    new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.list,
-                    new List<ModParser.Signature>() { new ModParser.Signature("min", ModParser.SignatueType.floating),
-                                                    new ModParser.Signature("max", ModParser.SignatueType.floating)})
-                    }),
-                    new ModParser.Signature("understanding", ModParser.SignatueType.list,
-                    new List<ModParser.Signature>() { new ModParser.Signature(null, ModParser.SignatueType.floating) }
-                    )
-                };
-                return ret;
-            }
-        }
-
         internal static Technology Interpret(ModParser.Item i)
         {
             Technology t = new Technology() {
                 Name = i.name,
-                sector = (Sector)Enum.Parse(typeof(Sector), i.entries.Find(e => e.Item1.id == "sector").Item2 as string),
-                MaxKnowledge = (double)i.entries.Find(e => e.Item1.id == "max_progress").Item2
+                sector = i.GetEnum<Sector>("sector"),
+                MaxKnowledge = i.GetNumber("max_progress"),
+                Prerequisites = new List<Prerequisite>(),
+                Roots = new List<RootTech>(),
+                isProject = i.GetBool("is_project")
             };
-            ModParser.Item prerqs = (ModParser.Item)i.entries.Find(e => e.Item1.id == "prerequisites").Item2;
-            t.Prerequisites = new Dictionary<Technology, Tuple<double, double>>();
+            ModParser.Item prerqs = i.GetItem("prerequisites");
             if (prerqs != null)
             {
-                prerqs.entries.ConvertAll(e => {
-                    var b = e.Item2 as Tuple<string, object>;
-                    return new Tuple<string, ModParser.Item>(b.Item1, (ModParser.Item)b.Item2);
-                }).ForEach(p =>
-                    t.Prerequisites.Add(new Technology() { Name = p.Item1 },
-                                        new Tuple<double, double>((double)p.Item2.entries.Find(e => e.Item1.id == "min").Item2,
-                                                                  (double)p.Item2.entries.Find(e => e.Item1.id == "max").Item2)
-                                       )
-                               );
+                prerqs.GetChilderen().ForEach(p =>
+                    t.Prerequisites.Add(new Prerequisite(p.name, p.GetNumber("min"), p.GetNumber("max")))
+                    );
             }
-            t.Roots = new Dictionary<Technology, double>();
-            if (i.entries.Find(e => e.Item1.id == "understanding").Item2 != null)
+            ModParser.Item underst = i.GetItem("understanding");
+            if (underst != null)
             {
-                List<Tuple<string, double>> rts = (i.entries.Find(e => e.Item1.id == "understanding").Item2 as ModParser.Item).entries.
-                    ConvertAll(e => e.Item2 as Tuple<string, object>).ConvertAll(e => new Tuple<string, double>(e.Item1, (double)e.Item2));
-                rts.ForEach(r => t.Roots.Add(new Technology() { Name = r.Item1 }, r.Item2));
+                underst.GetChilderen().ForEach(r =>
+                    t.Roots.Add(new RootTech(r.name, r.GetNumber()))
+                );
             }
             return t;
         }
 
         /// <summary>
-        /// This function makes sure that the prerequisite technologies of each tech is correctly pointed to the actual tech
-        /// instead of a dummy tech as given in the 'Interpret' function
+        /// Container class for a prerequisite technology.
         /// </summary>
-        /// <param name="techTree"></param>
-        internal static void PointPrerequisitesAndRoots(List<Technology> techTree)
+        public class Prerequisite
         {
-            foreach (Technology t in techTree)
+            /// <summary>
+            /// The name of the prerequisite technology
+            /// </summary>
+            public readonly string name;
+            /// <summary>
+            /// The minimum value required to aquire the new technology
+            /// </summary>
+            public readonly double min;
+            /// <summary>
+            /// The maximum value where the development of the new tech will be hindered
+            /// </summary>
+            public readonly double max;
+
+            public Technology Tech { get { return techTree.Find(t => t.Name == name); } }
+
+            public Prerequisite(string name, double min, double max)
             {
-                var preq = t.Prerequisites.Keys.ToList();
-                for (int i = 0; i < t.Prerequisites.Count; i++)
-                {
-                    Technology p = preq[i];
-                    if (p.sector == null)    // This means that this technology is badly defined
-                    {
-                        p = techTree.Find(tech => tech.Name == p.Name);
-                    }
-                }
-                var rts = t.Roots.Keys.ToList();
-                for (int i = 0; i < t.Roots.Count; i++)
-                {
-                    Technology r = rts[i];
-                    if (r.sector == null)    // This means that this technology is badly defined
-                    {
-                        r = techTree.Find(tech => tech.Name == r.Name);
-                    }
-                }
+                this.name = name; this.min = min; this.max = max;
             }
         }
 
-        internal class Project
+        /// <summary>
+        /// Container class for a root technology.
+        /// </summary>
+        public class RootTech
         {
+            /// <summary>
+            /// The name of the root technology
+            /// </summary>
+            public readonly string name;
+            /// <summary>
+            /// The amount of understanding the root recieves for every point of understanding
+            /// this tech gains. Recommended to be below 1.
+            /// </summary>
+            public readonly double affinity;
+
+            public Technology Tech { get { return techTree.Find(t => t.Name == name); } }
+
+            public RootTech(string name, double affinity)
+            {
+                this.name = name; this.affinity = affinity;
+            }
         }
     }
 
@@ -161,9 +150,16 @@ namespace Assets.Scripts.Empires.Technology
         Technology parent;
         public string Name { get { return parent.Name; }  }
         public Technology.Sector? sector { get { return parent.sector; } }
-        public Dictionary<Technology, Tuple<double, double>> Prerequisites { get { return parent.Prerequisites; } } // use the max of knowledge and understanding
+        public List<Technology.Prerequisite> Prerequisites { get { return parent.Prerequisites; } }
+        /// <summary>
+        /// The amount of knowledge we can at most acuire on this subject.
+        /// Also limits the understanding
+        /// </summary>
         public double MaxKnowledge { get { return parent.MaxKnowledge; } }
-        public Dictionary<Technology, double> Roots { get { return parent.Roots; } }            // These techs will increase in understanding by using this tech.
+        /// <summary>
+        /// These are technologies that will increase in  understanding by using this tech
+        /// </summary>
+        public List<Technology.RootTech> Roots { get { return parent.Roots; } }
 
         public double Knowledge { get; private set; }     // theoretical
         public double Understanding { get; private set; } // practical
@@ -192,13 +188,6 @@ namespace Assets.Scripts.Empires.Technology
         // override object.Equals
         public override bool Equals(object obj)
         {
-            //       
-            // See the full list of guidelines at
-            //   http://go.microsoft.com/fwlink/?LinkID=85237  
-            // and also the guidance for operator== at
-            //   http://go.microsoft.com/fwlink/?LinkId=85238
-            //
-
             if (obj == null)
             {
                 return false;

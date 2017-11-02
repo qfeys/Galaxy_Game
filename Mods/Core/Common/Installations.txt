@@ -65,4 +65,19 @@ installations = {
 		prerequisites = {}
 	}
 
+	trade_center = {
+		cost_work = 120
+		cost_resources = {
+			steel = 20
+			nonFerrous = 40
+			carbon = 20
+			components = 10
+			electronics = 40
+		}
+		modifiers = {
+			add_wealth = 10
+		}
+		prerequisites = {}
+	}
+
 }

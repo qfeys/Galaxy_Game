@@ -37,16 +37,16 @@ namespace Assets.Scripts.Empires.Technology
                 if (Unlocks.Any(ti => ti.Name == tech.Name))
                     continue;
                 double chance = 1;
-                foreach(var prereq in tech.Prerequisites)
+                foreach(Technology.Prerequisite prereq in tech.Prerequisites)
                 {
-                    if (Unlocks.Any(ti => ti.Name == prereq.Key.Name))
+                    if (Unlocks.Any(ti => ti.Name == prereq.name))
                     {
-                        double level = Unlocks.Find(t => t.Equals(prereq.Key)).CurrentLevel();
-                        if (level > prereq.Value.Item2)
+                        double level = Unlocks.Find(t => t.Equals(prereq.Tech)).CurrentLevel();
+                        if (level > prereq.max)
                             continue;   // Check approved
-                        else if (level > prereq.Value.Item1)
+                        else if (level > prereq.min)
                         {
-                            double progress = (level - prereq.Value.Item1) / (prereq.Value.Item2 - prereq.Value.Item1);
+                            double progress = (level - prereq.min) / (prereq.max - prereq.min);
                             chance *= progress;
                         }
                         else
@@ -103,7 +103,7 @@ namespace Assets.Scripts.Empires.Technology
 
             bool sector;
             Technology.Sector sectorResearch;
-            Technology.Project projectResearch;
+            Technology projectResearch;
             public string currentProject { get { return sector ? sectorResearch.ToString() : projectResearch.ToString(); } }
 
             /// <summary>
