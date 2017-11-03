@@ -19,7 +19,7 @@ namespace Assets.Scripts.Rendering
             go = new GameObject("PopDetails", typeof(RectTransform));
             go.transform.SetParent(canvas.transform);
             RectTransform tr = (RectTransform)go.transform;
-            tr.sizeDelta = new Vector2(800, 600);
+            tr.sizeDelta = new Vector2(1000, 600);
             tr.anchorMin = new Vector2(0, 1);
             tr.anchorMax = new Vector2(0, 1);
             tr.pivot = new Vector2(0, 1);
@@ -80,11 +80,11 @@ namespace Assets.Scripts.Rendering
                     new Tuple<TextRef, GameObject>(TextRef.Create("Economy"), EconomyTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Research"), ResearchTab())
                 };
-                TabbedWindow tabs = new TabbedWindow(go.transform, new Vector2(600, 550), tabsList, 12, false);
-                tabs.transform.pivot = new Vector2(0, 1);
-                tabs.transform.anchorMin = new Vector2(0, 1);
-                tabs.transform.anchorMax = new Vector2(0, 1);
-                tabs.transform.anchoredPosition = new Vector2(140, -40);
+                TabbedWindow tabs = new TabbedWindow(go.transform, new Vector2(700, 550), tabsList, 12, false);
+                tabs.transform.pivot = new Vector2(1, 1);
+                tabs.transform.anchorMin = new Vector2(1, 1);
+                tabs.transform.anchorMax = new Vector2(1, 1);
+                tabs.transform.anchoredPosition = new Vector2(-60, -40);
             }
         }
 
@@ -96,9 +96,6 @@ namespace Assets.Scripts.Rendering
         private static GameObject ConstructionTab()
         {
             GameObject go = new GameObject("Construction", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, TextRef.Create("ConstructionTab_title"), 24, TextAnchor.MiddleCenter);
-            Center(title.transform);
-            title.transform.sizeDelta = new Vector2(200, 36);
 
             List<Tuple<TextRef, GameObject>> tabs = new List<Tuple<TextRef, GameObject>>() {
                 new Tuple<TextRef, GameObject>(TextRef.Create("installations"), InstallationsTabTab()),
@@ -107,11 +104,26 @@ namespace Assets.Scripts.Rendering
                 new Tuple<TextRef, GameObject>(TextRef.Create("special_projects"), SpecialProjectsTabTab())
             };
 
-            TabbedWindow constructionTabs = new TabbedWindow(go.transform, new Vector2(600, 250), tabs, 12, false);
-            constructionTabs.transform.anchorMin = new Vector2(1, 1);
-            constructionTabs.transform.anchorMax = new Vector2(1, 1);
-            constructionTabs.transform.pivot = new Vector2(1, 1);
-            constructionTabs.transform.anchoredPosition = new Vector2(0, 0);
+            TabbedWindow constructionTabs = new TabbedWindow(go.transform, new Vector2(700, 250), tabs, 12, false);
+            constructionTabs.transform.anchorMin = new Vector2(0, 1);
+            constructionTabs.transform.anchorMax = new Vector2(0, 1);
+            constructionTabs.transform.pivot = new Vector2(0, 1);
+            constructionTabs.transform.anchoredPosition = new Vector2(0, -10);
+
+            InfoTable constructionQueue = InfoTable.Create(go.transform, () =>
+            {
+                List<List<TextRef>> list = new List<List<TextRef>>();
+                list.Add(new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "next item", "end of job" });
+                foreach (Empires.Industry.IndustryCenter.Job job in activePopulation.industryCenter.constructionQueue)
+                {
+                    list.Add(new List<TextRef>() { job.instl.name, job.amount, job.capacity, job.instl.costWork, "NaN", "NaN" });
+                }
+                return list;
+            }, 700);
+            constructionQueue.transform.anchorMin = new Vector2(0, 0.5f);
+            constructionQueue.transform.anchorMax = new Vector2(0, 0.5f);
+            constructionQueue.transform.pivot = new Vector2(0, 1);
+            constructionQueue.transform.anchoredPosition = new Vector2(0, 0);
 
             return go;
         }
@@ -122,7 +134,6 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, TextRef.Create("ConstructionTab_title"), 24, TextAnchor.MiddleCenter);
             Center(title.transform);
             title.transform.sizeDelta = new Vector2(200, 36);
-
 
             InfoTable installationsList = InfoTable.Create(go.transform, () =>
             {
@@ -144,12 +155,12 @@ namespace Assets.Scripts.Rendering
                     }
                 }
                 return list;
-            }, 450);
+            }, 700);
 
             installationsList.transform.anchorMin = new Vector2(1, 1);
             installationsList.transform.anchorMax = new Vector2(1, 1);
             installationsList.transform.pivot = new Vector2(1, 1);
-            installationsList.transform.anchoredPosition = new Vector2(0, 0);
+            installationsList.transform.anchoredPosition = new Vector2(0, -10);
 
             return go;
         }
@@ -170,6 +181,89 @@ namespace Assets.Scripts.Rendering
         }
 
         private static GameObject ProductionTab()
+        {
+            GameObject go = new GameObject("Production", typeof(RectTransform));
+
+            List<Tuple<TextRef, GameObject>> tabs = new List<Tuple<TextRef, GameObject>>() {
+                new Tuple<TextRef, GameObject>(TextRef.Create("ship_components"), Ship_componentsTabTab()),
+                new Tuple<TextRef, GameObject>(TextRef.Create("ammunition"), AmmunitionTabTab()),
+                new Tuple<TextRef, GameObject>(TextRef.Create("fighters"), FightersTabTab())
+            };
+
+            TabbedWindow constructionTabs = new TabbedWindow(go.transform, new Vector2(700, 250), tabs, 12, false);
+            constructionTabs.transform.anchorMin = new Vector2(0, 1);
+            constructionTabs.transform.anchorMax = new Vector2(0, 1);
+            constructionTabs.transform.pivot = new Vector2(0, 1);
+            constructionTabs.transform.anchoredPosition = new Vector2(0, -10);
+
+            InfoTable productionQueue = InfoTable.Create(go.transform, () =>
+            {
+                List<List<TextRef>> list = new List<List<TextRef>>();
+                list.Add(new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "end of job" });
+                foreach (Empires.Industry.IndustryCenter.Job job in activePopulation.industryCenter.productionQueue)
+                {
+                    list.Add(new List<TextRef>() { job.instl.name, job.amount, job.capacity, job.instl.costWork, "NaN" });
+                }
+                return list;
+            }, 700);
+            productionQueue.transform.anchorMin = new Vector2(0, 0.65f);
+            productionQueue.transform.anchorMax = new Vector2(0, 0.65f);
+            productionQueue.transform.pivot = new Vector2(0, 1);
+            productionQueue.transform.anchoredPosition = new Vector2(0, 0);
+
+            GameObject componentsPanel = new GameObject("Components", typeof(RectTransform));
+            {
+                RectTransform rt = (RectTransform)componentsPanel.transform;
+                rt.SetParent(go.transform);
+                rt.sizeDelta = new Vector2(300, 150);
+                rt.anchorMin = new Vector2(0, 0);
+                rt.anchorMax = new Vector2(0, 0);
+                rt.pivot = new Vector2(0, 0);
+                rt.anchoredPosition = new Vector2(10, 10);
+                TextBox title = new TextBox(rt, "component_production", 12, TextAnchor.UpperLeft);
+                TextBox cap = new TextBox(rt, "component_capacity", 12, TextAnchor.UpperLeft);
+                cap.transform.anchoredPosition = new Vector2(0, -30);
+                TextBox cap2 = new TextBox(rt, activePopulation.industryCenter.maxComponentProduction, 12, TextAnchor.UpperRight);
+                cap2.transform.anchoredPosition = new Vector2(0, -30);
+                TextBox act = new TextBox(rt, "component_active_capacity", 12, TextAnchor.UpperLeft);
+                act.transform.anchoredPosition = new Vector2(0, -60);
+                TextBox act2 = new TextBox(rt, activePopulation.industryCenter.activeCapacityComponentProduction, 12, TextAnchor.UpperRight);
+                act2.transform.anchoredPosition = new Vector2(0, -60);
+            }
+            GameObject electronicsPanel = new GameObject("Electronics", typeof(RectTransform));
+            {
+                RectTransform rt = (RectTransform)electronicsPanel.transform;
+                rt.SetParent(go.transform);
+                rt.sizeDelta = new Vector2(300, 150);
+                rt.anchorMin = new Vector2(1, 0);
+                rt.anchorMax = new Vector2(1, 0);
+                rt.pivot = new Vector2(1, 0);
+                rt.anchoredPosition = new Vector2(-10, 10);
+                TextBox title = new TextBox(rt, "electronics_production", 12, TextAnchor.UpperRight);
+                TextBox cap = new TextBox(rt, "electronics_capacity", 12, TextAnchor.UpperRight);
+                cap.transform.anchoredPosition = new Vector2(0, -30);
+                TextBox cap2 = new TextBox(rt, activePopulation.industryCenter.maxElectronicsProduction, 12, TextAnchor.UpperLeft);
+                cap2.transform.anchoredPosition = new Vector2(0, -30);
+                TextBox act = new TextBox(rt, "electronics_active_capacity", 12, TextAnchor.UpperRight);
+                act.transform.anchoredPosition = new Vector2(0, -60);
+                TextBox act2 = new TextBox(rt, activePopulation.industryCenter.activeCapacityElectronicsProduction, 12, TextAnchor.UpperLeft);
+                act2.transform.anchoredPosition = new Vector2(0, -60);
+            }
+
+            return go;
+        }
+
+        private static GameObject Ship_componentsTabTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject AmmunitionTabTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject FightersTabTab()
         {
             return new GameObject();
         }

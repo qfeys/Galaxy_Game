@@ -116,6 +116,16 @@ namespace Assets.Scripts.Empires.Industry
                     else bill.Add(RT, value);
                 }
             }
+
+            public static  ResourceBill operator *(ResourceBill rb, double d)
+            {
+                ResourceBill ret = new ResourceBill();
+                foreach (ResourceType rt in rb.bill.Keys)
+                {
+                    ret.bill.Add(rt, rb.bill[rt] * d);
+                }
+                return ret;
+            }
         }
 
     }
