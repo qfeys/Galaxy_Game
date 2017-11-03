@@ -64,7 +64,7 @@ namespace Assets.Scripts.Rendering
                 TextBox text = new TextBox(trTtl, TextRef.Create(() => activePopulation.Name), 24, TextAnchor.UpperCenter);
             }
 
-            // List
+            // List of populations
             // TODO
 
             // Tabs
@@ -72,6 +72,7 @@ namespace Assets.Scripts.Rendering
                 List<Tuple<TextRef, GameObject>> tabsList = new List<Tuple<TextRef, GameObject>> {
                     new Tuple<TextRef, GameObject>(TextRef.Create("Overview"), OverviewTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Construction"), ConstructionTab()),
+                    new Tuple<TextRef, GameObject>(TextRef.Create("Production"), ProductionTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Mining"), MiningTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Stockpile"), StockpileTab()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("Enviroment"), EnviromentTab()),
@@ -93,6 +94,82 @@ namespace Assets.Scripts.Rendering
         }
 
         private static GameObject ConstructionTab()
+        {
+            GameObject go = new GameObject("Construction", typeof(RectTransform));
+            TextBox title = new TextBox(go.transform, TextRef.Create("ConstructionTab_title"), 24, TextAnchor.MiddleCenter);
+            Center(title.transform);
+            title.transform.sizeDelta = new Vector2(200, 36);
+
+            List<Tuple<TextRef, GameObject>> tabs = new List<Tuple<TextRef, GameObject>>() {
+                new Tuple<TextRef, GameObject>(TextRef.Create("installations"), InstallationsTabTab()),
+                new Tuple<TextRef, GameObject>(TextRef.Create("orbital_habitats"), OrbHabTabTab()),
+                new Tuple<TextRef, GameObject>(TextRef.Create("pcb"), PcbTabTab()),
+                new Tuple<TextRef, GameObject>(TextRef.Create("special_projects"), SpecialProjectsTabTab())
+            };
+
+            TabbedWindow constructionTabs = new TabbedWindow(go.transform, new Vector2(600, 250), tabs, 12, false);
+            constructionTabs.transform.anchorMin = new Vector2(1, 1);
+            constructionTabs.transform.anchorMax = new Vector2(1, 1);
+            constructionTabs.transform.pivot = new Vector2(1, 1);
+            constructionTabs.transform.anchoredPosition = new Vector2(0, 0);
+
+            return go;
+        }
+
+        private static GameObject InstallationsTabTab()
+        {
+            GameObject go = new GameObject("Construction", typeof(RectTransform));
+            TextBox title = new TextBox(go.transform, TextRef.Create("ConstructionTab_title"), 24, TextAnchor.MiddleCenter);
+            Center(title.transform);
+            title.transform.sizeDelta = new Vector2(200, 36);
+
+
+            InfoTable installationsList = InfoTable.Create(go.transform, () =>
+            {
+                List<List<TextRef>> list = new List<List<TextRef>>();
+                list.Add(new List<TextRef>() { "", "work", "steel", "nonFerrous", "carbon", "silicates", "rareEarth", "components", "electronics" });
+                foreach (Empires.Industry.Installation instl in Empires.Industry.Installation.installationList)
+                {
+                    if (instl.IsValid(activePopulation))
+                    {
+                        list.Add(new List<TextRef>() { instl.name, instl.costWork.ToString(),
+                            instl.costResources["steel"],
+                            instl.costResources["nonFerrous"],
+                            instl.costResources["carbon"],
+                            instl.costResources["silicates"],
+                            instl.costResources["rareEarth"],
+                            instl.costResources["components"],
+                            instl.costResources["electronics"]
+                        });
+                    }
+                }
+                return list;
+            }, 450);
+
+            installationsList.transform.anchorMin = new Vector2(1, 1);
+            installationsList.transform.anchorMax = new Vector2(1, 1);
+            installationsList.transform.pivot = new Vector2(1, 1);
+            installationsList.transform.anchoredPosition = new Vector2(0, 0);
+
+            return go;
+        }
+
+        private static GameObject OrbHabTabTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject PcbTabTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject SpecialProjectsTabTab()
+        {
+            return new GameObject();
+        }
+
+        private static GameObject ProductionTab()
         {
             return new GameObject();
         }

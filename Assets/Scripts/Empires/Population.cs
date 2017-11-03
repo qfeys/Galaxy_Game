@@ -13,7 +13,11 @@ namespace Assets.Scripts.Empires
         /// <summary>
         /// The planet where this population is
         /// </summary>
-        public Planet Location { get; private set; }
+        public readonly Planet Location;
+        /// <summary>
+        /// The empire this population belongs to
+        /// </summary>
+        public readonly Empire Empire;
         /// <summary>
         /// The number of people this population has
         /// </summary>
@@ -33,6 +37,7 @@ namespace Assets.Scripts.Empires
             Location = location;
             location.AddPopulation(this);
             Wealth = Count * 0.05;
+            location.AddPopulation(this);
         }
 
         Population() { }
@@ -45,13 +50,7 @@ namespace Assets.Scripts.Empires
         /// <returns></returns>
         internal static Population InitCapital(Planet capital)
         {
-            var p = new Population() {
-                Name = "Capital",
-                Location = capital,
-                //Count = (long)5e9,
-                Wealth = 5e9 * 0.05,
-            };
-            capital.AddPopulation(p);
+            var p = new Population(capital,(long)5e9, "Capital");
             return p;
         }
 

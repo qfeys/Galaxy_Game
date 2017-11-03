@@ -147,7 +147,7 @@ namespace Assets.Scripts.Empires.Technology
 
     class TechnologyInstance
     {
-        Technology parent;
+        public readonly Technology parent;
         public string Name { get { return parent.Name; }  }
         public Technology.Sector? sector { get { return parent.sector; } }
         public List<Technology.Prerequisite> Prerequisites { get { return parent.Prerequisites; } }

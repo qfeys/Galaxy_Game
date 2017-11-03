@@ -325,6 +325,11 @@ namespace Assets.Scripts.Rendering
             return Create(st);
         }
 
+        public static implicit operator TextRef(double d)
+        {
+            return Create(ToSI(d));
+        }
+
         private string ExtractData(bool alt = false)
         {
             object d;
@@ -371,7 +376,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="d"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        string ToSI(double d, string format = null)
+        static string ToSI(double d, string format = null)
         {
             if (d == 0 || (d >= 0.1 && d < 10000)) return d.ToString(format);
 

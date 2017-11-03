@@ -13,15 +13,15 @@ namespace Assets.Scripts.Empires.Industry
     {
         public string name;
         public double costWork;
-        public Dictionary<Stockpile.ResourceType, double> costResources;
+        public Stockpile.ResourceBill costResources;
         public List<Technology.Technology.Prerequisite> Prerequisites { get; private set; }
 
         public List<Modifier> Modefiers { get; private set; }
 
-        static List<Installation> installationList;
+        public static List<Installation> installationList { get; private set; }
 
         public Installation(string name, double costWork,
-            Dictionary<Stockpile.ResourceType, double> costResources, List<Modifier> modifiers)
+            Stockpile.ResourceBill costResources, List<Modifier> modifiers)
         {
             this.name = name;
             this.costWork = costWork;
@@ -44,14 +44,14 @@ namespace Assets.Scripts.Empires.Industry
             Installation inst = new Installation() {
                 name = i.name,
                 costWork = i.GetNumber("cost_work"),
-                costResources = new Dictionary<Stockpile.ResourceType, double>(),
+                costResources = new Stockpile.ResourceBill(),
                 Modefiers = new List<Modifier>(),
                 Prerequisites = new List<Technology.Technology.Prerequisite>()
             };
             ModParser.Item rsrcs = i.GetItem("cost_resources");
             if (rsrcs != null)
             {
-                rsrcs.GetChilderen().ForEach(r => inst.costResources.Add(Stockpile.ResourceType.Get(r.name), r.GetNumber()));
+                rsrcs.GetChilderen().ForEach(r => inst.costResources.Add(r.name, r.GetNumber()));
             }
             ModParser.Item mods = i.GetItem("modifiers");
             if (mods != null)
@@ -101,6 +101,18 @@ namespace Assets.Scripts.Empires.Industry
         public override int GetHashCode()
         {
             return name.GetHashCode();
+        }
+
+        /// <summary>
+        /// Investigates if this building is valid for this population
+        /// </summary>
+        /// <param name="pop"></param>
+        /// <returns></returns>
+        internal bool IsValid(Population pop)
+        {
+            return Prerequisites.All(p => 
+                    pop.Empire.Academy.Unlocks.Any(ti => ti.parent == p.Tech)
+                    );
         }
     }
 }

@@ -56,6 +56,11 @@ namespace Assets.Scripts.Empires.Industry
                 return ResourceTypes.Find(rt => rt.type == name);
             }
 
+            public static implicit operator ResourceType(string st)
+            {
+                return Get(st);
+            }
+
             public override string ToString()
             {
                 return "r_" + type;
@@ -73,6 +78,43 @@ namespace Assets.Scripts.Empires.Industry
             public override int GetHashCode()
             {
                 return type.GetHashCode();
+            }
+        }
+
+        public class ResourceBill
+        {
+            Dictionary<ResourceType, double> bill;
+
+            public ResourceBill()
+            {
+                bill = new Dictionary<ResourceType, double>();
+            }
+
+            public void Add(ResourceType rt, double amount)
+            {
+                if (bill.ContainsKey(rt)) bill[rt] += amount;
+                else bill.Add(rt, amount);
+            }
+
+            public void Add(string resourceType, double amount)
+            {
+                bill.Add(ResourceType.Get(resourceType), amount);
+            }
+
+            public double this[string rt]
+            {
+                get
+                {
+                    ResourceType RT = ResourceType.Get(rt);
+                    if (bill.ContainsKey(RT)) return bill[RT];
+                    else return 0;
+                }
+                set
+                {
+                    ResourceType RT = ResourceType.Get(rt);
+                    if (bill.ContainsKey(RT)) bill[RT] = value;
+                    else bill.Add(RT, value);
+                }
             }
         }
 

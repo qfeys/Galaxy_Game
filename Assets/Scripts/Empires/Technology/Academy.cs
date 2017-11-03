@@ -11,6 +11,9 @@ namespace Assets.Scripts.Empires.Technology
         // internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics }
         const double STANDARD_DEVELOPMENT_TIME = 5; // Years
 
+        /// <summary>
+        /// The technologies this academy has already unlocked
+        /// </summary>
         public List<TechnologyInstance> Unlocks { get; private set; }
         List<Laboratory> labs;
 
