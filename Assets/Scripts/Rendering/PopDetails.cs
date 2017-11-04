@@ -131,9 +131,6 @@ namespace Assets.Scripts.Rendering
         private static GameObject InstallationsTabTab()
         {
             GameObject go = new GameObject("Construction", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, TextRef.Create("ConstructionTab_title"), 24, TextAnchor.MiddleCenter);
-            Center(title.transform);
-            title.transform.sizeDelta = new Vector2(200, 36);
 
             InfoTable installationsList = InfoTable.Create(go.transform, () =>
             {
@@ -271,9 +268,6 @@ namespace Assets.Scripts.Rendering
         private static GameObject MiningTab()
         {
             GameObject go = new GameObject("Mining", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, TextRef.Create("MiningTab_title"), 24, TextAnchor.MiddleCenter);
-            Center(title.transform);
-            title.transform.sizeDelta = new Vector2(200, 36);
             Bodies.MiningPile pile = 
                 activePopulation != null && 
                 activePopulation.Location != null && 
@@ -300,9 +294,6 @@ namespace Assets.Scripts.Rendering
         private static GameObject StockpileTab()
         {
             GameObject go = new GameObject("Stockpile", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, TextRef.Create("StockpileTab_title"), 24, TextAnchor.MiddleCenter);
-            Center(title.transform);
-            title.transform.sizeDelta = new Vector2(200, 36);
             var a = activePopulation.industryCenter.stockpile;
             InfoTable tablePops = InfoTable.Create(go.transform, ()=> {
                 List<List<TextRef>> list = new List<List<TextRef>>();
@@ -340,9 +331,6 @@ namespace Assets.Scripts.Rendering
         private static GameObject ResearchTab()
         {
             GameObject go = new GameObject("Research", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, TextRef.Create("ResearchTab_title"), 24, TextAnchor.MiddleCenter);
-            Center(title.transform);
-            title.transform.sizeDelta = new Vector2(200, 36);
             Empires.Technology.Academy a = Simulation.God.PlayerEmpire.Academy;
             InfoTable tableLabs = InfoTable.Create(go.transform, () => {
                 List<List<TextRef>> list = new List<List<TextRef>>();

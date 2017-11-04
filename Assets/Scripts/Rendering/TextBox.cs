@@ -57,6 +57,7 @@ namespace Assets.Scripts.Rendering
                 text.fontSize = size * SCALING_FACTOR;
                 text.alignment = allignment;
                 text.horizontalOverflow = HorizontalWrapMode.Overflow;
+                text.verticalOverflow = VerticalWrapMode.Overflow;
                 TextBoxScript tbs = go.AddComponent<TextBoxScript>();
                 tbs.parent = this;
                 tbs.hasMouseover = Text.AltText != null;
@@ -64,7 +65,8 @@ namespace Assets.Scripts.Rendering
                 text.color = color ?? Data.Graphics.Color_.text;
 
                 tr.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
-                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2) * SCALING_FACTOR);
+                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2));
+
             }
             else                        // Make a button
             {
@@ -85,28 +87,29 @@ namespace Assets.Scripts.Rendering
                 {
                 case TextAnchor.LowerLeft:
                 case TextAnchor.MiddleLeft:
-                case TextAnchor.UpperLeft: sTr.anchoredPosition = new Vector2(2*SCALING_FACTOR, 0); break;
+                case TextAnchor.UpperLeft: sTr.anchoredPosition = new Vector2(4, 0); break;
                 case TextAnchor.LowerCenter:
                 case TextAnchor.MiddleCenter:
                 case TextAnchor.UpperCenter: sTr.anchoredPosition = new Vector2(0, 0); break;
                 case TextAnchor.LowerRight:
                 case TextAnchor.MiddleRight:
-                case TextAnchor.UpperRight: sTr.anchoredPosition = new Vector2(-2*SCALING_FACTOR, 0); break;
+                case TextAnchor.UpperRight: sTr.anchoredPosition = new Vector2(-4, 0); break;
                 }
                 text = sGo.AddComponent<Text>();
                 text.font = Data.Graphics.GetStandardFont();
                 text.fontSize = size * SCALING_FACTOR;
                 text.alignment = allignment;
                 text.horizontalOverflow = HorizontalWrapMode.Overflow;
+                text.verticalOverflow = VerticalWrapMode.Overflow;
                 TextBoxScript tbs = go.AddComponent<TextBoxScript>();
                 tbs.parent = this;
                 tbs.hasMouseover = Text.AltText != null;
                 text.text = Text;
                 text.color = color ?? Data.Graphics.Color_.text;
 
-                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2 * SCALING_FACTOR));
+                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2));
                 sTr.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
-                sTr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2) * SCALING_FACTOR);
+                sTr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2));
             }
         }
 
