@@ -15,8 +15,10 @@ namespace Assets.Scripts.Rendering
         public GameObject gameObject { get { return go; } }
         public RectTransform transform { get { return go.transform as RectTransform; } }
         int fontSize;
+        protected List<TextRef> headers;
         bool highlightLines = true;
         GameObject highlightedLine;
+        List<Action> highlightChangeCallbacks;
 
 
         /// <summary>
@@ -161,9 +163,20 @@ namespace Assets.Scripts.Rendering
 
         private void SetHighlight(GameObject line)
         {
+            if (headers != null && line.transform.GetSiblingIndex() == 0)
+                return;
             ColorLine(highlightedLine, false);
             highlightedLine = line;
             ColorLine(line, true);
+            if (highlightChangeCallbacks != null)
+                highlightChangeCallbacks.ForEach(hcc => hcc());
+        }
+
+        public void AddHighlightCallback(Action a)
+        {
+            if (highlightChangeCallbacks == null)
+                highlightChangeCallbacks = new List<Action>();
+            highlightChangeCallbacks.Add(a);
         }
 
         private void ColorLine(GameObject line, bool active)
@@ -417,7 +430,6 @@ namespace Assets.Scripts.Rendering
         {
             List<List<TextRef>> info;
             int colms;
-            private List<TextRef> headers;
 
             /// <summary>
             /// Use this constructor if you want to make a 2 column table where the number of elements is fixed
@@ -482,7 +494,6 @@ namespace Assets.Scripts.Rendering
             protected List<T> dataList;
             List<List<TextRef>> info;
             int colms;
-            private List<TextRef> headers;
 
             /// <summary>
             /// Use this constructor if you want to make a 2 column table where the number of elements is fixed
@@ -550,7 +561,6 @@ namespace Assets.Scripts.Rendering
         {
             List<List<TextRef>> info;
             Func<List<List<TextRef>>> script;
-            List<TextRef> headers;
             int colms;
 
             /// <summary>
@@ -624,7 +634,6 @@ namespace Assets.Scripts.Rendering
             List<List<TextRef>> info;
             Func<List<T>> listScript;
             Func<T, List<TextRef>> lineScript;
-            List<TextRef> headers;
             int colms;
 
             /// <summary>
@@ -661,6 +670,7 @@ namespace Assets.Scripts.Rendering
                 {
                     dataList = newList;
                     info = newList.ConvertAll(line => lineScript(line));
+                    colms = info[0].Count;
                     AddHeaders();
                     BaseRedrawMulticolumn(info, colms);
                 }
