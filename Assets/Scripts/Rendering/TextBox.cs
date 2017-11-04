@@ -85,17 +85,17 @@ namespace Assets.Scripts.Rendering
                 {
                 case TextAnchor.LowerLeft:
                 case TextAnchor.MiddleLeft:
-                case TextAnchor.UpperLeft: sTr.anchoredPosition = new Vector2(4, 0); break;
+                case TextAnchor.UpperLeft: sTr.anchoredPosition = new Vector2(2*SCALING_FACTOR, 0); break;
                 case TextAnchor.LowerCenter:
                 case TextAnchor.MiddleCenter:
                 case TextAnchor.UpperCenter: sTr.anchoredPosition = new Vector2(0, 0); break;
                 case TextAnchor.LowerRight:
                 case TextAnchor.MiddleRight:
-                case TextAnchor.UpperRight: sTr.anchoredPosition = new Vector2(-4, 0); break;
+                case TextAnchor.UpperRight: sTr.anchoredPosition = new Vector2(-2*SCALING_FACTOR, 0); break;
                 }
                 text = sGo.AddComponent<Text>();
                 text.font = Data.Graphics.GetStandardFont();
-                text.fontSize = size * 2;
+                text.fontSize = size * SCALING_FACTOR;
                 text.alignment = allignment;
                 text.horizontalOverflow = HorizontalWrapMode.Overflow;
                 TextBoxScript tbs = go.AddComponent<TextBoxScript>();
