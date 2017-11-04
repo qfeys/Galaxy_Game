@@ -132,7 +132,7 @@ namespace Assets.Scripts.Rendering
                 text.text = Text;
         }
 
-        class TextBoxScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        public class TextBoxScript : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             public TextBox parent;
             public bool hasMouseover = false;

@@ -15,6 +15,8 @@ namespace Assets.Scripts.Rendering
         public GameObject gameObject { get { return go; } }
         public RectTransform transform { get { return go.transform as RectTransform; } }
         int fontSize;
+        bool highlightLines = true;
+        GameObject highlightedLine;
 
 
         /// <summary>
@@ -71,6 +73,45 @@ namespace Assets.Scripts.Rendering
             return new MultiColumnActive(parent, script, width, fontSize, title, headers);
         }
 
+        /// <summary>
+        /// 
+        /// Use this constructor if you want to make a multi column table where the number of elements is fixed
+        /// and where the data in the table is remebered, for interactable tables
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="parent"></param>
+        /// <param name="dataList">This is the list with the data in the table</param>
+        /// <param name="lineScript">This function transforms the data entries into a line of TextRefs</param>
+        /// <param name="width"></param>
+        /// <param name="fontSize"></param>
+        /// <param name="title"></param>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        static public InfoTable Create<T>(Transform parent, List<T> dataList, Func<T, List<TextRef>> lineScript, int width = 200, int fontSize = 12, TextRef title = null, List<TextRef> headers = null)
+        {
+            return new MultiColumnPassiveMemory<T>(parent, dataList, lineScript, width, fontSize, title, headers);
+        }
+
+        /// <summary>
+        /// 
+        /// Use this constructor if you want to make a multi column table where the number of elements is variable
+        /// and where the data in the table is remebered, for interactable tables
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="parent"></param>
+        /// <param name="listScript">This script creates the data in the table</param>
+        /// <param name="lineScript">This function transforms the data entries into a line of TextRefs</param>
+        /// <param name="width"></param>
+        /// <param name="fontSize"></param>
+        /// <param name="title"></param>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        static public InfoTable Create<T>(Transform parent, Func<List<T>> listScript, Func<T, List<TextRef>> lineScript, int width = 200, int fontSize = 12, TextRef title = null, List<TextRef> headers = null)
+        {
+            return new MultiColumnActiveMemory<T>(parent, listScript, lineScript, width, fontSize, title, headers);
+        }
+
+
         InfoTable(Transform parent, int width = 200, int fontSize = 12, TextRef title = null)
         {
             this.title = title;
@@ -108,7 +149,43 @@ namespace Assets.Scripts.Rendering
             HLayGr.childForceExpandWidth = true;
             HLayGr.childForceExpandHeight = true;
             HLayGr.padding = new RectOffset((int)LayEl.minHeight, (int)LayEl.minHeight, 0, 0);
+            if (highlightLines)
+            {
+                Button but = line.AddComponent<Button>();
+                line.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+                but.transition = Selectable.Transition.None;
+                but.onClick.AddListener(() => SetHighlight(line));
+            }
             return line;
+        }
+
+        private void SetHighlight(GameObject line)
+        {
+            ColorLine(highlightedLine, false);
+            highlightedLine = line;
+            ColorLine(line, true);
+        }
+
+        private void ColorLine(GameObject line, bool active)
+        {
+            if (line == null) return;
+            foreach(TextBox.TextBoxScript tbs in line.transform.GetComponentsInChildren<TextBox.TextBoxScript>(true))
+            {
+                if (active)
+                    tbs.parent.SetColor(Data.Graphics.Color_.activeText);
+                else
+                    tbs.parent.SetColor(Data.Graphics.Color_.text);
+            }
+        }
+
+        public T RetrieveHighlight<T>()
+        {
+            if (GetType() == typeof(MultiColumnPassiveMemory<T>))
+                return ((MultiColumnPassiveMemory<T>)this).RetrieveHighlight();
+            else if (GetType() == typeof(MultiColumnActiveMemory<T>))
+                return ((MultiColumnActiveMemory<T>)this).RetrieveHighlight();
+            else
+                throw new Exception("You can only retrieve the highlihgt from memory tables with the correct type. This is a " + GetType().ToString());
         }
 
         /// <summary>
@@ -400,6 +477,75 @@ namespace Assets.Scripts.Rendering
             }
         }
 
+        class MultiColumnPassiveMemory<T> : InfoTable
+        {
+            protected List<T> dataList;
+            List<List<TextRef>> info;
+            int colms;
+            private List<TextRef> headers;
+
+            /// <summary>
+            /// Use this constructor if you want to make a 2 column table where the number of elements is fixed
+            /// </summary>
+            /// <param name="parent"></param>
+            /// <param name="info">The tuples in this list are the entries. The second item is the ToString() of whatever object is returned by the second function.</param>
+            /// <param name="width"></param>
+            /// <param name="fontSize"></param>
+            /// <param name="title"></param>
+            public MultiColumnPassiveMemory(Transform parent, List<T> dataList, Func<T, List<TextRef>> lineScript, int width, int fontSize, TextRef title, List<TextRef> headers) :
+            base(parent, width, fontSize, title)
+            {
+                if (dataList == null || dataList.Count == 0)
+                    throw new ArgumentException("The info of this infotable is empty. Please don't do this to me.");
+                colms = info[0].Count;
+                this.dataList = dataList;
+                info = dataList.ConvertAll(line => lineScript(line));
+                this.headers = headers;
+                AddHeaders();
+                Redraw();
+            }
+
+            public override void Redraw()
+            {
+                BaseRedrawMulticolumn(info, colms);
+            }
+
+            public new void SetInfo(List<List<TextRef>> newInfo)
+            {
+                info = newInfo;
+                AddHeaders();
+            }
+
+            public new void AddInfo(List<TextRef> newInfo)
+            {
+                info.Add(newInfo);
+            }
+
+            public override void ResetInfo()
+            {
+                info = new List<List<TextRef>>();
+                AddHeaders();
+            }
+
+            private void AddHeaders()
+            {
+                if (headers != null && headers.Count == colms)
+                {
+                    List<TextRef> blank = new List<TextRef>() { TextRef.Create("") };
+                    info.Insert(0, blank.Concat(headers).ToList());
+                }
+                else if (headers != null && headers.Count == colms + 1)
+                    info.Insert(0, headers);
+                else if (headers != null)
+                    throw new ArgumentException("The headers of this infotable do not have a valid count. Use 'number of colums' or 'number of colums + 1'");
+            }
+
+            public T RetrieveHighlight()
+            {
+                return dataList[highlightedLine.transform.GetSiblingIndex()];
+            }
+        }
+
         class MultiColumnActive : InfoTable
         {
             List<List<TextRef>> info;
@@ -469,6 +615,80 @@ namespace Assets.Scripts.Rendering
                     info.Insert(0, headers);
                 else if (headers != null)
                     throw new ArgumentException("The headers of this infotable do not have a valid count. Use 'number of colums' or 'number of colums + 1'");
+            }
+        }
+
+        class MultiColumnActiveMemory<T> : InfoTable
+        {
+            List<T> dataList;
+            List<List<TextRef>> info;
+            Func<List<T>> listScript;
+            Func<T, List<TextRef>> lineScript;
+            List<TextRef> headers;
+            int colms;
+
+            /// <summary>
+            /// Use this constructor if the number of elements in the table is variable.
+            /// BEWARE: this is badly optimised at the moment.
+            /// </summary>
+            /// <param name="parent"></param>
+            /// <param name="script">This function must return the list with entries. The tuples in this list are the entries. The second item is the ToString() of whatever object is returned by the second function.</param>
+            /// <param name="width"></param>
+            /// <param name="fontSize"></param>
+            /// <param name="title"></param>
+            public MultiColumnActiveMemory(Transform parent, Func<List<T>> listScript,Func<T, List<TextRef>> lineScript, int width, int fontSize, TextRef title, List<TextRef> headers) :
+            base(parent, width, fontSize, title)
+            {
+                info = null;
+                ActiveInfoTable ait = go.AddComponent<ActiveInfoTable>();
+                ait.parent = this;
+                this.listScript = listScript;
+                this.lineScript = lineScript;
+                this.headers = headers;
+                Redraw();
+            }
+
+            public override void Redraw()
+            {
+                List<T> newList = listScript();
+                if (newList == null || newList.Count == 0)
+                    throw new ArgumentException("The info of this infotable is empty. Please don't do this to me.");
+                bool dataEqual = true;
+                if (dataList == null || newList == null) dataEqual = false;
+                else if (dataList.Count != newList.Count) dataEqual = false;
+
+                if (dataEqual == false)
+                {
+                    dataList = newList;
+                    info = newList.ConvertAll(line => lineScript(line));
+                    AddHeaders();
+                    BaseRedrawMulticolumn(info, colms);
+                }
+            }
+
+            public override void ResetInfo()
+            {
+                info = new List<List<TextRef>>();
+                listScript = null;
+                lineScript = null;
+            }
+
+            private void AddHeaders()
+            {
+                if (headers != null && headers.Count == colms)
+                {
+                    List<TextRef> blank = new List<TextRef>() { TextRef.Create("") };
+                    info.Insert(0, blank.Concat(headers).ToList());
+                }
+                else if (headers != null && headers.Count == colms + 1)
+                    info.Insert(0, headers);
+                else if (headers != null)
+                    throw new ArgumentException("The headers of this infotable do not have a valid count. Use 'number of colums' or 'number of colums + 1'");
+            }
+
+            public T RetrieveHighlight()
+            {
+                return dataList[highlightedLine.transform.GetSiblingIndex()];
             }
         }
     }

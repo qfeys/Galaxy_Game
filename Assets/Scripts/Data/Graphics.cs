@@ -48,8 +48,10 @@ namespace Assets.Scripts.Data
             return Resources.Load<Sprite>(@"Graphics\Small button");
         }
 
-        public static class Color_ {
-             public static Color text { get { return new Color(1, 1, 0.8f); } }
+        public static class Color_
+        {
+            public static Color text { get { return new Color(1, 1, 0.8f); } }
+            public static Color activeText { get { return new Color(.5f, .5f, 0); } }
 
             /// <summary>
             /// Transforms a temperature in K to its black body color
