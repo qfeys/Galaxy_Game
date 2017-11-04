@@ -660,7 +660,7 @@ namespace Assets.Scripts.Rendering
             public override void Redraw()
             {
                 List<T> newList = listScript();
-                if (newList == null || newList.Count == 0)
+                if (newList == null || (newList.Count == 0 && headers == null))
                     throw new ArgumentException("The info of this infotable is empty. Please don't do this to me.");
                 bool dataEqual = true;
                 if (dataList == null || newList == null) dataEqual = false;
@@ -670,8 +670,10 @@ namespace Assets.Scripts.Rendering
                 {
                     dataList = newList;
                     info = newList.ConvertAll(line => lineScript(line));
-                    colms = info[0].Count;
+                    colms = info.Count != 0 ? info[0].Count : colms;
                     AddHeaders();
+                    if (colms == 0)
+                        colms = info[0].Count;
                     BaseRedrawMulticolumn(info, colms);
                 }
             }
@@ -685,12 +687,7 @@ namespace Assets.Scripts.Rendering
 
             private void AddHeaders()
             {
-                if (headers != null && headers.Count == colms)
-                {
-                    List<TextRef> blank = new List<TextRef>() { TextRef.Create("") };
-                    info.Insert(0, blank.Concat(headers).ToList());
-                }
-                else if (headers != null && headers.Count == colms + 1)
+                if (headers != null && (headers.Count == colms || colms == 0))
                     info.Insert(0, headers);
                 else if (headers != null)
                     throw new ArgumentException("The headers of this infotable do not have a valid count. Use 'number of colums' or 'number of colums + 1'");
