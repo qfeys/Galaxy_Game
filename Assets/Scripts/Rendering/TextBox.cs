@@ -10,7 +10,8 @@ namespace Assets.Scripts.Rendering
     {
         public TextRef Text;
 
-        public float Width { get { return text.preferredWidth / 2; } }
+        public float Width { get { return text.preferredWidth / SCALING_FACTOR; } }
+        const int SCALING_FACTOR = 8;
 
         GameObject go;
         Text text;
@@ -53,7 +54,7 @@ namespace Assets.Scripts.Rendering
             {
                 text = go.AddComponent<Text>();
                 text.font = Data.Graphics.GetStandardFont();
-                text.fontSize = size * 2;
+                text.fontSize = size * SCALING_FACTOR;
                 text.alignment = allignment;
                 text.horizontalOverflow = HorizontalWrapMode.Overflow;
                 TextBoxScript tbs = go.AddComponent<TextBoxScript>();
@@ -62,8 +63,8 @@ namespace Assets.Scripts.Rendering
                 text.text = Text;
                 text.color = color ?? Data.Graphics.Color_.text;
 
-                tr.localScale = new Vector3(0.5f, 0.5f, 1);
-                tr.sizeDelta = new Vector2(text.preferredWidth / 2 + size, (size + 2) * 2);
+                tr.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
+                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2) * SCALING_FACTOR);
             }
             else                        // Make a button
             {
@@ -102,10 +103,10 @@ namespace Assets.Scripts.Rendering
                 tbs.hasMouseover = Text.AltText != null;
                 text.text = Text;
                 text.color = color ?? Data.Graphics.Color_.text;
-                
-                tr.sizeDelta = new Vector2(text.preferredWidth / 2 + size, (size + 4));
-                sTr.localScale = new Vector3(0.5f, 0.5f, 1);
-                sTr.sizeDelta = new Vector2(text.preferredWidth / 2 + size, (size + 2) * 2);
+
+                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2 * SCALING_FACTOR));
+                sTr.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
+                sTr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2) * SCALING_FACTOR);
             }
         }
 
