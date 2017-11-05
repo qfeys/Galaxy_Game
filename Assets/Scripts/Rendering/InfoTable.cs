@@ -28,7 +28,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable Create(Transform parent, List<List<TextRef>> info, int width = 200, int fontSize = 12, TextRef title = null, List<TextRef> headers = null)
+        static public InfoTable Create(Transform parent, List<List<TextRef>> info, int width = 200, List<TextRef> headers = null, int fontSize = 12, TextRef title = null)
         {
             return new MultiColumnPassive(parent, info, width, fontSize, title, headers);
         }
@@ -42,7 +42,7 @@ namespace Assets.Scripts.Rendering
         /// <param name="width"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        static public InfoTable Create(Transform parent, Func<List<List<TextRef>>> script, int width = 200, int fontSize = 12, TextRef title = null, List<TextRef> headers = null)
+        static public InfoTable Create(Transform parent, Func<List<List<TextRef>>> script, int width = 200, List<TextRef> headers = null, int fontSize = 12, TextRef title = null)
         {
             return new MultiColumnActive(parent, script, width, fontSize, title, headers);
         }
@@ -57,11 +57,11 @@ namespace Assets.Scripts.Rendering
         /// <param name="dataList">This is the list with the data in the table</param>
         /// <param name="lineScript">This function transforms the data entries into a line of TextRefs</param>
         /// <param name="width"></param>
+        /// <param name="headers"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        /// <param name="headers"></param>
         /// <returns></returns>
-        static public InfoTable Create<T>(Transform parent, List<T> dataList, Func<T, List<TextRef>> lineScript, int width = 200, int fontSize = 12, TextRef title = null, List<TextRef> headers = null)
+        static public InfoTable Create<T>(Transform parent, List<T> dataList, Func<T, List<TextRef>> lineScript, int width = 200, List<TextRef> headers = null, int fontSize = 12, TextRef title = null)
         {
             return new MultiColumnPassiveMemory<T>(parent, dataList, lineScript, width, fontSize, title, headers);
         }
@@ -76,11 +76,11 @@ namespace Assets.Scripts.Rendering
         /// <param name="listScript">This script creates the data in the table</param>
         /// <param name="lineScript">This function transforms the data entries into a line of TextRefs</param>
         /// <param name="width"></param>
+        /// <param name="headers"></param>
         /// <param name="fontSize"></param>
         /// <param name="title"></param>
-        /// <param name="headers"></param>
         /// <returns></returns>
-        static public InfoTable Create<T>(Transform parent, Func<List<T>> listScript, Func<T, List<TextRef>> lineScript, int width = 200, int fontSize = 12, TextRef title = null, List<TextRef> headers = null)
+        static public InfoTable Create<T>(Transform parent, Func<List<T>> listScript, Func<T, List<TextRef>> lineScript, int width = 200, List<TextRef> headers = null, int fontSize = 12, TextRef title = null)
         {
             return new MultiColumnActiveMemory<T>(parent, listScript, lineScript, width, fontSize, title, headers);
         }

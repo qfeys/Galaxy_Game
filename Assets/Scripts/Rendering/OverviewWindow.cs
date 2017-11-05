@@ -38,7 +38,7 @@ namespace Assets.Scripts.Rendering
             InfoTable table = InfoTable.Create(go.transform, new List<List<TextRef>>() {
                     new List<TextRef>(){TextRef.Create("population"),    TextRef.Create(()=>Simulation.God.PlayerEmpire.Population) },
                     new List<TextRef>(){TextRef.Create("Wealth"),        TextRef.Create(() => Simulation.God.PlayerEmpire.Wealth) }
-                }, 200, 12, "Populations");
+                }, 200, fontSize: 12, title: "Populations");
             Center(table.transform, new Vector2(100, -100));
             return go;
         }
@@ -56,12 +56,12 @@ namespace Assets.Scripts.Rendering
                         TextRef.Create(() => pop.Count),
                         TextRef.Create(() => pop.Wealth),
                         TextRef.Create("show").AddLink(()=>PopDetails.OpenDetails(pop)) },
-                300, 12, null, new List<TextRef>() {
+                300, new List<TextRef>() {
                     TextRef.Create("Population"),
                     TextRef.Create("Citizens"),
                     TextRef.Create("Wealth"),
                     TextRef.Create("Details")
-                });
+                }, 12, null);
             Center(tablePops.transform, new Vector2(-100, -100));
 
             return go;
@@ -76,14 +76,14 @@ namespace Assets.Scripts.Rendering
 
             InfoTable tableSectors = InfoTable.Create(go.transform,
                 () => Enum.GetValues(typeof(Empires.Technology.Technology.Sector)).Cast<Empires.Technology.Technology.Sector>().ToList(),
-                sector => new List<TextRef>() { sector.ToString(), 0},
-                200, 12, null, new List<TextRef>() { "tech_sector", "funding" });
+                sector => new List<TextRef>() { sector.ToString(), 0 },
+                200, new List<TextRef>() { "tech_sector", "funding" }, 12, null);
             Center(tableSectors.transform, new Vector2(-100, -100));
 
 
             InfoTable tableTechs = InfoTable.Create(go.transform, () => Simulation.God.PlayerEmpire.Academy.Unlocks,
-                tech => new List<TextRef>() { tech.Name, tech.Knowledge, tech.Understanding},
-                200, 12, null, new List<TextRef>() {"", "knowledge", "understanding" });
+                tech => new List<TextRef>() { tech.Name, tech.Knowledge, tech.Understanding },
+                200, new List<TextRef>() { "", "knowledge", "understanding" }, 12, null);
             Center(tableTechs.transform, new Vector2(100, -100));
             return go;
         }

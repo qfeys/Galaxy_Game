@@ -112,7 +112,7 @@ namespace Assets.Scripts.Rendering
 
             InfoTable constructionQueue = InfoTable.Create(go.transform, () => activePopulation.industryCenter.constructionQueue,
                 job => new List<TextRef>() { job.instl.name, job.amount, job.capacity, job.instl.costWork, "NaN", "NaN" },
-                700, 12, null, new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "next item", "end of job" });
+                700, new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "next item", "end of job" }, 12, null);
             constructionQueue.transform.anchorMin = new Vector2(0, 0.5f);
             constructionQueue.transform.anchorMax = new Vector2(0, 0.5f);
             constructionQueue.transform.pivot = new Vector2(0, 1);
@@ -125,17 +125,17 @@ namespace Assets.Scripts.Rendering
         {
             GameObject go = new GameObject("Construction", typeof(RectTransform));
 
-            InfoTable installationsList = InfoTable.Create(go.transform, 
-                ()=>Empires.Industry.Installation.installationList.FindAll(ins => ins.IsValid(activePopulation)),
-                instl=>new List<TextRef>() { instl.name, instl.costWork.ToString(),
+            InfoTable installationsList = InfoTable.Create(go.transform,
+                () => Empires.Industry.Installation.installationList.FindAll(ins => ins.IsValid(activePopulation)),
+                instl => new List<TextRef>() { instl.name, instl.costWork.ToString(),
                             instl.costResources["steel"],
                             instl.costResources["nonFerrous"],
                             instl.costResources["carbon"],
                             instl.costResources["silicates"],
                             instl.costResources["rareEarth"],
                             instl.costResources["components"],
-                            instl.costResources["electronics"]},700,12,null,
-                new List<TextRef>() { "", "work", "steel", "nonFerrous", "carbon", "silicates", "rareEarth", "components", "electronics" });
+                            instl.costResources["electronics"]}, 700, new List<TextRef>() { "", "work", "steel", "nonFerrous", "carbon", "silicates", "rareEarth", "components", "electronics" }, 12,
+                null);
 
             installationsList.transform.anchorMin = new Vector2(1, 1);
             installationsList.transform.anchorMax = new Vector2(1, 1);
@@ -255,7 +255,8 @@ namespace Assets.Scripts.Rendering
                 activePopulation != null && 
                 activePopulation.Location != null && 
                 activePopulation.Location.MiningPile != null ? activePopulation.Location.MiningPile : Bodies.MiningPile.Empty;
-            InfoTable tablePops = InfoTable.Create(go.transform, () => {
+            InfoTable tablePops = InfoTable.Create(go.transform, () =>
+            {
                 List<List<TextRef>> list = new List<List<TextRef>>();
                 for (int i = 0; i < pile.pile.Count; i++)
                 {
@@ -278,7 +279,8 @@ namespace Assets.Scripts.Rendering
         {
             GameObject go = new GameObject("Stockpile", typeof(RectTransform));
             var a = activePopulation.industryCenter.stockpile;
-            InfoTable tablePops = InfoTable.Create(go.transform, ()=> {
+            InfoTable tablePops = InfoTable.Create(go.transform, () =>
+            {
                 List<List<TextRef>> list = new List<List<TextRef>>();
                 for (int i = 0; i < Empires.Industry.Stockpile.ResourceType.ResourceTypes.Count; i++)
                 {
@@ -315,7 +317,8 @@ namespace Assets.Scripts.Rendering
         {
             GameObject go = new GameObject("Research", typeof(RectTransform));
             Empires.Technology.Academy a = Simulation.God.PlayerEmpire.Academy;
-            InfoTable tableLabs = InfoTable.Create(go.transform, () => {
+            InfoTable tableLabs = InfoTable.Create(go.transform, () =>
+            {
                 List<List<TextRef>> list = new List<List<TextRef>>();
                 List<Empires.Technology.Academy.Laboratory> labs = a.GetLabsAt(activePopulation);
                 list.Add(new List<TextRef>() { "id", "leader", "eff", "project", "eff" });
