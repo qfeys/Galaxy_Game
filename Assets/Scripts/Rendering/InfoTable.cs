@@ -19,35 +19,7 @@ namespace Assets.Scripts.Rendering
         bool highlightLines = true;
         GameObject highlightedLine;
         List<Action> highlightChangeCallbacks;
-
-
-        /// <summary>
-        /// Use this constructor if you want to make a 2 column table where the number of elements is fixed
-        /// </summary>
-        /// <param name="parent"></param>
-        /// <param name="info">The tuples in this list are the entries. The second item should return an object on which ToString() will be called.</param>
-        /// <param name="width"></param>
-        /// <param name="fontSize"></param>
-        /// <param name="title"></param>
-        static public InfoTable Create(Transform parent, List<Tuple<TextRef, TextRef>> info, int width = 200, int fontSize = 12, TextRef title = null)
-        {
-            return new TwoColumnPassive(parent, info, width, fontSize, title);
-        }
-
-        /// <summary>
-        /// Use this constructor if you want to make a 2 column table where the number of elements is variable
-        /// BEWARE: this is badly optimised at the moment.
-        /// </summary>
-        /// <param name="parent"></param>
-        /// <param name="script">This function must return the list with entries. The tuples in this list are the entries. The second item should return an object on which ToString() will be called.</param>
-        /// <param name="width"></param>
-        /// <param name="fontSize"></param>
-        /// <param name="title"></param>
-        static public InfoTable Create(Transform parent, Func<List<Tuple<TextRef, TextRef>>> script, int width = 200, int fontSize = 12, TextRef title = null)
-        {
-            return new TwoColumnActive(parent, script, width, fontSize, title);
-        }
-
+        
         /// <summary>
         /// Use this constructor if you want to make a multi column table where the number of elements is fixed
         /// </summary>
@@ -200,33 +172,7 @@ namespace Assets.Scripts.Rendering
             else
                 throw new Exception("You can only retrieve the highlihgt from memory tables with the correct type. This is a " + GetType().ToString());
         }
-
-        /// <summary>
-        /// Removes the info from the table and sets new info.
-        /// BEWARE: make sure to call Redraw() after setting the info
-        /// </summary>
-        /// <param name="newInfo">The tuples in this list are the entries. The second item should return an object on which ToString() will be called.</param>
-        public void SetInfo(List<Tuple<TextRef, TextRef>> newInfo)
-        {
-            if (this.GetType() == typeof(TwoColumnPassive))
-                ((TwoColumnPassive)this).SetInfo(newInfo);
-            else
-                throw new ArgumentException("You are using the wrong 'SetInfo' for this type of infotable");
-        }
-
-        /// <summary>
-        /// Adds one new line to the info
-        /// BEWARE: make sure to call Redraw() after setting the info
-        /// </summary>
-        /// <param name="newInfo">The tuples is the entry. The second item should return an object on which ToString() will be called.</param>
-        public void AddInfo(Tuple<TextRef, TextRef> newInfo)
-        {
-            if (this.GetType() == typeof(TwoColumnPassive))
-                ((TwoColumnPassive)this).AddInfo(newInfo);
-            else
-                throw new ArgumentException("You are using the wrong 'AddInfo' for this type of infotable");
-        }
-
+        
         /// <summary>
         /// Removes the info from the table and sets new info.
         /// BEWARE: make sure to call Redraw() after setting the info
@@ -255,47 +201,7 @@ namespace Assets.Scripts.Rendering
 
         abstract public void ResetInfo();
 
-        protected void BaseRedraw2column(List<Tuple<TextRef, TextRef>> info)
-        {
-            for (int i = go.transform.childCount - 1; i >= 0; i--)      // Kill all previous lines
-            {
-                UnityEngine.Object.Destroy(go.transform.GetChild(i).gameObject);
-                go.transform.GetChild(i).SetParent(null);
-            }
-            if (title != null)
-            {
-                CreateTitle();
-            }
-            if (info.Count == 0)        // no data - place a dummy line
-            {
-                GameObject line = CreateLine();
-                GameObject nameCont = new GameObject("Name Container", typeof(RectTransform));
-                nameCont.transform.SetParent(line.transform);
-                TextBox name = new TextBox(nameCont.transform, TextRef.Create("#####", false), fontSize, TextAnchor.MiddleLeft);
-                nameCont.AddComponent<LayoutElement>().flexibleWidth = 1;
-
-                GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
-                dataCont.transform.SetParent(line.transform);
-                TextBox data = new TextBox(dataCont.transform, TextRef.Create("#####", false), fontSize, TextAnchor.MiddleRight);
-            }
-            else
-            {
-                for (int i = 0; i < info.Count; i++)
-                {
-                    GameObject line = CreateLine();
-                    GameObject nameCont = new GameObject("Name Container", typeof(RectTransform));
-                    nameCont.transform.SetParent(line.transform);
-                    TextBox name = new TextBox(nameCont.transform, info[i].Item1, fontSize, TextAnchor.MiddleLeft);
-                    nameCont.AddComponent<LayoutElement>().flexibleWidth = 1;
-
-                    GameObject dataCont = new GameObject("Data Container", typeof(RectTransform));
-                    dataCont.transform.SetParent(line.transform);
-                    TextBox data = new TextBox(dataCont.transform, info[i].Item2, fontSize, TextAnchor.MiddleRight);
-                }
-            }
-        }
-
-        protected void BaseRedrawMulticolumn(List<List<TextRef>> info, int numberOfCol)
+        protected void BaseRedraw(List<List<TextRef>> info, int numberOfCol)
         {
             for (int i = go.transform.childCount - 1; i >= 0; i--)      // Kill all previous lines
             {
@@ -344,88 +250,7 @@ namespace Assets.Scripts.Rendering
                 parent.Redraw();
             }
         }
-
-        class TwoColumnPassive : InfoTable
-        {
-            List<Tuple<TextRef, TextRef>> info;
-
-            /// <summary>
-            /// Use this constructor if you want to make a 2 column table where the number of elements is fixed
-            /// </summary>
-            /// <param name="parent"></param>
-            /// <param name="info">The tuples in this list are the entries. The second item is the ToString() of whatever object is returned by the second function.</param>
-            /// <param name="width"></param>
-            /// <param name="fontSize"></param>
-            /// <param name="title"></param>
-            public TwoColumnPassive(Transform parent, List<Tuple<TextRef, TextRef>> info, int width, int fontSize, TextRef title) :
-            base(parent, width, fontSize, title)
-            {
-                this.info = info;
-                Redraw();
-            }
-
-            public override void Redraw()
-            {
-                BaseRedraw2column(info);
-            }
-
-            public new void SetInfo(List<Tuple<TextRef, TextRef>> newInfo)
-            {
-                info = newInfo;
-            }
-
-            public new void AddInfo(Tuple<TextRef, TextRef> newInfo)
-            {
-                info.Add(newInfo);
-            }
-
-            public override void ResetInfo()
-            {
-                info = new List<Tuple<TextRef, TextRef>>();
-            }
-        }
-
-        class TwoColumnActive : InfoTable
-        {
-            List<Tuple<TextRef, TextRef>> info;
-            public Func<List<Tuple<TextRef, TextRef>>> script;
-
-            /// <summary>
-            /// Use this constructor if the number of elements in the table is variable.
-            /// BEWARE: this is badly optimised at the moment.
-            /// </summary>
-            /// <param name="parent"></param>
-            /// <param name="script">This function must return the list with entries. The tuples in this list are the entries. The second item is the ToString() of whatever object is returned by the second function.</param>
-            /// <param name="width"></param>
-            /// <param name="fontSize"></param>
-            /// <param name="title"></param>
-            public TwoColumnActive(Transform parent, Func<List<Tuple<TextRef, TextRef>>> script, int width, int fontSize, TextRef title) :
-            base(parent, width, fontSize, title)
-            {
-                info = null;
-                ActiveInfoTable ait = go.AddComponent<ActiveInfoTable>();
-                ait.parent = this;
-                this.script = script;
-                info = script();
-                Redraw();
-            }
-
-            public override void Redraw()
-            {
-                var newinfo = script();
-                if (newinfo != info) {
-                    info = newinfo;
-                    BaseRedraw2column(info);
-                }
-            }
-
-            public override void ResetInfo()
-            {
-                info = new List<Tuple<TextRef, TextRef>>();
-                script = null;
-            }
-        }
-
+        
         class MultiColumnPassive : InfoTable
         {
             List<List<TextRef>> info;
@@ -456,7 +281,7 @@ namespace Assets.Scripts.Rendering
 
             public override void Redraw()
             {
-                BaseRedrawMulticolumn(info, colms);
+                BaseRedraw(info, colms);
             }
 
             public new void SetInfo(List<List<TextRef>> newInfo)
@@ -518,7 +343,7 @@ namespace Assets.Scripts.Rendering
 
             public override void Redraw()
             {
-                BaseRedrawMulticolumn(info, colms);
+                BaseRedraw(info, colms);
             }
 
             public new void SetInfo(List<List<TextRef>> newInfo)
@@ -604,7 +429,7 @@ namespace Assets.Scripts.Rendering
                 {
                     info = newinfo;
                     AddHeaders();
-                    BaseRedrawMulticolumn(info, colms);
+                    BaseRedraw(info, colms);
                 }
             }
 
@@ -674,7 +499,7 @@ namespace Assets.Scripts.Rendering
                     AddHeaders();
                     if (colms == 0)
                         colms = info[0].Count;
-                    BaseRedrawMulticolumn(info, colms);
+                    BaseRedraw(info, colms);
                 }
             }
 

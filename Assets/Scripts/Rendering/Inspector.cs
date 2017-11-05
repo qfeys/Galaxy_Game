@@ -73,37 +73,37 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, TextRef.Create(() => p), 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
 
-            InfoTable info = InfoTable.Create(go.transform, new List<Tuple<TextRef, TextRef>>());
+            InfoTable info = InfoTable.Create(go.transform, new List<List<TextRef>>());
             if (p.type == Bodies.Planet.Type.Chunk || p.type == Bodies.Planet.Type.Terrestial_planet)
                 if (p.IsPopulated == false)
-                    info.SetInfo(new List<Tuple<TextRef, TextRef>>() {
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Mass"),            TextRef.Create(()=>p.Mass)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Temperature"),     TextRef.Create(()=>p.SurfaceTemperature)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Pressure"),        TextRef.Create(()=>p.PressureAtSeaLevel)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg))
+                    info.SetInfo(new List<List<TextRef>>() {
+                    new List<TextRef>(){ TextRef.Create("Mass"),            TextRef.Create(()=>p.Mass) },
+                    new List<TextRef>(){ TextRef.Create("Temperature"),     TextRef.Create(()=>p.SurfaceTemperature) },
+                    new List<TextRef>(){ TextRef.Create("Pressure"),        TextRef.Create(()=>p.PressureAtSeaLevel) },
+                    new List<TextRef>(){ TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay) },
+                    new List<TextRef>(){ TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays) },
+                    new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA) },
+                    new List<TextRef>(){ TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg) }
                     });
                 else
-                    info.SetInfo(new List<Tuple<TextRef, TextRef>>() {
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Mass"),            TextRef.Create(()=>p.Mass)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Temperature"),     TextRef.Create(()=>p.SurfaceTemperature)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Pressure"),        TextRef.Create(()=>p.PressureAtSeaLevel)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Total population"),TextRef.Create(()=>p.PopulationCount))
+                    info.SetInfo(new List<List<TextRef>>() {
+                    new List<TextRef>(){ TextRef.Create("Mass"),            TextRef.Create(()=>p.Mass)},
+                    new List<TextRef>(){ TextRef.Create("Temperature"),     TextRef.Create(()=>p.SurfaceTemperature)},
+                    new List<TextRef>(){ TextRef.Create("Pressure"),        TextRef.Create(()=>p.PressureAtSeaLevel)},
+                    new List<TextRef>(){ TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay)},
+                    new List<TextRef>(){ TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays)},
+                    new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA)},
+                    new List<TextRef>(){ TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg)},
+                    new List<TextRef>(){ TextRef.Create("Total population"),TextRef.Create(()=>p.PopulationCount) }
                     });
             else if (p.type == Bodies.Planet.Type.Gas_Giant || p.type == Bodies.Planet.Type.Superjovian)
-                info.SetInfo(new List<Tuple<TextRef, TextRef>>() {
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Mass"),            TextRef.Create(()=>p.Mass)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Temperature"),     TextRef.Create(()=>p.BaseTemperature)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg))
+                info.SetInfo(new List<List<TextRef>>() {
+                    new List<TextRef>(){ TextRef.Create("Mass"),            TextRef.Create(()=>p.Mass)},
+                    new List<TextRef>(){ TextRef.Create("Temperature"),     TextRef.Create(()=>p.BaseTemperature)},
+                    new List<TextRef>(){ TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay)},
+                    new List<TextRef>(){ TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays)},
+                    new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA)},
+                    new List<TextRef>(){ TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg) }
                 });
             info.Redraw();
         }
@@ -115,14 +115,14 @@ namespace Assets.Scripts.Rendering
             TextBox title = new TextBox(go.transform, TextRef.Create(() => s), 20, TextAnchor.UpperLeft, Data.Graphics.Color_.text);
             title.transform.anchoredPosition = new Vector2(20, -20);
 
-            InfoTable info = InfoTable.Create(go.transform, new List<Tuple<TextRef, TextRef>>());
-            info.SetInfo(new List<Tuple<TextRef, TextRef>>() {
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Mass"),            TextRef.Create(()=>s.Mass)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Temperature"),     TextRef.Create(()=>s.Temperature)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Radius"),          TextRef.Create(()=>s.Radius)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Luminocity"),      TextRef.Create(()=>s.Luminosity)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Orbit (24h days)"),TextRef.Create(()=>s.OrbElements.T.TotalDays)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>s.OrbElements.SMA))
+            InfoTable info = InfoTable.Create(go.transform, new List<List<TextRef>>());
+            info.SetInfo(new List<List<TextRef>>() {
+                    new List<TextRef>(){ TextRef.Create("Mass"),            TextRef.Create(()=>s.Mass)},
+                    new List<TextRef>(){ TextRef.Create("Temperature"),     TextRef.Create(()=>s.Temperature)},
+                    new List<TextRef>(){ TextRef.Create("Radius"),          TextRef.Create(()=>s.Radius)},
+                    new List<TextRef>(){ TextRef.Create("Luminocity"),      TextRef.Create(()=>s.Luminosity)},
+                    new List<TextRef>(){ TextRef.Create("Orbit (24h days)"),TextRef.Create(()=>s.OrbElements.T.TotalDays)},
+                    new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>s.OrbElements.SMA) }
             });
             info.Redraw();
         }
@@ -155,12 +155,12 @@ namespace Assets.Scripts.Rendering
                 CloseInspector();
             });
 
-            InfoTable info = InfoTable.Create(go.transform, new List<Tuple<TextRef, TextRef>>());
-            info.SetInfo(new List<Tuple<TextRef, TextRef>>() {
-                    new Tuple<TextRef, TextRef>( TextRef.Create("Primary"),     TextRef.Create(()=>sys.Primary)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("# Stars"),     TextRef.Create(()=>sys.Tertiary == null? sys.Secondary == null? 1:2:3)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("# planets"),   TextRef.Create(()=>sys.Planets.Count)),
-                    new Tuple<TextRef, TextRef>( TextRef.Create("# moons"),     TextRef.Create(()=>sys.Planets.Sum(p => p.moons.Count)))
+            InfoTable info = InfoTable.Create(go.transform, new List<List<TextRef>>());
+            info.SetInfo(new List<List<TextRef>>() {
+                    new List<TextRef>(){ TextRef.Create("Primary"),     TextRef.Create(()=>sys.Primary)},
+                    new List<TextRef>(){ TextRef.Create("# Stars"),     TextRef.Create(()=>sys.Tertiary == null? sys.Secondary == null? 1:2:3)},
+                    new List<TextRef>(){ TextRef.Create("# planets"),   TextRef.Create(()=>sys.Planets.Count)},
+                    new List<TextRef>(){ TextRef.Create("# moons"),     TextRef.Create(()=>sys.Planets.Sum(p => p.moons.Count))}
             });
             info.Redraw();
         }
