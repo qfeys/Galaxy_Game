@@ -165,6 +165,73 @@ namespace Assets.Scripts.Rendering
                 MouseOver.Deactivate();
             }
         }
+
+        public class InputBox
+        {
+
+            public float Width { get { return field.preferredWidth / SCALING_FACTOR; } }
+
+            GameObject go;
+            InputField field;
+            Text text;
+
+            string default_;
+
+            public InputBox(Transform parent, string default_ = "", int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
+            {
+                this.default_ = default_;
+                go = new GameObject("InputBox", typeof(RectTransform));
+                go.transform.SetParent(parent, false);
+                RectTransform tr = (RectTransform)go.transform;
+                float anchX = 0; float anchY = 0;
+                switch (allignment)
+                {
+                case TextAnchor.LowerLeft: anchX = 0; anchY = 0; break;
+                case TextAnchor.MiddleLeft: anchX = 0; anchY = 0.5f; break;
+                case TextAnchor.UpperLeft: anchX = 0; anchY = 1; break;
+                case TextAnchor.LowerCenter: anchX = 0.5f; anchY = 0; break;
+                case TextAnchor.MiddleCenter: anchX = 0.5f; anchY = 0.5f; break;
+                case TextAnchor.UpperCenter: anchX = 0.5f; anchY = 1; break;
+                case TextAnchor.LowerRight: anchX = 1; anchY = 0; break;
+                case TextAnchor.MiddleRight: anchX = 1; anchY = 0.5f; break;
+                case TextAnchor.UpperRight: anchX = 1; anchY = 1; break;
+                }
+                tr.anchorMin = new Vector2(anchX, anchY);
+                tr.anchorMax = new Vector2(anchX, anchY);
+                tr.pivot = new Vector2(anchX, anchY);
+                tr.anchoredPosition = new Vector2(0, 0);
+
+                field = go.AddComponent<InputField>();
+
+                GameObject textGo = new GameObject("InputBox", typeof(RectTransform));
+                textGo.transform.SetParent(tr);
+                text = textGo.AddComponent<Text>();
+                text.font = Data.Graphics.GetStandardFont();
+                text.fontSize = size * SCALING_FACTOR;
+                text.alignment = allignment;
+                text.horizontalOverflow = HorizontalWrapMode.Overflow;
+                text.verticalOverflow = VerticalWrapMode.Overflow;
+                text.color = color ?? Data.Graphics.Color_.text;
+
+                field.textComponent = text;
+                field.text = default_;
+
+                tr.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
+                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2));
+            }
+
+            public string PeekValue()
+            {
+                return field.text;
+            }
+
+            public string TakeValue()
+            {
+                string ret = field.text;
+                field.text = default_;
+                return ret;
+            }
+        }
     }
 
     /// <summary>
