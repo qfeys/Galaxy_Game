@@ -169,15 +169,15 @@ namespace Assets.Scripts.Rendering
         public class InputBox
         {
 
-            public float Width { get { return field.preferredWidth / SCALING_FACTOR; } }
-
             GameObject go;
             InputField field;
             Text text;
 
             string default_;
 
-            public InputBox(Transform parent, string default_ = "", int size = 12, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
+            public RectTransform transform { get { return go.transform as RectTransform; } }
+
+            public InputBox(Transform parent, string default_ = "", int size = 12, int width = 80, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
             {
                 this.default_ = default_;
                 go = new GameObject("InputBox", typeof(RectTransform));
@@ -208,7 +208,12 @@ namespace Assets.Scripts.Rendering
                 text = textGo.AddComponent<Text>();
                 text.font = Data.Graphics.GetStandardFont();
                 text.fontSize = size * SCALING_FACTOR;
-                text.alignment = allignment;
+                switch (allignment)
+                {
+                case TextAnchor.LowerLeft: case TextAnchor.MiddleLeft: case TextAnchor.UpperLeft: text.alignment = TextAnchor.MiddleLeft; break;
+                case TextAnchor.LowerCenter: case TextAnchor.MiddleCenter: case TextAnchor.UpperCenter: text.alignment = TextAnchor.MiddleCenter; break;
+                case TextAnchor.LowerRight: case TextAnchor.MiddleRight: case TextAnchor.UpperRight: text.alignment = TextAnchor.MiddleRight; break;
+                }
                 text.horizontalOverflow = HorizontalWrapMode.Overflow;
                 text.verticalOverflow = VerticalWrapMode.Overflow;
                 text.color = color ?? Data.Graphics.Color_.text;
@@ -216,8 +221,12 @@ namespace Assets.Scripts.Rendering
                 field.textComponent = text;
                 field.text = default_;
 
-                tr.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
-                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2));
+                tr.sizeDelta = new Vector2(width, (size + 2));
+
+                RectTransform trtx = textGo.transform as RectTransform;
+                trtx.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
+                trtx.sizeDelta = new Vector2(width * SCALING_FACTOR, size + 2);
+                trtx.anchoredPosition = new Vector2(0, 0);
             }
 
             public string PeekValue()

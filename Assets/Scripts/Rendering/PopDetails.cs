@@ -118,6 +118,31 @@ namespace Assets.Scripts.Rendering
             constructionQueue.transform.pivot = new Vector2(0, 1);
             constructionQueue.transform.anchoredPosition = new Vector2(0, 0);
 
+            GameObject constructionInterface = new GameObject("ConstructionInterface", typeof(RectTransform));
+            {
+                RectTransform tr = (RectTransform)constructionInterface.transform;
+                tr.SetParent(go.transform);
+                tr.sizeDelta = new Vector2(700, 50);
+                tr.anchorMin = new Vector2(0, 1);
+                tr.anchorMax = new Vector2(0, 1);
+                tr.pivot = new Vector2(0, 1);
+                tr.anchoredPosition = new Vector2(0, -230);
+                TextBox tb1 = new TextBox(tr, "amount", 12, TextAnchor.UpperLeft);
+                tb1.transform.anchoredPosition = new Vector2(100, 0);
+                TextBox.InputBox ib1 = new TextBox.InputBox(tr, "0", 12, 50, TextAnchor.UpperRight);
+                ib1.transform.anchorMin = new Vector2(0, 1);
+                ib1.transform.anchorMax = new Vector2(0, 1);
+                ib1.transform.anchoredPosition = new Vector2(250, 0);
+                TextBox tb2 = new TextBox(tr, "capacity", 12, TextAnchor.UpperLeft);
+                tb2.transform.anchoredPosition = new Vector2(300, 0);
+                TextBox.InputBox ib2 = new TextBox.InputBox(tr, "100", 12, 50, TextAnchor.UpperRight);
+                ib2.transform.anchorMin = new Vector2(0, 1);
+                ib2.transform.anchorMax = new Vector2(0, 1);
+                ib2.transform.anchoredPosition = new Vector2(450, 0);
+                TextBox but = new TextBox(tr, TextRef.Create("build").AddLink(() => Debug.Log("Building")), 12, TextAnchor.UpperLeft);
+                but.transform.anchoredPosition = new Vector2(500, 0);
+            }
+
             return go;
         }
 
