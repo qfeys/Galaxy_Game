@@ -378,7 +378,7 @@ namespace Assets.Scripts.Rendering
 
             public T RetrieveHighlight()
             {
-                return dataList[highlightedLine.transform.GetSiblingIndex()];
+                return dataList[highlightedLine.transform.GetSiblingIndex() - (headers == null ? 0 : 1)];
             }
         }
 
@@ -493,7 +493,7 @@ namespace Assets.Scripts.Rendering
 
                 if (dataEqual == false)
                 {
-                    dataList = newList;
+                    dataList = new List<T>(newList);
                     info = newList.ConvertAll(line => lineScript(line));
                     colms = info.Count != 0 ? info[0].Count : colms;
                     AddHeaders();
@@ -520,7 +520,7 @@ namespace Assets.Scripts.Rendering
 
             public T RetrieveHighlight()
             {
-                return dataList[highlightedLine.transform.GetSiblingIndex()];
+                return dataList[highlightedLine.transform.GetSiblingIndex() - (headers == null ? 0 : 1)];
             }
         }
     }

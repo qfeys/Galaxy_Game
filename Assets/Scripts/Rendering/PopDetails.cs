@@ -100,7 +100,7 @@ namespace Assets.Scripts.Rendering
             List<Tuple<TextRef, GameObject>> tabs = new List<Tuple<TextRef, GameObject>>() {
                 new Tuple<TextRef, GameObject>(TextRef.Create("installations"), InstallationsTabTab()),
                 new Tuple<TextRef, GameObject>(TextRef.Create("orbital_habitats"), OrbHabTabTab()),
-                new Tuple<TextRef, GameObject>(TextRef.Create("pcb"), PcbTabTab()),
+                new Tuple<TextRef, GameObject>(TextRef.Create("pdc"), PdcTabTab()),
                 new Tuple<TextRef, GameObject>(TextRef.Create("special_projects"), SpecialProjectsTabTab())
             };
 
@@ -129,17 +129,24 @@ namespace Assets.Scripts.Rendering
                 tr.anchoredPosition = new Vector2(0, -230);
                 TextBox tb1 = new TextBox(tr, "amount", 12, TextAnchor.MiddleLeft);
                 tb1.transform.anchoredPosition = new Vector2(100, 0);
-                TextBox.InputBox ib1 = new TextBox.InputBox(tr, "0", 12, 50, TextAnchor.MiddleRight);
+                TextBox.InputBox ib1 = new TextBox.InputBox(tr, "0", 12, 50, TextAnchor.MiddleRight, InputField.ContentType.IntegerNumber);
                 ib1.transform.anchorMin = new Vector2(0, .5f);
                 ib1.transform.anchorMax = new Vector2(0, .5f);
                 ib1.transform.anchoredPosition = new Vector2(250, 0);
                 TextBox tb2 = new TextBox(tr, "capacity", 12, TextAnchor.MiddleLeft);
                 tb2.transform.anchoredPosition = new Vector2(300, 0);
-                TextBox.InputBox ib2 = new TextBox.InputBox(tr, "100", 12, 50, TextAnchor.MiddleRight);
+                TextBox.InputBox ib2 = new TextBox.InputBox(tr, "100", 12, 50, TextAnchor.MiddleRight, InputField.ContentType.DecimalNumber);
                 ib2.transform.anchorMin = new Vector2(0, .5f);
                 ib2.transform.anchorMax = new Vector2(0, .5f);
                 ib2.transform.anchoredPosition = new Vector2(450, 0);
-                TextBox but = new TextBox(tr, TextRef.Create("build").AddLink(() => Debug.Log("Building")), 12, TextAnchor.MiddleLeft);
+                Action butAct = () =>
+                {
+                    GameObject at = constructionTabs.GetActiveTab();
+                    InfoTable it = at.transform.GetChild(0).GetComponent<InfoTable.ActiveInfoTable>().parent;
+                    activePopulation.industryCenter.BuildInstallation(it.RetrieveHighlight<Empires.Industry.Installation>(), int.Parse(ib1.TakeValue()));
+                    Debug.Log("New building build: " + it.RetrieveHighlight<Empires.Industry.Installation>().ToString());
+                };
+                TextBox but = new TextBox(tr, TextRef.Create("build").AddLink(butAct), 12, TextAnchor.MiddleLeft);
                 but.transform.anchoredPosition = new Vector2(500, 0);
             }
 
@@ -162,6 +169,7 @@ namespace Assets.Scripts.Rendering
                             instl.costResources["electronics"]}, 700, new List<TextRef>() { "", "work", "steel", "nonFerrous", "carbon", "silicates", "rareEarth", "components", "electronics" }, 12,
                 null);
 
+            installationsList.transform.sizeDelta = new Vector2(700, 250);
             installationsList.transform.anchorMin = new Vector2(1, 1);
             installationsList.transform.anchorMax = new Vector2(1, 1);
             installationsList.transform.pivot = new Vector2(1, 1);
@@ -175,7 +183,7 @@ namespace Assets.Scripts.Rendering
             return new GameObject();
         }
 
-        private static GameObject PcbTabTab()
+        private static GameObject PdcTabTab()
         {
             return new GameObject();
         }

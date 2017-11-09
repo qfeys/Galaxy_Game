@@ -33,6 +33,7 @@ namespace Assets.Scripts.Empires.Industry
         public void BuildInstallation(Installation instl, int amount)
         {
             Job j = new Job(instl, amount);
+            constructionQueue.Add(j);
         }
 
         public class Job

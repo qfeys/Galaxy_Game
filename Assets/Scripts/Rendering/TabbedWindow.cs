@@ -154,5 +154,17 @@ namespace Assets.Scripts.Rendering
                 isMinimised = false;
             }
         }
+
+        internal GameObject GetActiveTab()
+        {
+            for (int i = 0; i < windows.Count; i++)
+            {
+                if (windows[i].Item2.activeSelf)
+                {
+                    return windows[i].Item2;
+                }
+            }
+            return null;
+        }
     }
 }

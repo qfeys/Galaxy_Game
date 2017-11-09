@@ -177,7 +177,8 @@ namespace Assets.Scripts.Rendering
 
             public RectTransform transform { get { return go.transform as RectTransform; } }
 
-            public InputBox(Transform parent, string default_ = "", int size = 12, int width = 80, TextAnchor allignment = TextAnchor.MiddleLeft, Color? color = null)
+            public InputBox(Transform parent, string default_ = "", int size = 12, int width = 80, TextAnchor allignment = TextAnchor.MiddleLeft,
+                InputField.ContentType contentType = InputField.ContentType.IntegerNumber, Color? color = null)
             {
                 this.default_ = default_;
                 go = new GameObject("InputBox", typeof(RectTransform));
@@ -227,6 +228,7 @@ namespace Assets.Scripts.Rendering
 
                 field.textComponent = text;
                 field.text = default_;
+                field.contentType = contentType;
 
                 tr.sizeDelta = new Vector2(width, (size + 2));
 
