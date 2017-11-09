@@ -201,6 +201,12 @@ namespace Assets.Scripts.Rendering
                 tr.pivot = new Vector2(anchX, anchY);
                 tr.anchoredPosition = new Vector2(0, 0);
 
+                Image image = go.AddComponent<Image>();
+                image.sprite = Data.Graphics.GetSprite("input_box");
+                image.raycastTarget = true;
+                image.type = Image.Type.Sliced;
+                image.fillCenter = true;
+
                 field = go.AddComponent<InputField>();
 
                 GameObject textGo = new GameObject("InputBox", typeof(RectTransform));
@@ -208,6 +214,7 @@ namespace Assets.Scripts.Rendering
                 text = textGo.AddComponent<Text>();
                 text.font = Data.Graphics.GetStandardFont();
                 text.fontSize = size * SCALING_FACTOR;
+                text.alignByGeometry = true;
                 switch (allignment)
                 {
                 case TextAnchor.LowerLeft: case TextAnchor.MiddleLeft: case TextAnchor.UpperLeft: text.alignment = TextAnchor.MiddleLeft; break;
@@ -226,7 +233,12 @@ namespace Assets.Scripts.Rendering
                 RectTransform trtx = textGo.transform as RectTransform;
                 trtx.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
                 trtx.sizeDelta = new Vector2(width * SCALING_FACTOR, size + 2);
-                trtx.anchoredPosition = new Vector2(0, 0);
+                switch (allignment)
+                {
+                case TextAnchor.LowerLeft: case TextAnchor.MiddleLeft: case TextAnchor.UpperLeft: trtx.anchoredPosition = new Vector2(10, 0); ; break;
+                case TextAnchor.LowerCenter: case TextAnchor.MiddleCenter: case TextAnchor.UpperCenter: trtx.anchoredPosition = new Vector2(0, 0); ; break;
+                case TextAnchor.LowerRight: case TextAnchor.MiddleRight: case TextAnchor.UpperRight: trtx.anchoredPosition = new Vector2(-10, 0); ; break;
+                }
             }
 
             public string PeekValue()
