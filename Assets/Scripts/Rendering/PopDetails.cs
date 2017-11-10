@@ -143,8 +143,9 @@ namespace Assets.Scripts.Rendering
                 {
                     GameObject at = constructionTabs.GetActiveTab();
                     InfoTable it = at.transform.GetChild(0).GetComponent<InfoTable.ActiveInfoTable>().parent;
-                    activePopulation.industryCenter.BuildInstallation(it.RetrieveHighlight<Empires.Industry.Installation>(), int.Parse(ib1.TakeValue()));
-                    Debug.Log("New building build: " + it.RetrieveHighlight<Empires.Industry.Installation>().ToString());
+                    Empires.Industry.Installation newInstall = it.RetrieveHighlight<Empires.Industry.Installation>();
+                    if (newInstall != null)
+                        activePopulation.industryCenter.BuildInstallation(newInstall, int.Parse(ib1.TakeValue()));
                 };
                 TextBox but = new TextBox(tr, TextRef.Create("build").AddLink(butAct), 12, TextAnchor.MiddleLeft);
                 but.transform.anchoredPosition = new Vector2(500, 0);

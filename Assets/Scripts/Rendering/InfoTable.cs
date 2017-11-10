@@ -520,7 +520,11 @@ namespace Assets.Scripts.Rendering
 
             public T RetrieveHighlight()
             {
-                return dataList[highlightedLine.transform.GetSiblingIndex() - (headers == null ? 0 : 1)];
+                if (highlightLines == false)
+                    throw new InvalidOperationException("This list does not have highlights.");
+                if (highlightedLine != null)
+                    return dataList[highlightedLine.transform.GetSiblingIndex() - (headers == null ? 0 : 1)];
+                return default(T);
             }
         }
     }
