@@ -111,7 +111,7 @@ namespace Assets.Scripts.Rendering
             constructionTabs.transform.anchoredPosition = new Vector2(0, -10);
 
             InfoTable constructionQueue = InfoTable.Create(go.transform, () => activePopulation.industryCenter.constructionQueue,
-                job => new List<TextRef>() { job.instl.name, job.amount, job.capacity, job.instl.costWork, "NaN", "NaN" },
+                job => new List<TextRef>() { job.instl.name, job.amount, TextRef.Create(() => job.capacity * 100), job.instl.costWork, "NaN", "NaN" },
                 700, new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "next item", "end of job" }, 12, null);
             constructionQueue.transform.anchorMin = new Vector2(0, 0.5f);
             constructionQueue.transform.anchorMax = new Vector2(0, 0.5f);
@@ -145,7 +145,7 @@ namespace Assets.Scripts.Rendering
                     InfoTable it = at.transform.GetChild(0).GetComponent<InfoTable.ActiveInfoTable>().parent;
                     Empires.Industry.Installation newInstall = it.RetrieveHighlight<Empires.Industry.Installation>();
                     if (newInstall != null)
-                        activePopulation.industryCenter.BuildInstallation(newInstall, int.Parse(ib1.TakeValue()));
+                        activePopulation.industryCenter.BuildInstallation(newInstall, int.Parse(ib1.TakeValue()), double.Parse(ib2.TakeValue()) / 100);
                 };
                 TextBox but = new TextBox(tr, TextRef.Create("build").AddLink(butAct), 12, TextAnchor.MiddleLeft);
                 but.transform.anchoredPosition = new Vector2(500, 0);

@@ -30,9 +30,9 @@ namespace Assets.Scripts.Empires.Industry
             productionQueue = new List<Job>();
         }
 
-        public void BuildInstallation(Installation instl, int amount)
+        public void BuildInstallation(Installation instl, int amount, double capacity = 1)
         {
-            Job j = new Job(instl, amount);
+            Job j = new Job(instl, amount, capacity);
             constructionQueue.Add(j);
         }
 
@@ -57,12 +57,13 @@ namespace Assets.Scripts.Empires.Industry
             /// </summary>
             public double capacity;
 
-            public Job(Installation instl, int amount)
+            public Job(Installation instl, int amount, double capacity = 1)
             {
                 this.instl = instl;
                 this.amount = amount;
                 work = instl.costWork * amount;
                 bill = instl.costResources * amount;
+                this.capacity = capacity;
             }
         }
     }
