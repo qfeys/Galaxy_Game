@@ -287,7 +287,7 @@ namespace Assets.Scripts
             collection.CopyTo(array, arrayIndex);
         }
 
-        internal T FindFirst()
+        internal T PeekFirst()
         {
             if (collection.Count != 0)
                 return collection[0];

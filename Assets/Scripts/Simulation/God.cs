@@ -102,7 +102,7 @@ namespace Assets.Scripts.Simulation
         {
             while (abort == false)
             {
-                if (EventSchedule.NextEvent == DateTime.MaxValue)
+                if (Schedule.NextEvent == DateTime.MaxValue)
                 {
                     Log("no future event");
                     abort = true;
@@ -113,8 +113,7 @@ namespace Assets.Scripts.Simulation
 
                 DateTime endOfTick = Time + deltaTime;
                 DateTime maxDate = endOfTick;
-                EventSchedule.CanProgress(endOfTick, out maxDate);
-                int loops = EventSchedule.Progress(maxDate);
+                int loops = Schedule.Progress(maxDate);
                 Time = maxDate;
                 
                 nextSimTimeTickReady = true;

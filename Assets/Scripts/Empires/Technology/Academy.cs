@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Assets.Scripts.Empires.Technology
 {
-    class Academy : Simulation.IUpdatable
+    class Academy
     {
 
         // internal enum Sector { fundPhysics, applPhysics, chemistry, biology, biomedics, engineering, sociology, psycology, linguistics }
@@ -30,7 +30,6 @@ namespace Assets.Scripts.Empires.Technology
             labs = new List<Laboratory>();
             CheckUnlocks(Simulation.God.Time);
             NextMandatoryUpdate = Simulation.God.Time;
-            Simulation.EventSchedule.Add(this);
         }
 
         public void CheckUnlocks(DateTime date)

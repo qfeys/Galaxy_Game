@@ -6,7 +6,7 @@ using Assets.Scripts.Simulation;
 
 namespace Assets.Scripts.Empires
 {
-    class Empire : IUpdatable
+    class Empire
     {
 
         string name;
@@ -38,7 +38,6 @@ namespace Assets.Scripts.Empires
 
             NextMandatoryUpdate = God.Time.AddDays(DAYS_BETWEEN_UPDATES);
             NextUpdateHasPriority = false;
-            EventSchedule.Add(this);
         }
 
         public void Update(DateTime date)
