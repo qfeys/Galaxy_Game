@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Assets.Scripts.Simulation;
 
 namespace Assets.Scripts
 {
@@ -83,6 +84,15 @@ namespace Assets.Scripts
                 throw new Exception("WTF happened here?!?");
         }
 
+        internal abstract void Subscribe(Event.Conditional conditional);
+
+        /// <summary>
+        /// Returns the moment at which this Integrated will reach the trigger value
+        /// </summary>
+        /// <param name="trigger"></param>
+        /// <returns></returns>
+        internal abstract DateTime FindMomentAtValue(double trigger);
+
         public static Integrated operator +(Integrated a, Integrated b)
         {
             return Combine(a, 1, b, 1);
@@ -137,15 +147,16 @@ namespace Assets.Scripts
             public DateTime m;
 
             /// <summary>
-            /// List of all the derived integrated that are derived from this original
+            /// List of all events subscribed to this Integrated
             /// </summary>
-            List<Combination> derived;
+            List<Event.Conditional> subscriptions;
 
             public Original(double c, double d, DateTime m)
             {
                 this.c = c;
                 this.d = d;
                 this.m = m;
+                subscriptions = new List<Event.Conditional>();
             }
 
             public override double Value(DateTime m2)
@@ -153,11 +164,15 @@ namespace Assets.Scripts
                 return m == m2 ? c : c + d * (m2 - m).TotalSeconds;
             }
 
-            public void Subscribe(Combination comb)
+            internal override DateTime FindMomentAtValue(double trigger)
             {
-                if (derived == null)
-                    derived = new List<Combination>();
-                derived.Add(comb);
+                double seconds = (trigger - c) / d;
+                return m + TimeSpan.FromSeconds(seconds);
+            }
+
+            internal override void Subscribe(Event.Conditional conditional)
+            {
+                subscriptions.Add(conditional);
             }
         }
 
@@ -175,7 +190,6 @@ namespace Assets.Scripts
                     fractions = new List<OriginalFraction>() {
                         new OriginalFraction(a,b)
                     };
-                    SubscribeToAll();
                 }
 
                 public Linear(Linear lc, double value = 1)
@@ -208,16 +222,29 @@ namespace Assets.Scripts
                         fractions.Add(new OriginalFraction(o, fraction));
                 }
 
-                private void SubscribeToAll()
-                {
-                    fractions.ForEach(of => of.original.Subscribe(this));
-                }
-
                 public override double Value(DateTime m2)
                 {
                     double ans = 0;
                     fractions.ForEach(of => ans += of.original.Value(m2) * of.value);
                     return ans;
+                }
+
+                internal override DateTime FindMomentAtValue(double trigger)
+                {
+                    DateTime mostRecent = fractions.Max(f => f.original.m);
+                    double cSum = 0; double dSum = 0;
+                    foreach(OriginalFraction fr in fractions)
+                    {
+                        cSum += fr.original.Value(mostRecent) * fr.value;
+                        dSum += fr.original.d * fr.value;
+                    }
+                    double seconds = (trigger - cSum) / dSum;
+                    return mostRecent + TimeSpan.FromSeconds(seconds);
+                }
+
+                internal override void Subscribe(Event.Conditional conditional)
+                {
+                    fractions.ForEach(f => f.original.Subscribe(conditional));
                 }
 
                 public class OriginalFraction
@@ -241,6 +268,16 @@ namespace Assets.Scripts
             public class NonLinear : Combination
             {
                 public override double Value(DateTime m2)
+                {
+                    throw new NotImplementedException();
+                }
+
+                internal override DateTime FindMomentAtValue(double trigger)
+                {
+                    throw new NotImplementedException();
+                }
+
+                internal override void Subscribe(Event.Conditional conditional)
                 {
                     throw new NotImplementedException();
                 }
