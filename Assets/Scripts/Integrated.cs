@@ -103,6 +103,30 @@ namespace Assets.Scripts
             return Combine(a, 1, b, -1);
         }
 
+        public static Integrated operator +(Integrated a, double b)
+        {
+            if (a is Original)
+                return new Combination.Linear(a as Original, 1, b);
+            else if (a is Combination.Linear)
+                return new Combination.Linear(a as Combination.Linear, 1, b);
+            else if (a is Combination.NonLinear)
+                throw new NotImplementedException();
+            else
+                throw new Exception("Not a valid sub class");
+        }
+
+        public static Integrated operator -(Integrated a, double b)
+        {
+            if (a is Original)
+                return new Combination.Linear(a as Original, 1, -b);
+            else if (a is Combination.Linear)
+                return new Combination.Linear(a as Combination.Linear, 1, -b);
+            else if (a is Combination.NonLinear)
+                throw new NotImplementedException();
+            else
+                throw new Exception("Not a valid sub class");
+        }
+
         public static Integrated operator *(Integrated a, double b)
         {
             if (a is Original)
@@ -184,20 +208,23 @@ namespace Assets.Scripts
             public class Linear : Combination
             {
                 public List<OriginalFraction> fractions;
+                public double constant;
 
-                public Linear(Original a, double b)
+                public Linear(Original a, double b, double constant = 0)
                 {
                     fractions = new List<OriginalFraction>() {
                         new OriginalFraction(a,b)
                     };
+                    this.constant = constant;
                 }
 
-                public Linear(Linear lc, double value = 1)
+                public Linear(Linear lc, double value = 1, double constant = 0)
                 {
                     this.fractions = new List<OriginalFraction>();
                     lc.fractions.ForEach(of => fractions.Add(of.Copy()));
                     if (value != 1)
                         fractions.ForEach(of => of.value *= value);
+                    this.constant = constant + lc.constant * value;
                 }
 
                 public Linear(List<OriginalFraction> fractions)
@@ -232,7 +259,7 @@ namespace Assets.Scripts
                 internal override DateTime FindMomentAtValue(double trigger)
                 {
                     DateTime mostRecent = fractions.Max(f => f.original.m);
-                    double cSum = 0; double dSum = 0;
+                    double cSum = constant; double dSum = 0;
                     foreach(OriginalFraction fr in fractions)
                     {
                         cSum += fr.original.Value(mostRecent) * fr.value;
