@@ -11,8 +11,13 @@ namespace Assets.Scripts.Empires.Industry
     /// </summary>
     class IndustryCenter
     {
+        public readonly Population parent;
+
         public readonly Stockpile stockpile;
 
+        /// <summary>
+        /// All the constructed installations in this population
+        /// </summary>
         public Dictionary<Installation, int> installations { get; private set; }
 
         public List<Job> constructionQueue { get; private set; }
@@ -23,11 +28,27 @@ namespace Assets.Scripts.Empires.Industry
         public double maxElectronicsProduction { get; private set; }  // TODO: We'll have to find this from somwhere else
         public double activeCapacityElectronicsProduction { get; private set; }
 
-        public IndustryCenter()
+        public IndustryCenter(Population parent)
         {
+            this.parent = parent;
             stockpile = new Stockpile();
             constructionQueue = new List<Job>();
             productionQueue = new List<Job>();
+        }
+
+        public Integrated GetConstructionCapacity()
+        {
+            Integrated cap = 0;
+            installations.Keys.ToList().ForEach(k =>
+            {
+                if (k.Modefiers.Any(m => m.name == Modifier.Name.add_construction_capacity))
+                    cap += k.Modefiers.Find(m => m.name == Modifier.Name.add_construction_capacity).value * installations[k];
+            });
+            cap += parent.demographic.FreeIndustrialPopulation * .01;
+            // add pop modefiers
+            // add sector modefiers
+            // add empire modefiers
+            return cap;
         }
 
         public void BuildInstallation(Installation instl, int amount, double capacity = 1)
@@ -42,7 +63,7 @@ namespace Assets.Scripts.Empires.Industry
             /// <summary>
             /// Keeps track of the amount of work that is still to be done
             /// </summary>
-            public double work { get; private set; }
+            public Integrated work { get; private set; }
             /// <summary>
             /// Keeps track of the amount of resources that still need to be done
             /// </summary>
@@ -52,18 +73,24 @@ namespace Assets.Scripts.Empires.Industry
             /// </summary>
             public int amount { get; private set; }
 
+            Integrated capacity;
+
+            public Simulation.Event.Conditional nextItemDone;
+
             /// <summary>
             /// The part of total capacity that is used for this job
             /// </summary>
-            public double capacity;
+            public double capacityFraction;
 
-            public Job(Installation instl, int amount, double capacity = 1)
+            public Job(Installation instl, int amount, Integrated capacity, double capacityFraction = 1)
             {
                 this.instl = instl;
                 this.amount = amount;
-                work = instl.costWork * amount;
+                work = Integrated.Create(instl.costWork * amount, capacity, Simulation.God.Time);
                 bill = instl.costResources * amount;
                 this.capacity = capacity;
+                this.capacityFraction = capacityFraction;
+                nextItemDone = new Simulation.Event.Conditional();// TODO CONTINUE HERE !!!!!!!!!!!!!!
             }
         }
     }

@@ -28,7 +28,7 @@ namespace Assets.Scripts.Empires
         public double Wealth { get; private set; }
         Leaders.Leader governer;
         // List<policies>
-        public readonly Industry.IndustryCenter industryCenter = new Industry.IndustryCenter();
+        public readonly Industry.IndustryCenter industryCenter;
         public readonly Demographics.Demographics demographic = new Demographics.Demographics();
 
         public Population(Planet location, long initPop, string name = null)
@@ -38,9 +38,10 @@ namespace Assets.Scripts.Empires
             location.AddPopulation(this);
             Wealth = Count * 0.05;
             location.AddPopulation(this);
+            industryCenter = new Industry.IndustryCenter(this);
         }
 
-        Population() { }
+        Population() { industryCenter = new Industry.IndustryCenter(this); }
 
         /// <summary>
         /// Creates a new population to function as a capital on the planet given.

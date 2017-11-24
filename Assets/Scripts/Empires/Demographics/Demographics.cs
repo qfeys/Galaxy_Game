@@ -12,6 +12,8 @@ namespace Assets.Scripts.Empires.Demographics
         /// The number of people this population has
         /// </summary>
         public long Count { get; private set; }
+        public Integrated FreeIndustrialPopulation { get { return Count * 0.01; } }
+
         double poverty; // part of people living in poverty
         double inequality; // gini-index - lower is better
         double happiness; // negative is bad
