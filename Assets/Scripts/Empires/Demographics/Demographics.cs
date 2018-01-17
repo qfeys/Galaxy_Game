@@ -11,8 +11,8 @@ namespace Assets.Scripts.Empires.Demographics
         /// <summary>
         /// The number of people this population has
         /// </summary>
-        public long Count { get; private set; }
-        public Integrated FreeIndustrialPopulation { get { return Count * 0.01; } }
+        public Changeling Count { get; private set; }
+        public Changeling FreeIndustrialPopulation { get; private set; }
 
         double poverty; // part of people living in poverty
         double inequality; // gini-index - lower is better
@@ -25,7 +25,8 @@ namespace Assets.Scripts.Empires.Demographics
             poverty = 0.1;
             inequality = 0.4;
             happiness = 0;
-            Count = (long)1e9;
+            Count = Changeling.Create(1e9);
+            FreeIndustrialPopulation = Count * 0.01;
         }
     }
 }

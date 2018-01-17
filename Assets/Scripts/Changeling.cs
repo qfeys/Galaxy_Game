@@ -10,19 +10,24 @@ namespace Assets.Scripts
     /// <summary>
     /// This class provides a double and it's derivative, so it can be evaluated for arbitary values in the future.
     /// </summary>
-    abstract class Integrated
+    abstract class Changeling
     {
 
-        public static Integrated Create(double c, double d, DateTime m)
+        public static Changeling Create(double c, double d, DateTime m)
         {
             Original nw = new Original(c, d, m);
             return nw;
         }
 
-        public static Integrated Create(double c)
+        public static Changeling Create(double c)
         {
             Original nw = new Original(c, 0, Simulation.God.Time);
             return nw;
+        }
+
+        public static Changeling Create(double c, Changeling d, DateTime m)
+        {
+            throw new NotImplementedException("Second order changelings");
         }
 
         /// <summary>
@@ -32,7 +37,12 @@ namespace Assets.Scripts
         /// <returns></returns>
         abstract public double Value(DateTime m2);
 
-        static Integrated Combine(Integrated a, double c1, Integrated b, double c2)
+        public double Value()
+        {
+            return Value(God.Time);
+        }
+
+        static Changeling Combine(Changeling a, double c1, Changeling b, double c2)
         {
             if (a is Original)
             {
@@ -87,23 +97,23 @@ namespace Assets.Scripts
         internal abstract void Subscribe(Event.Conditional conditional);
 
         /// <summary>
-        /// Returns the moment at which this Integrated will reach the trigger value
+        /// Returns the moment at which this Changeling will reach the trigger value
         /// </summary>
         /// <param name="trigger"></param>
         /// <returns></returns>
         internal abstract DateTime FindMomentAtValue(double trigger);
 
-        public static Integrated operator +(Integrated a, Integrated b)
+        public static Changeling operator +(Changeling a, Changeling b)
         {
             return Combine(a, 1, b, 1);
         }
 
-        public static Integrated operator -(Integrated a, Integrated b)
+        public static Changeling operator -(Changeling a, Changeling b)
         {
             return Combine(a, 1, b, -1);
         }
 
-        public static Integrated operator +(Integrated a, double b)
+        public static Changeling operator +(Changeling a, double b)
         {
             if (a is Original)
                 return new Combination.Linear(a as Original, 1, b);
@@ -115,7 +125,7 @@ namespace Assets.Scripts
                 throw new Exception("Not a valid sub class");
         }
 
-        public static Integrated operator -(Integrated a, double b)
+        public static Changeling operator -(Changeling a, double b)
         {
             if (a is Original)
                 return new Combination.Linear(a as Original, 1, -b);
@@ -127,7 +137,7 @@ namespace Assets.Scripts
                 throw new Exception("Not a valid sub class");
         }
 
-        public static Integrated operator *(Integrated a, double b)
+        public static Changeling operator *(Changeling a, double b)
         {
             if (a is Original)
                 return new Combination.Linear(a as Original, b);
@@ -139,21 +149,16 @@ namespace Assets.Scripts
                 throw new Exception("Not a valid sub class");
         }
 
-        public static Integrated operator /(Integrated a, double b)
+        public static Changeling operator /(Changeling a, double b)
         {
             return a * (1 / b);
-        }
-
-        public static implicit operator Integrated(double d)
-        {
-            return Create(d);
         }
 
         /// <summary>
         /// This is an original integrated. These are the only integrated the programm
         /// can create directly.
         /// </summary>
-        class Original : Integrated
+        class Original : Changeling
         {
             /// <summary>
             /// The constand. This is the value at the moment
@@ -171,7 +176,7 @@ namespace Assets.Scripts
             public DateTime m;
 
             /// <summary>
-            /// List of all events subscribed to this Integrated
+            /// List of all events subscribed to this Changeling
             /// </summary>
             List<Event.Conditional> subscriptions;
 
@@ -200,7 +205,7 @@ namespace Assets.Scripts
             }
         }
 
-        abstract class Combination : Integrated
+        abstract class Combination : Changeling
         {
             /// <summary>
             /// This class is a linear combination of Original integrated

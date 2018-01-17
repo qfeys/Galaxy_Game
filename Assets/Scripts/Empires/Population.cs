@@ -21,7 +21,7 @@ namespace Assets.Scripts.Empires
         /// <summary>
         /// The number of people this population has
         /// </summary>
-        public long Count { get { return demographic.Count; } }
+        public double Count { get { return demographic.Count.Value(Simulation.God.Time); } }
         /// <summary>
         /// The GDP of this population in GDP
         /// </summary>

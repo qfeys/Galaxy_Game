@@ -16,7 +16,7 @@ namespace Assets.Scripts.Empires
         List<Industry.Installation> freeInstallations;  // in contrast to assets bound to populations
         List<Mobiles.Mobile> mobiles;
 
-        public long Population { get { return Populations.Sum(p => p.Count); } }
+        public double Population { get { return Populations.Sum(p => p.Count); } }
         public double Wealth { get { return Populations.Sum(p => p.Wealth); } }
 
         public DateTime LastUpdate { get; private set; }

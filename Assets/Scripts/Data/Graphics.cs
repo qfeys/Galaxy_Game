@@ -51,7 +51,7 @@ namespace Assets.Scripts.Data
                 dict.Add(Path.GetFileNameWithoutExtension(allPaths[i]), t);
             }
             Debug.Log("Loaded " + allPaths.Length + " graphics.");
-            MouseOver.Create();
+            Rendering.MouseOver.Create();
         }
 
         /// <summary>

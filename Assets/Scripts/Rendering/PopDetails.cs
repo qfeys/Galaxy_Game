@@ -111,7 +111,7 @@ namespace Assets.Scripts.Rendering
             constructionTabs.transform.anchoredPosition = new Vector2(0, -10);
 
             InfoTable constructionQueue = InfoTable.Create(go.transform, () => activePopulation.industryCenter.constructionQueue,
-                job => new List<TextRef>() { job.instl.name, job.amount, TextRef.Create(() => job.capacity * 100), job.instl.costWork, "NaN", "NaN" },
+                job => new List<TextRef>() { job.instl.name, job.amount, TextRef.Create(() => job.capacity.Value() * 100), job.instl.costWork, "NaN", "NaN" },
                 700, new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "next item", "end of job" }, 12, null);
             constructionQueue.transform.anchorMin = new Vector2(0, 0.5f);
             constructionQueue.transform.anchorMax = new Vector2(0, 0.5f);
@@ -216,7 +216,7 @@ namespace Assets.Scripts.Rendering
                 list.Add(new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "end of job" });
                 foreach (Empires.Industry.IndustryCenter.Job job in activePopulation.industryCenter.productionQueue)
                 {
-                    list.Add(new List<TextRef>() { job.instl.name, job.amount, job.capacity, job.instl.costWork, "NaN" });
+                    list.Add(new List<TextRef>() { job.instl.name, job.amount, job.capacity.Value(), job.instl.costWork, "NaN" });
                 }
                 return list;
             }, 700);

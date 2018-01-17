@@ -36,9 +36,9 @@ namespace Assets.Scripts.Empires.Industry
             productionQueue = new List<Job>();
         }
 
-        public Integrated GetConstructionCapacity()
+        public Changeling GetConstructionCapacity()
         {
-            Integrated cap = 0;
+            Changeling cap = Changeling.Create(0);
             installations.Keys.ToList().ForEach(k =>
             {
                 if (k.Modefiers.Any(m => m.name == Modifier.Name.add_construction_capacity))
@@ -53,7 +53,7 @@ namespace Assets.Scripts.Empires.Industry
 
         public void BuildInstallation(Installation instl, int amount, double capacity = 1)
         {
-            Job j = new Job(instl, amount, capacity);
+            Job j = new Job(instl, amount, Changeling.Create(capacity));    // TODO: This is fishy
             constructionQueue.Add(j);
         }
 
@@ -63,7 +63,7 @@ namespace Assets.Scripts.Empires.Industry
             /// <summary>
             /// Keeps track of the amount of work that is still to be done
             /// </summary>
-            public Integrated work { get; private set; }
+            public Changeling work { get; private set; }
             /// <summary>
             /// Keeps track of the amount of resources that still need to be done
             /// </summary>
@@ -73,7 +73,7 @@ namespace Assets.Scripts.Empires.Industry
             /// </summary>
             public int amount { get; private set; }
 
-            Integrated capacity;
+            public Changeling capacity;
 
             public Simulation.Event.Conditional nextItemDone;
 
@@ -82,15 +82,15 @@ namespace Assets.Scripts.Empires.Industry
             /// </summary>
             public double capacityFraction;
 
-            public Job(Installation instl, int amount, Integrated capacity, double capacityFraction = 1)
+            public Job(Installation instl, int amount, Changeling capacity, double capacityFraction = 1)
             {
                 this.instl = instl;
                 this.amount = amount;
-                work = Integrated.Create(instl.costWork * amount, capacity, Simulation.God.Time);
+                work = Changeling.Create(instl.costWork * amount, capacity, Simulation.God.Time);
                 bill = instl.costResources * amount;
                 this.capacity = capacity;
                 this.capacityFraction = capacityFraction;
-                nextItemDone = new Simulation.Event.Conditional();// TODO CONTINUE HERE !!!!!!!!!!!!!!
+                //nextItemDone = new Simulation.Event.Conditional();// TODO CONTINUE HERE !!!!!!!!!!!!!!
             }
         }
     }

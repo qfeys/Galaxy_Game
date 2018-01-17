@@ -32,7 +32,7 @@ namespace Assets.Scripts.Simulation
             /// <summary>
             /// The number that will be used to compare against
             /// </summary>
-            Integrated condition;
+            Changeling condition;
             /// <summary>
             /// The number the condition must reach to trigger this event
             /// </summary>
@@ -45,7 +45,7 @@ namespace Assets.Scripts.Simulation
                 get { return condition.FindMomentAtValue(trigger); }
             }
 
-            public Conditional(Integrated condition, double trigger, Action callback, Action ValueChangeCallback, bool haltingEvent = false)
+            public Conditional(Changeling condition, double trigger, Action callback, Action ValueChangeCallback, bool haltingEvent = false)
             {
                 this.condition = condition;
                 this.trigger = trigger;

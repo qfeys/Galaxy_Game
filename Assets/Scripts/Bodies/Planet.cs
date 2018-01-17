@@ -896,7 +896,7 @@ namespace Assets.Scripts.Bodies
 
         public List<Population> Populations { get; private set; }
         public bool IsPopulated { get { return Populations != null && Populations.Count != 0; } }
-        public long PopulationCount { get { return Populations == null ? 0 : Populations.Sum(p => p.Count); } }
+        public double PopulationCount { get { return Populations == null ? 0 : Populations.Sum(p => p.Count); } }
 
         internal void AddPopulation(Population p)
         {
