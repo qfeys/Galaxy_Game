@@ -85,6 +85,7 @@ namespace Assets.Scripts.Simulation
             Empires.Technology.Technology.LoadTechTree();
             Empires.Industry.Installation.LoadInstallationList();
             Data.Graphics.LoadGraphics();
+            Data.Graphics.SetDefaultFont(Resources.Load<Font>(@"Fonts/Orbitron/orbitron-light"));
             Localisation.Load();
 
             Debug.Log("Initialising galaxy");
