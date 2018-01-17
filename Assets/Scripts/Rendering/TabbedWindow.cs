@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.Rendering
 {
+    /// <summary>
+    /// This class will generate several unity objects that together will form a window with tabs
+    /// Make sure you have the images "tab_image_low" and "tab_image_high" in the appropriate folders
+    /// </summary>
     class TabbedWindow
     {
         bool canBeMinimised;
 
-        List<Tuple<GameObject,GameObject>> windows;
+        List<Tuple<GameObject, GameObject>> windows;
         bool isMinimised = false;
         Vector2 size;
         int tabFontSize;
@@ -20,7 +22,7 @@ namespace Assets.Scripts.Rendering
         public GameObject gameobject { get { return go; } }
         public RectTransform transform { get { return go.transform as RectTransform; } }
 
-        public TabbedWindow(Transform parent, Vector2 size, List<Tuple<TextRef,GameObject>> tabs, int tabFontSize = 12, bool canBeMinimised = true)
+        public TabbedWindow(Transform parent, Vector2 size, List<Tuple<TextRef, GameObject>> tabs, int tabFontSize = 12, bool canBeMinimised = true)
         {
             go = new GameObject("TabWindow", typeof(RectTransform));
             go.transform.SetParent(parent, false);
@@ -76,7 +78,7 @@ namespace Assets.Scripts.Rendering
                 GameObject window = tabs[i].Item2;
                 window.transform.SetParent(mainWindow.transform);
                 window.SetActive(false);
-                windows.Add(new Tuple<GameObject,GameObject>(tab,window));
+                windows.Add(new Tuple<GameObject, GameObject>(tab, window));
             }
             if (canBeMinimised)
             {
@@ -114,7 +116,7 @@ namespace Assets.Scripts.Rendering
         {
             for (int i = 0; i < windows.Count; i++)
             {
-                if(i != n)
+                if (i != n)
                 {
                     if (windows[i].Item2.activeSelf)
                     {
@@ -136,7 +138,7 @@ namespace Assets.Scripts.Rendering
         /// </summary>
         public void MinimiseWindow()
         {
-            if(isMinimised == false)
+            if (isMinimised == false)
             {
                 ((RectTransform)go.transform).sizeDelta = new Vector2(
                     ((RectTransform)go.transform).rect.width,
@@ -155,7 +157,7 @@ namespace Assets.Scripts.Rendering
             }
         }
 
-        internal GameObject GetActiveTab()
+        public GameObject GetActiveTab()
         {
             for (int i = 0; i < windows.Count; i++)
             {

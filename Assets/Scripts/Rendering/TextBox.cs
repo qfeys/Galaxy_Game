@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using System.Collections;
 using System;
 
 namespace Assets.Scripts.Rendering
 {
+    /// <summary>
+    /// Creates a UI element that holds some text. Uses TextRef.
+    /// </summary>
     public class TextBox
     {
         public TextRef Text;
@@ -65,13 +67,13 @@ namespace Assets.Scripts.Rendering
                 text.color = color ?? Data.Graphics.Color_.text;
 
                 tr.localScale = new Vector3(1f / SCALING_FACTOR, 1f / SCALING_FACTOR, 1);
-                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2));
+                tr.sizeDelta = new Vector2(text.preferredWidth / SCALING_FACTOR + size, (size + 2)) * SCALING_FACTOR;
 
             }
             else                        // Make a button
             {
                 Image img = go.AddComponent<Image>();
-                img.sprite = Data.Graphics.GetSprite("tab_image_low");
+                img.sprite = Data.Graphics.GetSprite("tb_button_bg");
                 img.type = Image.Type.Sliced;
                 Button but = go.AddComponent<Button>();
                 but.onClick.AddListener(() => Text.link());
@@ -136,16 +138,16 @@ namespace Assets.Scripts.Rendering
         {
             public TextBox parent;
             public bool hasMouseover = false;
-            bool mouseActive = false;
+            public bool mouseActive = false;
             public float mouseTimeActive = 0;
 
             private void Update()
             {
                 parent.Update();
-                if(hasMouseover && mouseActive)
+                if (hasMouseover && mouseActive)
                 {
-                    mouseTimeActive += Time.deltaTime;
-                    if(mouseTimeActive > MOUSE_OVER_DISPLAY_TRESHOLD)
+                    mouseTimeActive += Time.unscaledDeltaTime;
+                    if (mouseTimeActive >= MOUSE_OVER_DISPLAY_TRESHOLD)
                     {
                         MouseOver.Activate(parent.Text.AltText);
                     }
@@ -275,7 +277,7 @@ namespace Assets.Scripts.Rendering
 
         public Action link { get; private set; }
 
-        enum RefType { direct, localised, reference}
+        enum RefType { direct, localised, reference }
         RefType refType;
         RefType refType2nd;
         public bool isChanging { get { return refType == RefType.reference; } }
@@ -434,13 +436,13 @@ namespace Assets.Scripts.Rendering
             if (d == null) return "INVALID";
             Type t = d.GetType();
             if (t == typeof(double))
-                return ToSI((double)d, "0.##");
+                return ToSI((double)d);
             else if (t == typeof(float))
-                return ToSI((float)d, "0.##");
+                return ToSI((float)d);
             else if (t == typeof(int))
-                return ToSI((int)d, "0.##");
+                return ToSI((int)d);
             else if (t == typeof(long))
-                return ToSI((long)d, "0.##");
+                return ToSI((long)d);
             else
                 return d.ToString();
         }
@@ -470,9 +472,9 @@ namespace Assets.Scripts.Rendering
         /// <param name="d"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        static string ToSI(double d, string format = null)
+        static public string ToSI(double d, string format = null)
         {
-            if (d == 0 || (d >= 0.1 && d < 10000)) return d.ToString(format);
+            if (d == 0 || (d >= 0.1 && d < 10000)) return d.ToString(format ?? (d < 10 ? "0.##" : "0.#"));
 
             char[] incPrefixes = new[] { 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' };
             char[] decPrefixes = new[] { 'm', '\u03bc', 'n', 'p', 'f', 'a', 'z', 'y' };
@@ -487,6 +489,11 @@ namespace Assets.Scripts.Rendering
             {
             case 1: prefix = incPrefixes[degree - 1]; break;
             case -1: prefix = decPrefixes[-degree - 1]; break;
+            }
+
+            if (format == null)
+            {
+                format = scaled < 10 ? "0.##" : "0.#";
             }
 
             return scaled.ToString(format) + prefix;
