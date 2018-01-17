@@ -17,6 +17,10 @@ ExportedObj/
 *.pidb
 *.booproj
 *.svd
+*.lock
+*.ide
+*.ide-shm
+*.ide-wal
 
 
 # Unity3D generated meta files
