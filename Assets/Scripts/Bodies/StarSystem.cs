@@ -248,7 +248,6 @@ namespace Assets.Scripts.Bodies
                     (TertiaryPos == 1 && o * 3 > closestSeperationT && o < furthestSeperationT * 3) ||
                     (TertiaryPos == 3 && o * 3 > closestSeperationT && o < furthestSeperationT * 3)
                 );
-                UnityEngine.Debug.Log("Stars: " + (Tertiary == null ? Secondary == null ? 1 : 2 : 3) + " , Orbits: " + os +"-"+ orbitSizes.Count);
 
                 if (Secondary != null)   // Repeat for secondary
                 {
@@ -338,7 +337,6 @@ namespace Assets.Scripts.Bodies
                 else schorchingRadius = Math.Max(schorchingRadius, 10);
             }
             orbitSizes.RemoveAll(o => o < schorchingRadius);
-            UnityEngine.Debug.Log("a value: " + a + " , number of orbits: " + numberOfOrbits + " , actual orbits: " + orbitSizes.Count);
             return orbitSizes;
         }
 
