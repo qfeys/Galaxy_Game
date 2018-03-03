@@ -60,6 +60,7 @@ namespace Assets.Scripts.Rendering
                 text.alignment = allignment;
                 text.horizontalOverflow = HorizontalWrapMode.Overflow;
                 text.verticalOverflow = VerticalWrapMode.Overflow;
+                text.alignment = allignment;
                 TextBoxScript tbs = go.AddComponent<TextBoxScript>();
                 tbs.parent = this;
                 tbs.hasMouseover = Text.AltText != null;

@@ -32,9 +32,7 @@ namespace Assets.Scripts.Rendering
         static GameObject EmpireWindow()
         {
             GameObject go = new GameObject("Empire Window", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, TextRef.Create("empire_window_title"), 24, TextAnchor.MiddleCenter);
-            Center(title.transform);
-            title.transform.sizeDelta = new Vector2(200, 36);
+            TextBox title = new TextBox(go.transform, TextRef.Create("empire_window_title"), 24, TextAnchor.UpperCenter);
             InfoTable table = InfoTable.Create(go.transform, new List<List<TextRef>>() {
                     new List<TextRef>(){TextRef.Create("population"),    TextRef.Create(()=>Simulation.God.PlayerEmpire.Population) },
                     new List<TextRef>(){TextRef.Create("Wealth"),        TextRef.Create(() => Simulation.God.PlayerEmpire.Wealth) }
@@ -46,9 +44,7 @@ namespace Assets.Scripts.Rendering
         static GameObject PopulationsWindow()
         {
             GameObject go = new GameObject("Populations Window", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, TextRef.Create("populations_window_title"), 24, TextAnchor.MiddleCenter);
-            Center(title.transform);
-            title.transform.sizeDelta = new Vector2(200, 36);
+            TextBox title = new TextBox(go.transform, TextRef.Create("populations_window_title"), 24, TextAnchor.UpperCenter);
 
             InfoTable tablePops = InfoTable.Create(go.transform, () => Simulation.God.PlayerEmpire.Populations,
                 pop => new List<TextRef>() {
@@ -70,9 +66,7 @@ namespace Assets.Scripts.Rendering
         static GameObject TechnologyWindow()
         {
             GameObject go = new GameObject("Technology Window", typeof(RectTransform));
-            TextBox title = new TextBox(go.transform, TextRef.Create("technology_window_title"), 24, TextAnchor.MiddleCenter);
-            Center(title.transform);
-            title.transform.sizeDelta = new Vector2(200, 36);
+            TextBox title = new TextBox(go.transform, TextRef.Create("technology_window_title"), 24, TextAnchor.UpperCenter);
 
             InfoTable tableSectors = InfoTable.Create(go.transform,
                 () => Enum.GetValues(typeof(Empires.Technology.Technology.Sector)).Cast<Empires.Technology.Technology.Sector>().ToList(),
