@@ -31,6 +31,7 @@ namespace Assets.Scripts.Bodies
             }catch(Exception e)
             {
                 UnityEngine.Debug.LogError("TYPELOADEXEPTION, probably. This is the failsave catch.");
+                UnityEngine.Debug.LogException(e);
             }
         }
 
