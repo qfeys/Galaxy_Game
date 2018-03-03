@@ -13,8 +13,6 @@ namespace Assets.Scripts
     /// </summary>
     struct OrbitalElements
     {
-        public readonly double LAN; // longitude of ascending node
-        public readonly double i;   // inclination
         public readonly double AOP; // Argument of periapsis
         public readonly double MAaE;// Mean anomaly at epoch
         public readonly double SMA;  // Semi-major axis
@@ -41,9 +39,9 @@ namespace Assets.Scripts
         /// <param name="SMA">Semi-Major axis, in AU</param>
         /// <param name="e">Eccentricity, 0 for circles, 1 for parabolas</param>
         /// <param name="parent">The mass of the parent object, in kg</param>
-        public OrbitalElements(double LAN, double i, double AOP, double MAaE, double SMA, double e, double parentMass)
+        public OrbitalElements(double AOP, double MAaE, double SMA, double e, double parentMass)
         {
-            this.LAN = LAN; this.i = i; this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parentMass = parentMass;
+            this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parentMass = parentMass;
         }
 
         /// <summary>
@@ -52,21 +50,27 @@ namespace Assets.Scripts
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public VectorS GetPositionSphere(DateTime time)
+        public VectorP GetPositionCircle(DateTime time)
         {
-            if (SMA == 0) return new VectorS(0, 0, 0);
+            if (SMA == 0) return new VectorP(0, 0);
             double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
             double meanAnomaly = MAaE + (time - EPOCH).TotalSeconds / n;
             double EA = EccentricAnomaly(meanAnomaly);
-            VectorS ret = new VectorS(this, EA);
+            VectorP ret = new VectorP(this, EA);
             return ret;
         }
 
-        public UnityEngine.Vector3 GetPosition(DateTime time)
+        public UnityEngine.Vector2 GetPosition(DateTime time)
         {
-            return (UnityEngine.Vector3)GetPositionSphere(time);
+            return (UnityEngine.Vector2)GetPositionCircle(time);
         }
 
+        /// <summary>
+        /// Calculates the eccentric anomaly in an iterative manner
+        /// </summary>
+        /// <param name="meanAnomaly"></param>
+        /// <param name="guess"></param>
+        /// <returns></returns>
         double EccentricAnomaly(double meanAnomaly, double guess = double.NaN)
         {
             if (meanAnomaly == 0)
@@ -79,24 +83,72 @@ namespace Assets.Scripts
             return EccentricAnomaly(meanAnomaly, newGuess);
         }
 
-        internal VectorS[] FindPointsOnOrbit(int number, DateTime time)
+        internal VectorP[] FindPointsOnOrbit(int number, DateTime time)
         {
             if (SMA == 0) throw new Exception("Cant find points of this orbit because this is not an orbit (sma = 0)");
-            VectorS[] ret = new VectorS[number + 1];
+            VectorP[] ret = new VectorP[number + 1];
             double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
             for (int j = 0; j <= number; j++)
             {
                 double meanAnomaly = MAaE + j * 2 * Math.PI / number + (time - EPOCH).TotalSeconds / n;
                 double EA = EccentricAnomaly(meanAnomaly);
-                VectorS point = new VectorS(this, EA);
-                //UnityEngine.Debug.Log(j + ": " + (j * 2 * Math.PI / number).ToString("0.00") + " rad, i: " + i.ToString("0.00") + "rad, MA: " + meanAnomaly.ToString("0.00") + " rad, EA: " + EA.ToString("0.00") + " rad, AoA: " + AoA.ToString("0.00") + " rad, u:" + (point.u - LAN).ToString("0.00") + " rad, r:"+point.r.ToString("0.000'000"));
+                VectorP point = new VectorP(this, EA);
                 ret[j] = point;
             }
             return ret;
         }
 
-        public static OrbitalElements Center { get { return new OrbitalElements(0, 0, 0, 0, 0, 0, 0); } }
+        public static OrbitalElements Center { get { return new OrbitalElements(0, 0, 0, 0, 0); } }
         public static readonly DateTime EPOCH = new DateTime(2100, 1, 1);
+    }
+
+    /// <summary>
+    /// A vector for polar coordinates
+    /// </summary>
+    struct VectorP
+    {
+        /// <summary>
+        /// Radius, recomended to be in AU
+        /// </summary>
+        public double r;
+        /// <summary>
+        /// Angle on the ecliptica [0, 2xPi] [rad]
+        /// </summary>
+        public double u;
+
+        /// <summary>
+        /// A vector for spherical coordinates
+        /// </summary>
+        /// <param name="r">Radius, recommended in AU</param>
+        /// <param name="u">Angle on the ecliptica [0, 2xPi] [rad]</param>
+        public VectorP(double r, double u)
+        {
+            this.r = r;
+            this.u = u % (2 * Math.PI);
+        }
+
+        /// <summary>
+        /// The position of a point on an orbit at a certain eccentric anomaly.
+        /// </summary>
+        /// <param name="el"></param>
+        /// <param name="EA"></param>
+        public VectorP(OrbitalElements el, double EA)
+        {
+            double AoA = el.AOP + EA;  // Argument of anomaly
+            r = el.SMA * (1 - el.e * Math.Cos(EA));
+            u = AoA;
+        }
+
+        public static explicit operator UnityEngine.Vector2(VectorP vs)
+        {
+            return new UnityEngine.Vector2((float)(vs.r * Math.Cos(vs.u)),
+                                           (float)(vs.r * Math.Sin(vs.u)));
+        }
+
+        public override string ToString()
+        {
+            return "{" + r.ToString("0.00") + "," + u.ToString("0.00") + "}";
+        }
     }
 
     /// <summary>
@@ -130,6 +182,7 @@ namespace Assets.Scripts
             this.v = Math.IEEERemainder(v, Math.PI);
         }
 
+        /*
         /// <summary>
         /// The position of a point on an orbit at a certain eccentric anomaly.
         /// </summary>
@@ -142,6 +195,7 @@ namespace Assets.Scripts
             u = el.LAN + Math.Atan2(Math.Sin(AoA) * Math.Cos(el.i), Math.Cos(AoA) * Math.Cos(el.i));
             v = Math.Asin(Math.Sin(el.i) * Math.Sin(AoA));
         }
+        */
 
         public static explicit operator UnityEngine.Vector3(VectorS vs)
         {

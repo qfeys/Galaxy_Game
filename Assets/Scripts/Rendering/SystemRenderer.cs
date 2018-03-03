@@ -74,7 +74,7 @@ namespace Assets.Scripts.Rendering
         {
             foreach (var s in displayedStars)
             {
-                VectorS posS = s.Value.OrbElements.GetPositionSphere(Simulation.God.Time);
+                VectorP posP = s.Value.OrbElements.GetPositionCircle(Simulation.God.Time);
                 Vector3 posPar = Vector3.zero;
                 if (s.Value.starSystem.Tertiary != s.Value)
                     posPar = Vector3.zero;
@@ -85,17 +85,17 @@ namespace Assets.Scripts.Rendering
                     case 0:
                         throw new Exception("Tertiary planet " + s.Value + " does not have a position assigned.");
                     case 1:
-                        posPar = (Vector3)s.Value.starSystem.Primary.OrbElements.GetPositionSphere(Simulation.God.Time);
+                        posPar = (Vector2)s.Value.starSystem.Primary.OrbElements.GetPositionCircle(Simulation.God.Time);
                         break;
                     case 2:
-                        posPar = (Vector3)s.Value.starSystem.Secondary.OrbElements.GetPositionSphere(Simulation.God.Time);
+                        posPar = (Vector2)s.Value.starSystem.Secondary.OrbElements.GetPositionCircle(Simulation.God.Time);
                         break;
                     case 3:
                         posPar = Vector3.zero;
                         break;
                     }
                 }
-                Vector3 posTrue = (Vector3)posS + posPar;
+                Vector3 posTrue = (Vector3)(Vector2)posP + posPar;
                 float scale = Mathf.Pow(10, -theater.zoom);
                 s.Key.transform.position = (posTrue - theater.Center) * scale;
                 float size = (float)(s.Value.Radius * Star.SOLAR_RADIUS * 2 * scale / StarSystem.AU);
@@ -125,10 +125,10 @@ namespace Assets.Scripts.Rendering
             }
             foreach (var p in displayedPlanets)
             {
-                VectorS posS = p.Value.OrbElements.GetPositionSphere(Simulation.God.Time);
+                VectorP posP = p.Value.OrbElements.GetPositionCircle(Simulation.God.Time);
                 Vector3 posPar = p.Value.ParentPlanet == null ?
                     p.Value.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.Value.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
-                Vector3 posTrue = (Vector3)posS + posPar;
+                Vector3 posTrue = (Vector3)(Vector2)posP + posPar;
                 float scale = Mathf.Pow(10, -theater.zoom);
                 p.Key.transform.position = (posTrue - theater.Center) * scale;
                 float size = p.Value.Radius * scale / StarSystem.AU;
@@ -159,7 +159,7 @@ namespace Assets.Scripts.Rendering
         private static Vector3[] FindPointsOnOrbit(OrbitalElements elements, int number)
         {
             //elements.FindPointsOnOrbit(20).ToList().ForEach(vs => Debug.Log(vs));
-            return elements.FindPointsOnOrbit(number, Simulation.God.Time).Select(vs => (Vector3)vs).ToArray();
+            return elements.FindPointsOnOrbit(number, Simulation.God.Time).Select(vs => (Vector3)(Vector2)vs).ToArray();
 
         }
 

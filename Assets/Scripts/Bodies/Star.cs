@@ -190,12 +190,12 @@ namespace Assets.Scripts.Bodies
             return spc.ToString();
         }
 
-        public static implicit operator UnityEngine.Vector3(Star ss)
+        public static implicit operator UnityEngine.Vector2(Star ss)
         {
-            VectorS posS = ss.OrbElements.GetPositionSphere(Simulation.God.Time);
-            UnityEngine.Vector3 posPar = UnityEngine.Vector3.zero;
+            VectorP posP = ss.OrbElements.GetPositionCircle(Simulation.God.Time);
+            UnityEngine.Vector2 posPar = UnityEngine.Vector2.zero;
             if (ss.starSystem.Tertiary != ss)
-                posPar = UnityEngine.Vector3.zero;
+                posPar = UnityEngine.Vector2.zero;
             else
             {
                 switch (ss.starSystem.TertiaryPos)
@@ -203,17 +203,17 @@ namespace Assets.Scripts.Bodies
                 case 0:
                     throw new Exception("Tertiary planet " + ss + " does not have a position assigned.");
                 case 1:
-                    posPar = (UnityEngine.Vector3)ss.starSystem.Primary.OrbElements.GetPositionSphere(Simulation.God.Time);
+                    posPar = (UnityEngine.Vector2)ss.starSystem.Primary.OrbElements.GetPositionCircle(Simulation.God.Time);
                     break;
                 case 2:
-                    posPar = (UnityEngine.Vector3)ss.starSystem.Secondary.OrbElements.GetPositionSphere(Simulation.God.Time);
+                    posPar = (UnityEngine.Vector2)ss.starSystem.Secondary.OrbElements.GetPositionCircle(Simulation.God.Time);
                     break;
                 case 3:
-                    posPar = UnityEngine.Vector3.zero;
+                    posPar = UnityEngine.Vector2.zero;
                     break;
                 }
             }
-            UnityEngine.Vector3 posTrue = (UnityEngine.Vector3)posS + posPar;
+            UnityEngine.Vector2 posTrue = (UnityEngine.Vector2)posP + posPar;
             return posTrue;
         }
 

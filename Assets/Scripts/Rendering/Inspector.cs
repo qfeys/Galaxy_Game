@@ -82,8 +82,7 @@ namespace Assets.Scripts.Rendering
                     new List<TextRef>(){ TextRef.Create("Pressure"),        TextRef.Create(()=>p.PressureAtSeaLevel) },
                     new List<TextRef>(){ TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay) },
                     new List<TextRef>(){ TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays) },
-                    new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA) },
-                    new List<TextRef>(){ TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg) }
+                    new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA) }
                     });
                 else
                     info.SetInfo(new List<List<TextRef>>() {
@@ -93,7 +92,6 @@ namespace Assets.Scripts.Rendering
                     new List<TextRef>(){ TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay)},
                     new List<TextRef>(){ TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays)},
                     new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA)},
-                    new List<TextRef>(){ TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg)},
                     new List<TextRef>(){ TextRef.Create("Total population"),TextRef.Create(()=>p.PopulationCount) }
                     });
             else if (p.type == Bodies.Planet.Type.Gas_Giant || p.type == Bodies.Planet.Type.Superjovian)
@@ -102,8 +100,7 @@ namespace Assets.Scripts.Rendering
                     new List<TextRef>(){ TextRef.Create("Temperature"),     TextRef.Create(()=>p.BaseTemperature)},
                     new List<TextRef>(){ TextRef.Create("Day (hours)"),     TextRef.Create(()=>p.SolarDay)},
                     new List<TextRef>(){ TextRef.Create("Year (24h days)"), TextRef.Create(()=>p.OrbElements.T.TotalDays)},
-                    new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA)},
-                    new List<TextRef>(){ TextRef.Create("Inclination (deg)"),TextRef.Create(()=>p.OrbElements.i * Mathf.Rad2Deg) }
+                    new List<TextRef>(){ TextRef.Create("Semi-Major Axis"), TextRef.Create(()=>p.OrbElements.SMA)}
                 });
             info.Redraw();
         }
@@ -155,14 +152,13 @@ namespace Assets.Scripts.Rendering
                 CloseInspector();
             });
 
-            InfoTable info = InfoTable.Create(go.transform, new List<List<TextRef>>());
-            info.SetInfo(new List<List<TextRef>>() {
+            List<List<TextRef>> infoData = new List<List<TextRef>>() {
                     new List<TextRef>(){ TextRef.Create("Primary"),     TextRef.Create(()=>sys.Primary)},
                     new List<TextRef>(){ TextRef.Create("# Stars"),     TextRef.Create(()=>sys.Tertiary == null? sys.Secondary == null? 1:2:3)},
                     new List<TextRef>(){ TextRef.Create("# planets"),   TextRef.Create(()=>sys.Planets.Count)},
                     new List<TextRef>(){ TextRef.Create("# moons"),     TextRef.Create(()=>sys.Planets.Sum(p => p.moons.Count))}
-            });
-            info.Redraw();
+            };
+            InfoTable info = InfoTable.Create(go.transform, infoData);
         }
     }
 }

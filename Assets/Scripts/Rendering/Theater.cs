@@ -31,13 +31,13 @@ namespace Assets.Scripts.Rendering
 
         public void Render() { render(); }
 
-        public void SetCenter(Vector3 c) { Center = c; }
+        public void SetCenter(Vector2 c) { Center = c; }
         public void SetCenter(Bodies.Planet p)
         {
-            VectorS posS = p.OrbElements.GetPositionSphere(Simulation.God.Time);
-            Vector3 posPar = p.ParentPlanet == null ?
+            VectorP posP = p.OrbElements.GetPositionCircle(Simulation.God.Time);
+            Vector2 posPar = p.ParentPlanet == null ?
                 p.Parent.OrbElements.GetPosition(Simulation.God.Time) : p.ParentPlanet.OrbElements.GetPosition(Simulation.God.Time);
-            Vector3 posTrue = (Vector3)posS + posPar;
+            Vector2 posTrue = (Vector2)posP + posPar;
             SetCenter(posTrue);
         }
 

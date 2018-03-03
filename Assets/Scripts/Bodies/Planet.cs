@@ -142,14 +142,10 @@ namespace Assets.Scripts.Bodies
             else if (a <= 7) eccentricity = rng.D10 * 0.01 + 0.05;
             else if (a <= 9) eccentricity = rng.D10 * 0.01 + 0.15;
             else eccentricity = rng.D10 * 0.04 + 0.25;
-            double inclination = 0;         // Inclination is not in the paper, except for a small mention on page 16
-            int b = rng.D10 + (type == Type.Captured ? +2 : 0);
-            if (b <= 3) inclination = rng.D10 * 0.3 * Math.PI / 180;
-            else if (b <= 6) inclination = rng.D10 * -0.3 * Math.PI / 180;
-            else if (b <= 8) inclination = (rng.D10 * 0.6 + 0.3) * Math.PI / 180;
-            else inclination = (rng.D10 * -0.6 - 0.3) * Math.PI / 180;
+            // Inclination is not in the paper, except for a small mention on page 16
+            // Inclination is not concidered
 
-            OrbElements = new OrbitalElements(rng.Circle, inclination, rng.Circle, rng.Circle, meanDistance, eccentricity, parent.Mass * Star.SOLAR_MASS);
+            OrbElements = new OrbitalElements(rng.Circle, rng.Circle, meanDistance, eccentricity, parent.Mass * Star.SOLAR_MASS);
             moons = new List<Planet>();
 
             CalculateSize();
@@ -187,7 +183,7 @@ namespace Assets.Scripts.Bodies
             ParentPlanet = planet;
             Parent = ParentPlanet.Parent;
             double sma = semiMajorAxis * ParentPlanet.Radius / StarSystem.AU;
-            OrbElements = new OrbitalElements(ParentPlanet.NorthDirection + Math.PI / 2, ParentPlanet.AxialTilt, 0, rng.Circle, sma, 0, ParentPlanet.Mass * EARTH_MASS);
+            OrbElements = new OrbitalElements(0, rng.Circle, sma, 0, ParentPlanet.Mass * EARTH_MASS);
             // Radius
             int a = rng.D100 + Parent.starSystem.Abundance * (Parent.starSystem.Abundance < 0 ? 2 : 1);
             if (a <= 64) { Radius = rng.D10 * 10; type = Type.Chunk; }
@@ -309,7 +305,7 @@ namespace Assets.Scripts.Bodies
                 else if (OrbElements.e < 0.65) RotationalPeriod = 5 / 2 * OrbElements.T.TotalHours;
                 else if (OrbElements.e < 0.80) RotationalPeriod = 3 / 1 * OrbElements.T.TotalHours;
                 else RotationalPeriod = 7 / 2 * OrbElements.T.TotalHours;
-                AxialTilt = OrbElements.i;
+                AxialTilt = isMoon ? ParentPlanet.AxialTilt : 0;
                 NorthDirection = (OrbElements.MAaE + 3 * Math.PI / 4) % (Math.PI * 2);
             }
         }
@@ -733,7 +729,7 @@ namespace Assets.Scripts.Bodies
             {
                 double d2r = Math.PI / 180;
                 Planet astroid = new Planet(Parent, innerPlanet, Type.Chunk,
-                    new OrbitalElements(OrbElements.LAN + (rng.D10 - 5) / 2.0 * d2r, OrbElements.i + (rng.D10 - 5) / 2.0 * d2r, OrbElements.AOP + (rng.D10 - 5) / 2.0 * d2r, rng.Circle,
+                    new OrbitalElements(OrbElements.AOP + (rng.D10 - 5) / 2.0 * d2r, rng.Circle,
                         OrbElements.SMA * (1 + (rng.D10 - 5) / 40.0), OrbElements.e, Parent.Mass * Star.SOLAR_MASS)) {
                     isMoon = true,
                     ParentPlanet = this
@@ -767,7 +763,7 @@ namespace Assets.Scripts.Bodies
                 throw new ArgumentException("You tried to resolve the trojan status of a planet with type: " + type);
             if (rng.D10 <= 8) type = Type.Gas_Giant;
             else type = Type.Superjovian;
-            OrbitalElements companionElements = new OrbitalElements(OrbElements.LAN, OrbElements.i, OrbElements.AOP,
+            OrbitalElements companionElements = new OrbitalElements(OrbElements.AOP,
                 OrbElements.MAaE + Math.PI / 3 * rng.D10 > 5 ? +1 : -1,
                 OrbElements.SMA, OrbElements.e, OrbElements.parentMass * Star.SOLAR_MASS);
             Planet companion = new Planet(Parent, innerPlanet, rng.D10 <= 9 ? Type.Chunk : Type.Terrestial_planet, companionElements);
@@ -787,15 +783,6 @@ namespace Assets.Scripts.Bodies
             if (secondType != Type.Chunk || secondType != Type.Terrestial_planet || secondType != Type.Gas_Giant || secondType != Type.Superjovian)
                 secondType = Type.Chunk;
 
-            // Set axial tilt
-            int a = rng.D10;
-            if (a <= 2) AxialTilt = rng.D10 * Math.PI / 180;
-            else if (a <= 4) AxialTilt = (10 + rng.D10) * Math.PI / 180;
-            else if (a <= 6) AxialTilt = (20 + rng.D10) * Math.PI / 180;
-            else if (a <= 8) AxialTilt = (30 + rng.D10) * Math.PI / 180;
-            else AxialTilt = (40 + rng.D100 * 1.4) * Math.PI / 180;
-            NorthDirection = rng.Circle;
-
             double seperation;
             int b = rng.D10;
             if (b <= 4) seperation = 1 + rng.D10 * 0.5;      // Close
@@ -814,7 +801,7 @@ namespace Assets.Scripts.Bodies
                 type = firstType;
                 CalculateSize();
                 Planet moon = new Planet(Parent, innerPlanet, secondType, 
-                    new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, rng.Circle, seperation * Radius / StarSystem.AU, 0, Mass * EARTH_MASS)) {
+                    new OrbitalElements(0, rng.Circle, seperation * Radius / StarSystem.AU, 0, Mass * EARTH_MASS)) {
                     isMoon = true,
                     ParentPlanet = this
                 };
@@ -837,8 +824,8 @@ namespace Assets.Scripts.Bodies
                 double r1 = seperation / (1 + prime.Mass / second.Mass);
                 double apparentParentMassPrimary = Math.Pow(r1, 3) * (prime.Mass + second.Mass) / Math.Pow(seperation, 3);
                 double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(prime.Mass / second.Mass, 3);
-                prime.OrbElements = new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, 0, r1, 0, apparentParentMassPrimary * EARTH_MASS);
-                second.OrbElements = new OrbitalElements(NorthDirection + Math.PI / 2, AxialTilt, 0, Math.PI, seperation - r1, 0, apparentParentMassSecondary * EARTH_MASS);
+                prime.OrbElements = new OrbitalElements(0, 0, r1, 0, apparentParentMassPrimary * EARTH_MASS);
+                second.OrbElements = new OrbitalElements(0, Math.PI, seperation - r1, 0, apparentParentMassSecondary * EARTH_MASS);
                 prime.isTidallyLocked = true;
                 second.isTidallyLocked = true;
                 prime.RotationalPeriod = prime.OrbElements.T.TotalHours;

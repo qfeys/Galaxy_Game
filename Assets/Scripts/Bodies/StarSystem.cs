@@ -183,8 +183,8 @@ namespace Assets.Scripts.Bodies
                 {
                     double apparentParentMassPrimary = Math.Pow(r1, 3) * (Primary.Mass + Secondary.Mass) / Math.Pow(meanSeperation, 3);
                     double apparentParentMassSecondary = apparentParentMassPrimary * Math.Pow(Primary.Mass / Secondary.Mass, 3);
-                    Primary.SetElements(new OrbitalElements(0, 0, 0, 0, r1, eccentricity, apparentParentMassPrimary * Star.SOLAR_MASS));
-                    Secondary.SetElements(new OrbitalElements(0, 0, Math.PI, 0, meanSeperation - r1, eccentricity, apparentParentMassSecondary * Star.SOLAR_MASS));
+                    Primary.SetElements(new OrbitalElements(0, 0, r1, eccentricity, apparentParentMassPrimary * Star.SOLAR_MASS));
+                    Secondary.SetElements(new OrbitalElements(Math.PI, 0, meanSeperation - r1, eccentricity, apparentParentMassSecondary * Star.SOLAR_MASS));
                 }
 
                 if(Tertiary != null)
@@ -232,7 +232,7 @@ namespace Assets.Scripts.Bodies
                     {
                         double centralMass = TertiaryPos == 1 ? Primary.Mass : TertiaryPos == 2 ? Secondary.Mass : (Primary.Mass + Secondary.Mass);
                         double r3 = meanSeperationT / (1 + Tertiary.Mass / centralMass);    // Distance from tertiary to barycentrum
-                        Tertiary.SetElements(new OrbitalElements(0, 0, 0, 0, r3, eccentricityT, centralMass * Star.SOLAR_MASS));
+                        Tertiary.SetElements(new OrbitalElements(0, 0, r3, eccentricityT, centralMass * Star.SOLAR_MASS));
                     }
                 }
             }
