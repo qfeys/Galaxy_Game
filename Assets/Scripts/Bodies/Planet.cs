@@ -57,7 +57,7 @@ namespace Assets.Scripts.Bodies
         /// <summary>
         /// The solar day in hours
         /// </summary>
-        public double SolarDay { get { return 1 / (1 / RotationalPeriod + 1 / OrbElements.T.TotalHours * (AxialTilt < 90 ? -1 : +1)); } }
+        public double SolarDay { get { return RotationalPeriod == 0 ? 0 : 1 / (1 / RotationalPeriod + 1 / OrbElements.T.TotalHours * (AxialTilt < 90 ? -1 : +1)); } }
         /// <summary>
         /// The age of this planets system.S
         /// </summary>

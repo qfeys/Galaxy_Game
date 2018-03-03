@@ -241,13 +241,14 @@ namespace Assets.Scripts.Bodies
             Planets = new List<Planet>();
             {
                 List<double> orbitSizes = GenerateOrbits(Primary);
-
+                int os = orbitSizes.Count;
                 // Destroy invalid orbits due to binaries
                 orbitSizes.RemoveAll(o => 
                     (Secondary != null && o * 3 > closestSeperation && o < furthestSeperation * 3) ||
                     (TertiaryPos == 1 && o * 3 > closestSeperationT && o < furthestSeperationT * 3) ||
                     (TertiaryPos == 3 && o * 3 > closestSeperationT && o < furthestSeperationT * 3)
                 );
+                UnityEngine.Debug.Log("Stars: " + (Tertiary == null ? Secondary == null ? 1 : 2 : 3) + " , Orbits: " + os +"-"+ orbitSizes.Count);
 
                 if (Secondary != null)   // Repeat for secondary
                 {
@@ -317,7 +318,8 @@ namespace Assets.Scripts.Bodies
             else if (a <= 5) numberOfOrbits = rng.D10 + 5;
             else if (a <= 7) numberOfOrbits = rng.D10;
             else if (a <= 9) numberOfOrbits = rng.D10 / 2;
-            else { numberOfOrbits = 0; return new List<double>(); }
+            //else { numberOfOrbits = 0; return new List<double>(); }
+            else { numberOfOrbits = 0;  }
 
             List<double> orbitSizes = new List<double>();
             orbitSizes.Add(0.05 * Math.Pow(star.Mass, 2) * rng.D10);
@@ -336,6 +338,7 @@ namespace Assets.Scripts.Bodies
                 else schorchingRadius = Math.Max(schorchingRadius, 10);
             }
             orbitSizes.RemoveAll(o => o < schorchingRadius);
+            UnityEngine.Debug.Log("a value: " + a + " , number of orbits: " + numberOfOrbits + " , actual orbits: " + orbitSizes.Count);
             return orbitSizes;
         }
 
