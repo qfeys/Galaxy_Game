@@ -366,6 +366,7 @@ namespace Assets.Scripts.Bodies
             }
             else if (a <= 100)
             {
+                return SpectralClass.BrownDwarf;
                 throw new NotImplementedException("Trying to make a special star");
             }
             else throw new ArgumentOutOfRangeException("The RNG gave us a number bigger than 100.");
