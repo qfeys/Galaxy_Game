@@ -71,16 +71,18 @@ namespace Assets.Scripts
         /// <param name="meanAnomaly"></param>
         /// <param name="guess"></param>
         /// <returns></returns>
-        double EccentricAnomaly(double meanAnomaly, double guess = double.NaN)
+        double EccentricAnomaly(double meanAnomaly)
         {
             if (meanAnomaly == 0)
                 return 0;
-            if (double.IsNaN(guess))
-                guess = meanAnomaly;
-            double newGuess = meanAnomaly + e * Math.Sin(guess);
-            if (Math.Abs(guess - newGuess) < guess * 1e-10)
-                return newGuess;
-            return EccentricAnomaly(meanAnomaly, newGuess);
+            double guess = meanAnomaly;
+            double newGuess = meanAnomaly + e * Math.Sin(meanAnomaly);
+            while (Math.Abs(guess - newGuess) > guess * 1e-10)
+            {
+                guess = newGuess;
+                newGuess = meanAnomaly + e * Math.Sin(guess);
+            }
+            return newGuess;
         }
 
         internal VectorP[] FindPointsOnOrbit(int number, DateTime time)
