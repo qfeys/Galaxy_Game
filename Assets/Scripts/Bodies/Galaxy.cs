@@ -28,7 +28,8 @@ namespace Assets.Scripts.Bodies
             {
                 UnityEngine.Debug.LogError("TYPELOADEXEPTION");
                 UnityEngine.Debug.LogError(e.TypeName);
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 UnityEngine.Debug.LogError("TYPELOADEXEPTION, probably. This is the failsave catch.");
                 UnityEngine.Debug.LogException(e);
@@ -36,7 +37,7 @@ namespace Assets.Scripts.Bodies
         }
 
         /// <summary>
-        /// Poisson-disc sampling
+        /// Poisson-disc sampling in 3D
         /// </summary>
         /// <param name="numberOfPoints"></param>
         /// <param name="minDis"></param>
@@ -62,7 +63,7 @@ namespace Assets.Scripts.Bodies
                     Vect3 central = validPoints[rand.Next(validPoints.Count)];
                     for (int j = 0; j < iter_per_point; j++)
                     {
-                        Vect3 newPoint = new Vect3(rand.NextDouble() * (maxDis - minDis) + minDis, rng);
+                        Vect3 newPoint = new Vect3(rand.NextDouble() * (maxDis - minDis) + minDis, rand);
                         if (points.All(tpl => Vect3.Distance(tpl.Item1, newPoint) > minDis))
                         {
                             points.Add(new Tuple<Vect3, bool>(newPoint, true));
@@ -86,10 +87,15 @@ namespace Assets.Scripts.Bodies
         {
             double x, y, z;
 
-            public Vect3(double radius, RNG rng)
+            /// <summary>
+            /// Gives random point on a sphere of given radius
+            /// </summary>
+            /// <param name="radius"></param>
+            /// <param name="rand"></param>
+            public Vect3(double radius, Random rand)
             {
-                double th = rng.Circle;
-                double ga = rng.Circle;
+                double th = rand.NextDouble() * 2 * Math.PI;
+                double ga = Math.Acos(2 * rand.NextDouble() - 1);
                 x = radius * Math.Cos(th) * Math.Cos(ga);
                 y = radius * Math.Sin(th) * Math.Cos(ga);
                 z = radius * Math.Sin(ga);
