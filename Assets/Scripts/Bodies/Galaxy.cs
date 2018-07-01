@@ -31,7 +31,7 @@ namespace Assets.Scripts.Bodies
             }
             catch (Exception e)
             {
-                UnityEngine.Debug.LogError("TYPELOADEXEPTION, probably. This is the failsave catch.");
+                UnityEngine.Debug.LogError("A bug in the system generation. This is the failsave catch. The exeption is on the next line");
                 UnityEngine.Debug.LogException(e);
             }
         }

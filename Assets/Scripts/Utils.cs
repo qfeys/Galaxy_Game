@@ -27,7 +27,7 @@ namespace Assets.Scripts
         /// <summary>
         /// The gravitational constant, normalised to use AU instead of meters. unit: 1 / (kg s)
         /// </summary>
-        public const double G_AU = 100.151976e-39;
+        public const double G_AU = 19.934712e-45;
 
         /// <summary>
         /// 
@@ -108,10 +108,17 @@ namespace Assets.Scripts
         {
             if (parentMass == 0)
                 throw new Exception("Parent mass == 0");
-            return AstroTimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass)));
+            double a = Math.Pow(SMA, 3);
+            double b = Math.Pow(SMA, 3) / (G_AU * parentMass);
+            double c = Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass));
+            double d = 2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass));
+            AstroTimeSpan T = AstroTimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass)));
+            if (T.TotalSeconds == 0)
+                throw new Exception("Periode == 0");
+            return T;
         }
 
-        public static OrbitalElements Center { get { return new OrbitalElements(0, 0, 0, 0, 0); } }
+        public static OrbitalElements Center { get { return new OrbitalElements(0, 0, 0, 0, double.Epsilon); } }
         public static readonly DateTime EPOCH = new DateTime(2100, 1, 1);
     }
 

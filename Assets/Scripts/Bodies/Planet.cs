@@ -765,7 +765,7 @@ namespace Assets.Scripts.Bodies
             else type = Type.Superjovian;
             OrbitalElements companionElements = new OrbitalElements(OrbElements.AOP,
                 OrbElements.MAaE + Math.PI / 3 * rng.D10 > 5 ? +1 : -1,
-                OrbElements.SMA, OrbElements.e, OrbElements.parentMass * Star.SOLAR_MASS);
+                OrbElements.SMA, OrbElements.e, OrbElements.parentMass);
             Planet companion = new Planet(Parent, innerPlanet, rng.D10 <= 9 ? Type.Chunk : Type.Terrestial_planet, companionElements);
             CalculateSize();
             companion.CalculateSize();

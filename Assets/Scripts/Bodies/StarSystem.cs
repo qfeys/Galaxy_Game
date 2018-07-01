@@ -321,6 +321,8 @@ namespace Assets.Scripts.Bodies
             else { numberOfOrbits = 0;  }
 
             List<double> orbitSizes = new List<double>();
+            if (numberOfOrbits == 0)    // Premature termination
+                return orbitSizes;
             orbitSizes.Add(0.05 * Math.Pow(star.Mass, 2) * rng.D10);
             for (int i = 1; i < numberOfOrbits; i++)
             {
@@ -374,6 +376,11 @@ namespace Assets.Scripts.Bodies
 
         public override string ToString()
         {
+            if (Primary == null)
+            {
+                UnityEngine.Debug.LogError("Premature printing of the star system name. Err ignored.");
+                return "";
+            }
             return Primary.ToString();
         }
 
