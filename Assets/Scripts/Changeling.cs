@@ -8,23 +8,47 @@ using Assets.Scripts.Simulation;
 namespace Assets.Scripts
 {
     /// <summary>
-    /// This class provides a double and it's derivative, so it can be evaluated for arbitary values in the future.
+    /// A changeling is a double that changes over time and is the base of the entire event system.
+    /// Its value can be evaluated for arbitary values in the future.
+    /// Functions can subscribe to certain values and will be creaate an event when this value triggers.
+    /// You should try to keep the value linear over time whenever possible (eg. a*x + b)
     /// </summary>
     abstract class Changeling
     {
-
+        /// <summary>
+        /// Creates a linear changeling with a value and derivative at a certain moment.
+        /// c + d*t
+        /// </summary>
+        /// <param name="c">The value</param>
+        /// <param name="d">The derivative (units per second)</param>
+        /// <param name="m">The moment at which this value is correct</param>
+        /// <returns></returns>
         public static Changeling Create(double c, double d, DateTime m)
         {
             Original nw = new Original(c, d, m);
             return nw;
         }
 
+        /// <summary>
+        /// Creates a changeling that is constant over time. You should probably avoid this.
+        /// </summary>
+        /// <param name="c">The value</param>
+        /// <returns></returns>
+        [Obsolete("You are using a constant changeling. This is probably pointless. use a normal double instead.")]
         public static Changeling Create(double c)
         {
             Original nw = new Original(c, 0, Simulation.God.Time);
             return nw;
         }
 
+        /// <summary>
+        /// Creating a higher order changeling.
+        /// Not yet implemented.
+        /// </summary>
+        /// <param name="c">The value</param>
+        /// <param name="d">The derivative (units per second)</param>
+        /// <param name="m">The moment at which this value is correct</param>
+        /// <returns></returns>
         public static Changeling Create(double c, Changeling d, DateTime m)
         {
             throw new NotImplementedException("Second order changelings");
@@ -42,6 +66,19 @@ namespace Assets.Scripts
             return Value(God.Time);
         }
 
+        public static implicit operator double(Changeling ch)
+        {
+            return ch.Value();
+        }
+
+        /// <summary>
+        /// Combine two changelings in a linear fashion
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="c1"></param>
+        /// <param name="b"></param>
+        /// <param name="c2"></param>
+        /// <returns></returns>
         static Changeling Combine(Changeling a, double c1, Changeling b, double c2)
         {
             if (a is Original)
@@ -212,9 +249,21 @@ namespace Assets.Scripts
             /// </summary>
             public class Linear : Combination
             {
+                /// <summary>
+                /// List with original changelings together with a value it must be multiplied with.
+                /// </summary>
                 public List<OriginalFraction> fractions;
+                /// <summary>
+                /// A constant value that gets added to all the original fractions.
+                /// </summary>
                 public double constant;
 
+                /// <summary>
+                /// Create a linear combination from a single original, a value to multiplie it with and a constant to add to it.
+                /// </summary>
+                /// <param name="a">The original changeling</param>
+                /// <param name="b">The multiplier</param>
+                /// <param name="constant"></param>
                 public Linear(Original a, double b, double constant = 0)
                 {
                     fractions = new List<OriginalFraction>() {
@@ -223,29 +272,51 @@ namespace Assets.Scripts
                     this.constant = constant;
                 }
 
-                public Linear(Linear lc, double value = 1, double constant = 0)
+                /// <summary>
+                /// Create a linear combination from an other linear combination, a value to multiplie it with and a constant to add to it.
+                /// </summary>
+                /// <param name="lc">The other linear combination</param>
+                /// <param name="fraction">The multiplier</param>
+                /// <param name="constant"></param>
+                public Linear(Linear lc, double fraction = 1, double constant = 0)
                 {
                     this.fractions = new List<OriginalFraction>();
                     lc.fractions.ForEach(of => fractions.Add(of.Copy()));
-                    if (value != 1)
-                        fractions.ForEach(of => of.value *= value);
-                    this.constant = constant + lc.constant * value;
+                    if (fraction != 1)
+                        fractions.ForEach(of => of.value *= fraction);
+                    this.constant = constant + lc.constant * fraction;
                 }
 
+                /// <summary>
+                /// Create a linear combination from a list of originals.
+                /// </summary>
+                /// <param name="fractions"></param>
                 public Linear(List<OriginalFraction> fractions)
                 {
                     this.fractions = new List<OriginalFraction>(fractions);
                 }
 
-                public Linear(Linear alc, Linear blc, double c1 = 1, double c2 = 1)
+                /// <summary>
+                /// Create a linear combination by combining two previous linear combinations.
+                /// </summary>
+                /// <param name="lc1">Changeling 1</param>
+                /// <param name="lc2">Changeling 2</param>
+                /// <param name="c1">multiplier 1</param>
+                /// <param name="c2">multiplier 2</param>
+                public Linear(Linear lc1, Linear lc2, double c1 = 1, double c2 = 1)
                 {
                     this.fractions = new List<OriginalFraction>();
-                    alc.fractions.ForEach(of => fractions.Add(of.Copy()));
+                    lc1.fractions.ForEach(of => fractions.Add(of.Copy()));
                     if (c1 != 1)
                         fractions.ForEach(of => of.value *= c1);
-                    blc.fractions.ForEach(ofb => AddOriginal(ofb.original, ofb.value));
+                    lc2.fractions.ForEach(ofb => AddOriginal(ofb.original, ofb.value));
                 }
 
+                /// <summary>
+                /// Add an original to this linear combination
+                /// </summary>
+                /// <param name="o"></param>
+                /// <param name="fraction"></param>
                 public void AddOriginal(Original o, double fraction)
                 {
                     if (fractions.Any(of => of.original == o))
@@ -254,6 +325,11 @@ namespace Assets.Scripts
                         fractions.Add(new OriginalFraction(o, fraction));
                 }
 
+                /// <summary>
+                /// Calculate the value at a given moment.
+                /// </summary>
+                /// <param name="m2"></param>
+                /// <returns></returns>
                 public override double Value(DateTime m2)
                 {
                     double ans = 0;
@@ -261,6 +337,11 @@ namespace Assets.Scripts
                     return ans;
                 }
 
+                /// <summary>
+                /// Find the moment at which a value gets triggered.
+                /// </summary>
+                /// <param name="trigger"></param>
+                /// <returns></returns>
                 internal override DateTime FindMomentAtValue(double trigger)
                 {
                     DateTime mostRecent = fractions.Max(f => f.original.m);
@@ -273,12 +354,15 @@ namespace Assets.Scripts
                     double seconds = (trigger - cSum) / dSum;
                     return mostRecent + TimeSpan.FromSeconds(seconds);
                 }
-
+                
                 internal override void Subscribe(Event.Conditional conditional)
                 {
                     fractions.ForEach(f => f.original.Subscribe(conditional));
                 }
 
+                /// <summary>
+                /// The combination of an original and a multiplier.
+                /// </summary>
                 public class OriginalFraction
                 {
                     public readonly Original original;
