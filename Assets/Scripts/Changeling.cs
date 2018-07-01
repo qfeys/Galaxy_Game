@@ -15,6 +15,12 @@ namespace Assets.Scripts
     /// </summary>
     abstract class Changeling
     {
+
+        /// <summary>
+        /// List of all events subscribed to this Changeling
+        /// </summary>
+        List<Subscription> subscriptions;
+
         /// <summary>
         /// Creates a linear changeling with a value and derivative at a certain moment.
         /// c + d*t
@@ -34,7 +40,7 @@ namespace Assets.Scripts
         /// </summary>
         /// <param name="c">The value</param>
         /// <returns></returns>
-        [Obsolete("You are using a constant changeling. This is probably pointless. use a normal double instead.")]
+        [Obsolete("You are using a constant changeling. This is probably pointless. Use a normal double instead.")]
         public static Changeling Create(double c)
         {
             Original nw = new Original(c, 0, Simulation.God.Time);
@@ -53,6 +59,8 @@ namespace Assets.Scripts
         {
             throw new NotImplementedException("Second order changelings");
         }
+
+        abstract public void Modify(double c, double d, DateTime m);
 
         /// <summary>
         /// This is the value a the given moment
@@ -131,7 +139,10 @@ namespace Assets.Scripts
                 throw new Exception("WTF happened here?!?");
         }
 
-        internal abstract void Subscribe(Event.Conditional conditional);
+        internal void Subscribe(double trigger, Action callback, bool haltingEvent = false)
+        {
+            subscriptions.Add(new Subscription(trigger, callback, haltingEvent));
+        }
 
         /// <summary>
         /// Returns the moment at which this Changeling will reach the trigger value
@@ -213,16 +224,32 @@ namespace Assets.Scripts
             public DateTime m;
 
             /// <summary>
-            /// List of all events subscribed to this Changeling
+            /// List of all the combinations that are dependant on this Original
             /// </summary>
-            List<Event.Conditional> subscriptions;
+            List<WeakReference<Combination>> dependancies;
 
             public Original(double c, double d, DateTime m)
             {
                 this.c = c;
                 this.d = d;
                 this.m = m;
-                subscriptions = new List<Event.Conditional>();
+                subscriptions = new List<Subscription>();
+            }
+
+            public override void Modify(double c, double d, DateTime m)
+            {
+                this.c = c;
+                this.d = d;
+                this.m = m;
+                subscriptions.ForEach(sub => sub.Reprogram(this));
+                dependancies.ForEach(dep => {
+                    Combination comb;
+                    bool stillAlive = dep.TryGetTarget(out comb);
+                    if (stillAlive)
+                        comb.Update();
+                    else
+                        dependancies.Remove(dep);
+                });
             }
 
             public override double Value(DateTime m2)
@@ -236,14 +263,21 @@ namespace Assets.Scripts
                 return m + TimeSpan.FromSeconds(seconds);
             }
 
-            internal override void Subscribe(Event.Conditional conditional)
+
+            public void Reference(Combination combination)
             {
-                subscriptions.Add(conditional);
+                dependancies.Add(new WeakReference<Combination>(combination));
             }
         }
 
         abstract class Combination : Changeling
         {
+
+            internal void Update()
+            {
+                subscriptions.ForEach(sub => sub.Reprogram(this));
+            }
+
             /// <summary>
             /// This class is a linear combination of Original integrated
             /// </summary>
@@ -354,10 +388,10 @@ namespace Assets.Scripts
                     double seconds = (trigger - cSum) / dSum;
                     return mostRecent + TimeSpan.FromSeconds(seconds);
                 }
-                
-                internal override void Subscribe(Event.Conditional conditional)
+
+                public override void Modify(double c, double d, DateTime m)
                 {
-                    fractions.ForEach(f => f.original.Subscribe(conditional));
+                    throw new NotImplementedException();
                 }
 
                 /// <summary>
@@ -393,9 +427,46 @@ namespace Assets.Scripts
                     throw new NotImplementedException();
                 }
 
-                internal override void Subscribe(Event.Conditional conditional)
+                public override void Modify(double c, double d, DateTime m)
                 {
                     throw new NotImplementedException();
+                }
+            }
+        }
+
+        class Subscription
+        {
+            double trigger;
+            Action callback;
+            bool haltingEvent;
+            Event evnt;
+
+            public Subscription(double trigger, Action callback, bool haltingEvent)
+            {
+                this.trigger = trigger;
+                this.callback = callback;
+                this.haltingEvent = haltingEvent;
+            }
+
+            public void Reprogram(Changeling changeling)
+            {
+                DateTime date = changeling.FindMomentAtValue(trigger);
+                bool isFuture = date.CompareTo(God.Time) > 0;
+                if(evnt == null && isFuture)
+                {
+                    evnt = new Event(date, callback, haltingEvent);
+                }else if(evnt != null && isFuture)
+                {
+                    if(evnt.moment.CompareTo(date) != 0)
+                    {
+                        evnt.Delete();
+                        evnt = new Event(date, callback, haltingEvent);
+                    }
+                }
+                if(evnt != null && !isFuture)
+                {
+                    evnt.Delete();
+                    evnt = null;
                 }
             }
         }

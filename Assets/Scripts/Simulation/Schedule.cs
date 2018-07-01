@@ -19,10 +19,15 @@ namespace Assets.Scripts.Simulation
                 else return DateTime.MaxValue;
             }
         }
-        
-        public static void Add(Event newUpdatable)
+
+        public static void Add(Event evnt)
         {
-            events.Add(newUpdatable);
+            events.Add(evnt);
+        }
+
+        public static void Remove(Event evnt)
+        {
+            events.Remove(evnt);
         }
 
         /// <summary>
@@ -35,8 +40,7 @@ namespace Assets.Scripts.Simulation
             int i = 0;  // i will return the amount of events handeled
             while (events.Count != 0 && events.PeekFirst().moment <= date)
             {
-                events.PeekFirst().Fire();
-                events.Resort();
+                events.TakeFirst().Fire();
                 i++;
                 if (i > 100) {
                     God.Log("Exxesive (100+) amount of events in one Progress tick");

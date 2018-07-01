@@ -27,39 +27,9 @@ namespace Assets.Scripts.Simulation
             callback();
         }
 
-        public class Conditional : Event
+        public void Delete()
         {
-            /// <summary>
-            /// The number that will be used to compare against
-            /// </summary>
-            Changeling condition;
-            /// <summary>
-            /// The number the condition must reach to trigger this event
-            /// </summary>
-            double trigger;
-
-            Action ValueChangeCallback;
-
-            public override DateTime moment
-            {
-                get { return condition.FindMomentAtValue(trigger); }
-            }
-
-            public Conditional(Changeling condition, double trigger, Action callback, Action ValueChangeCallback, bool haltingEvent = false)
-            {
-                this.condition = condition;
-                this.trigger = trigger;
-                this.callback = callback;
-                this.ValueChangeCallback = ValueChangeCallback;
-                this.haltingEvent = haltingEvent;
-                condition.Subscribe(this);
-                Schedule.Add(this);
-            }
-
-            public void ValueChanged()
-            {
-                ValueChangeCallback();
-            }
+            Schedule.Remove(this);
         }
     }
 }
