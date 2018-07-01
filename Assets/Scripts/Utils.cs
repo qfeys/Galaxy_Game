@@ -19,7 +19,7 @@ namespace Assets.Scripts
         public readonly double e;   // exentricity
         public readonly double parentMass; // in kg
         // TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
-        public AstroTimeSpan T { get { return AstroTimeSpan.FromSeconds(parentMass == 0 ? 0 : 2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass))); } }
+        public AstroTimeSpan T; 
         /// <summary>
         /// The gravitational constant, unit: m^3 / (kg s)
         /// </summary>
@@ -40,6 +40,7 @@ namespace Assets.Scripts
         public OrbitalElements(double AOP, double MAaE, double SMA, double e, double parentMass)
         {
             this.AOP = AOP; this.MAaE = MAaE; this.SMA = SMA; this.e = e; this.parentMass = parentMass;
+            T = CalculatePeriode(SMA, parentMass);
         }
 
         /// <summary>
@@ -98,6 +99,16 @@ namespace Assets.Scripts
                 ret[j] = point;
             }
             return ret;
+        }
+
+        /// <summary>
+        /// Calculates the periode T 
+        /// </summary>
+        static AstroTimeSpan CalculatePeriode(double SMA, double parentMass)
+        {
+            if (parentMass == 0)
+                throw new Exception("Parent mass == 0");
+            return AstroTimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G_AU * parentMass)));
         }
 
         public static OrbitalElements Center { get { return new OrbitalElements(0, 0, 0, 0, 0); } }
