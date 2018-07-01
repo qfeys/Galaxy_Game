@@ -501,7 +501,7 @@ namespace Assets.Scripts.Bodies
         };
 
         /// <summary>
-        /// One astronomical unit in meters
+        /// One astronomical unit in kilometers
         /// </summary>
         public const ulong AU = 149597871;   // 149'597'870,700 kilometers
         public const ulong SOL_SIZE = 40 * AU;

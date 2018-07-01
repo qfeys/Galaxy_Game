@@ -15,7 +15,7 @@ namespace Assets.Scripts
     {
         public readonly double AOP; // Argument of periapsis
         public readonly double MAaE;// Mean anomaly at epoch
-        public readonly double SMA;  // Semi-major axis
+        public readonly double SMA;  // Semi-major axis in meter
         public readonly double e;   // exentricity
         public readonly double parentMass; // in kg
         // TimeSpan T { get { return TimeSpan.FromSeconds(2 * Math.PI * Math.Sqrt(Math.Pow(SMA, 3) / (G * parentMass))); } }
@@ -27,13 +27,11 @@ namespace Assets.Scripts
         /// <summary>
         /// The gravitational constant, normalised to use AU instead of meters. unit: 1 / (kg s)
         /// </summary>
-        public const double G_AU = 1.9942614e-41;
+        public const double G_AU = 100.151976e-39;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="LAN">longitude of ascending node, between 0 and 2*PI</param>
-        /// <param name="i">inclenation, between 0 and 2*PI</param>
         /// <param name="AOP">Argument of pereapsis, between 0 and 2*PI</param>
         /// <param name="MAaE">Mean anomaly at epoch, between 0 and 2*PI</param>
         /// <param name="SMA">Semi-Major axis, in AU</param>
@@ -55,6 +53,8 @@ namespace Assets.Scripts
             if (SMA == 0) return new VectorP(0, 0);
             double n = T.TotalSeconds / (2 * Math.PI);   // average rate of sweep (s/rad)
             double meanAnomaly = MAaE + (time - EPOCH).TotalSeconds / n;
+            if (double.IsNaN(meanAnomaly))
+                UnityEngine.Debug.LogError("NaN detected");
             double EA = EccentricAnomaly(meanAnomaly);
             VectorP ret = new VectorP(this, EA);
             return ret;
