@@ -132,7 +132,7 @@ namespace Assets.Scripts.Data
                 if (temperature <= 6600)
                     red = 1;
                 else
-                    red = Mathf.Clamp01((float)(2.38774 * Math.Pow(temperature - 6000, 0.133205)));
+                    red = Mathf.Clamp01((float)(2.38774 * Math.Pow(temperature - 6000, -0.133205)));
 
                 float green = 0;
                 if (temperature <= 6600)
