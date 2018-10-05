@@ -470,6 +470,10 @@ namespace Assets.Scripts
                 public NonLinear(string reversePolishString, params Changeling[] parameters)
                 {
                     reversePolishStack = RPN_Token.CreateStack(reversePolishString, parameters);
+                    foreach (Changeling changeling in parameters)
+                    {
+                        changeling.Register(this);
+                    }
                 }
                 
                 public override double Value(DateTime moment)
