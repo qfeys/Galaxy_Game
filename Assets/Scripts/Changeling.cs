@@ -13,7 +13,7 @@ namespace Assets.Scripts
     /// Functions can subscribe to certain values and will be creaate an event when this value triggers.
     /// You should try to keep the value linear over time whenever possible (eg. a*x + b)
     /// </summary>
-    abstract class Changeling
+    abstract public class Changeling
     {
 
         /// <summary>
@@ -49,7 +49,6 @@ namespace Assets.Scripts
 
         /// <summary>
         /// Creating a higher order changeling.
-        /// Not yet implemented.
         /// </summary>
         /// <param name="c">The value</param>
         /// <param name="d">The derivative (units per second)</param>
@@ -58,7 +57,20 @@ namespace Assets.Scripts
         public static Changeling Create(double c, Changeling d, DateTime m)
         {
             // Ticks to seconds is devide by 10 milion; one tick is 100 ns
-            return new Combination.NonLinear("T " + m.Ticks/10e6 + " Diff {} mult " + c + " sum");
+            return new Combination.NonLinear("T " + m.Ticks / 10e6 + " Diff {} mult " + c + " sum", d);
+        }
+        
+        /// <summary>
+        /// Create the Changeling by typing it's fromula in reverse polish notation using either spaces or commas as seperators
+        /// Use other changelings by using "{i}" and adding that changeling to the parameters
+        /// Use the time by typing "T", use current time by typing "NOW"
+        /// Example: "45.3 {0} T DIFF {1} MULT SUM"
+        /// Available operations are SUM, DIFF, MULT, DIV, POW
+        /// </summary>
+        public static Changeling Create(string reversePolishString, params Changeling[] parameters)
+        {
+            // Ticks to seconds is devide by 10 milion; one tick is 100 ns
+            return new Combination.NonLinear(reversePolishString, parameters);
         }
 
         abstract public void Modify(double c, double d, DateTime m);
@@ -106,7 +118,7 @@ namespace Assets.Scripts
                 }
                 else if (b is Combination.NonLinear)
                 {
-                    return new Combination.NonLinear("{1} " + c1 + " MULT {2} " + c2 + "MULT SUM", a, b);
+                    return new Combination.NonLinear("{0} " + c1 + " MULT {1} " + c2 + "MULT SUM", a, b);
                 }
                 else
                 {
@@ -124,7 +136,7 @@ namespace Assets.Scripts
                     return new Combination.Linear(alc, blc, c1, c2);
                 }
                 else if (b is Combination.NonLinear)
-                    return new Combination.NonLinear("{1} " + c1 + " MULT {2} " + c2 + "MULT SUM", a, b);
+                    return new Combination.NonLinear("{0} " + c1 + " MULT {1} " + c2 + "MULT SUM", a, b);
                 else
                     throw new Exception("WTF happened here?!?");
             }
@@ -242,6 +254,7 @@ namespace Assets.Scripts
                 this.d = d;
                 this.m = m;
                 subscriptions = new List<Subscription>();
+                dependancies = new List<WeakReference<Combination>>();
             }
 
             public override void Modify(double c, double d, DateTime m)
@@ -290,7 +303,12 @@ namespace Assets.Scripts
             /// <param name="combination"></param>
             override protected void Register(Combination combination)
             {
-                if (dependancies.Any(wr => { Combination comb; bool exist = wr.TryGetTarget(out comb); return exist && combination == comb; }))
+                if (dependancies.Any(wr => 
+                {
+                    Combination comb;
+                    bool exist = wr.TryGetTarget(out comb);
+                    return exist && combination == comb;
+                }))
                     return;     // This combination is already registered
                 dependancies.Add(new WeakReference<Combination>(combination));
             }
@@ -463,15 +481,19 @@ namespace Assets.Scripts
                 /// <summary>
                 /// Create the Changeling by typing it's fromula in reverse polish notation using either spaces or commas as seperators
                 /// Use other changelings by using "{i}" and adding that changeling to the parameters
-                /// Use the time by typing T
-                /// Example: "45.3 {1} T DIFF {2} MULT SUM"
+                /// Use the time by typing "T", use current time by typing "NOW"
+                /// Example: "45.3 {0} T DIFF {1} MULT SUM"
                 /// Available operations are SUM, DIFF, MULT, DIV, POW
                 /// </summary>
                 public NonLinear(string reversePolishString, params Changeling[] parameters)
                 {
                     reversePolishStack = RPN_Token.CreateStack(reversePolishString, parameters);
+                    if (parameters == null)
+                        throw new Exception("params is null. RPS: " + reversePolishString);
                     foreach (Changeling changeling in parameters)
                     {
+                        if (changeling == null)
+                            throw new Exception("changeling is null. RPS: " + reversePolishString);
                         changeling.Register(this);
                     }
                 }
@@ -551,8 +573,8 @@ namespace Assets.Scripts
                     /// <summary>
                     /// Create the Changeling by typing it's fromula in reverse polish notation using either spaces or commas as seperators
                     /// Use other changelings by using "{i}" and adding that changeling to the parameters
-                    /// Use the time by typing T
-                    /// Example: "45.3 {1} T DIFF {2} MULT SUM"
+                    /// Use the time by typing "T", use current time by typing "NOW"
+                    /// Example: "45.3 {0} T DIFF {1} MULT SUM"
                     /// Available operations are SUM, DIFF, MULT, DIV, POW
                     /// </summary>
                     /// <param name="literal"></param>
@@ -561,7 +583,7 @@ namespace Assets.Scripts
                     static public List<RPN_Token> CreateStack(string literal, params Changeling[] parameters)
                     {
                         var list = new List<RPN_Token>();
-                        literal.ToUpper();
+                        literal = literal.ToUpper();
                         string[] op_array = literal.Split(' ',',');
                         double numberResult;
                         Operation operationResult;
@@ -570,6 +592,8 @@ namespace Assets.Scripts
                             string token = op_array[i];
                             if (token == "T")
                                 list.Add(new RPN_Token() { token_Type = Token_Type.TIME });
+                            else if (token == "NOW")
+                                list.Add(new RPN_Token() { token_Type = Token_Type.NUMBER, number = God.Time.Ticks / 10e6 });
                             else if (token[0] == '{')
                             {
                                 if (token[token.Length - 1] == '}')
@@ -612,12 +636,10 @@ namespace Assets.Scripts
                         {
                             RPN_Token current = list[i];
                             stack.Push(current);
-                            bool currentIsNumber = current.token_Type == Token_Type.CHANGELING || current.token_Type == Token_Type.NUMBER;
+                            bool currentIsNumber = current.token_Type != Token_Type.OPERATION;
                             if (currentIsNumber && lastIsNumber)
                             {
                                 EvaluateSingleOperation(moment, stack);
-                            } else
-                            {
                             }
                             lastIsNumber = currentIsNumber;
                         }
@@ -631,9 +653,11 @@ namespace Assets.Scripts
                     private static void EvaluateSingleOperation(DateTime moment, Stack<RPN_Token> stack)
                     {
                         RPN_Token current = stack.Pop();
-                        double currentNum = current.token_Type == Token_Type.NUMBER ? current.number : current.changeling.Value(moment);
+                        double currentNum = current.token_Type == Token_Type.NUMBER ? current.number : 
+                            current.token_Type == Token_Type.CHANGELING ? current.changeling.Value(moment) : God.Time.Ticks / 10e6;
                         RPN_Token last = stack.Pop();
-                        double lastNum = last.token_Type == Token_Type.NUMBER ? last.number : last.changeling.Value(moment);
+                        double lastNum = last.token_Type == Token_Type.NUMBER ? last.number :
+                            last.token_Type == Token_Type.CHANGELING ? last.changeling.Value(moment) : God.Time.Ticks / 10e6;
                         RPN_Token operation = stack.Pop();
                         switch (operation.operation)
                         {
@@ -643,6 +667,18 @@ namespace Assets.Scripts
                         case Operation.DIV: stack.Push(new RPN_Token() { token_Type = Token_Type.NUMBER, number = currentNum / lastNum }); break;
                         case Operation.POW: stack.Push(new RPN_Token() { token_Type = Token_Type.NUMBER, number = Math.Pow(currentNum, lastNum) }); break;
                         default: throw new Exception("Operation not implemented?");
+                        }
+                    }
+
+                    public override string ToString()
+                    {
+                        switch (token_Type)
+                        {
+                        case Token_Type.NUMBER: return number.ToString("0.0");
+                        case Token_Type.TIME: return "T";
+                        case Token_Type.OPERATION: return operation.ToString();
+                        case Token_Type.CHANGELING: return "{"+changeling.Value()+"}";
+                        default: throw new Exception("Bad Token");
                         }
                     }
                 }

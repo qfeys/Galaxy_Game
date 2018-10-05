@@ -427,6 +427,11 @@ namespace Assets.Scripts.Rendering
             return Create(ToSI(d));
         }
 
+        public static implicit operator TextRef(Changeling chl)
+        {
+            return Create(() => chl == null ? "NaN" : ToSI(chl.Value()));
+        }
+
         private string ExtractData(bool alt = false)
         {
             object d;
