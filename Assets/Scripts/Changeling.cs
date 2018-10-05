@@ -57,10 +57,12 @@ namespace Assets.Scripts
         /// <returns></returns>
         public static Changeling Create(double c, Changeling d, DateTime m)
         {
-            throw new NotImplementedException("Second order changelings");
+            // Ticks to seconds is devide by 10 milion; one tick is 100 ns
+            return new Combination.NonLinear("T " + m.Ticks/10e6 + " Diff {} mult " + c + " sum");
         }
 
         abstract public void Modify(double c, double d, DateTime m);
+        abstract public void Modify(Changeling ch);
 
         /// <summary>
         /// This is the value a the given moment
@@ -72,11 +74,6 @@ namespace Assets.Scripts
         public double Value()
         {
             return Value(God.Time);
-        }
-
-        public static implicit operator double(Changeling ch)
-        {
-            return ch.Value();
         }
 
         /// <summary>
@@ -109,7 +106,7 @@ namespace Assets.Scripts
                 }
                 else if (b is Combination.NonLinear)
                 {
-                    throw new NotImplementedException();
+                    return new Combination.NonLinear("{1} " + c1 + " MULT {2} " + c2 + "MULT SUM", a, b);
                 }
                 else
                 {
@@ -127,7 +124,7 @@ namespace Assets.Scripts
                     return new Combination.Linear(alc, blc, c1, c2);
                 }
                 else if (b is Combination.NonLinear)
-                    throw new NotImplementedException();
+                    return new Combination.NonLinear("{1} " + c1 + " MULT {2} " + c2 + "MULT SUM", a, b);
                 else
                     throw new Exception("WTF happened here?!?");
             }
@@ -144,12 +141,16 @@ namespace Assets.Scripts
             subscriptions.Add(new Subscription(trigger, callback, haltingEvent));
         }
 
+        abstract protected void Register(Combination combination);
+
         /// <summary>
         /// Returns the moment at which this Changeling will reach the trigger value
         /// </summary>
         /// <param name="trigger"></param>
         /// <returns></returns>
         internal abstract DateTime FindMomentAtValue(double trigger);
+
+        #region Operators
 
         public static Changeling operator +(Changeling a, Changeling b)
         {
@@ -168,7 +169,7 @@ namespace Assets.Scripts
             else if (a is Combination.Linear)
                 return new Combination.Linear(a as Combination.Linear, 1, b);
             else if (a is Combination.NonLinear)
-                throw new NotImplementedException();
+                return new Combination.NonLinear("{} " + b + " SUM", a);
             else
                 throw new Exception("Not a valid sub class");
         }
@@ -180,7 +181,7 @@ namespace Assets.Scripts
             else if (a is Combination.Linear)
                 return new Combination.Linear(a as Combination.Linear, 1, -b);
             else if (a is Combination.NonLinear)
-                throw new NotImplementedException();
+                return new Combination.NonLinear("{} " + b + " DIFF", a);
             else
                 throw new Exception("Not a valid sub class");
         }
@@ -192,7 +193,7 @@ namespace Assets.Scripts
             else if (a is Combination.Linear)
                 return new Combination.Linear(a as Combination.Linear, b);
             else if (a is Combination.NonLinear)
-                throw new NotImplementedException();
+                return new Combination.NonLinear("{} " + b + " MULT", a);
             else
                 throw new Exception("Not a valid sub class");
         }
@@ -202,11 +203,18 @@ namespace Assets.Scripts
             return a * (1 / b);
         }
 
+        public static implicit operator double(Changeling ch)
+        {
+            return ch.Value();
+        }
+
+        #endregion
+
         /// <summary>
         /// This is an original integrated. These are the only integrated the programm
         /// can create directly.
         /// </summary>
-        class Original : Changeling
+        protected class Original : Changeling
         {
             /// <summary>
             /// The constand. This is the value at the moment
@@ -241,6 +249,19 @@ namespace Assets.Scripts
                 this.c = c;
                 this.d = d;
                 this.m = m;
+                Update();
+            }
+
+            public override void Modify(Changeling ch)
+            {
+                throw new Exception("You can't modify original changelings into a different changeling. Try changing the base parameters instead.");
+            }
+
+            /// <summary>
+            /// Reprogram all subscriptions and subscriptions of dependancies in the event schedule.
+            /// </summary>
+            internal void Update()
+            {
                 subscriptions.ForEach(sub => sub.Reprogram(this));
                 dependancies.ForEach(dep => {
                     Combination comb;
@@ -263,23 +284,25 @@ namespace Assets.Scripts
                 return m + TimeSpan.FromSeconds(seconds);
             }
 
-
-            public void Reference(Combination combination)
+            /// <summary>
+            /// Registers the combination to this Original so that when this original is modefied, the combination is updated.
+            /// </summary>
+            /// <param name="combination"></param>
+            override protected void Register(Combination combination)
             {
+                if (dependancies.Any(wr => { Combination comb; bool exist = wr.TryGetTarget(out comb); return exist && combination == comb; }))
+                    return;     // This combination is already registered
                 dependancies.Add(new WeakReference<Combination>(combination));
             }
         }
 
-        abstract class Combination : Changeling
+
+
+        abstract protected class Combination : Changeling
         {
 
-            internal void Update()
-            {
-                subscriptions.ForEach(sub => sub.Reprogram(this));
-            }
-
             /// <summary>
-            /// This class is a linear combination of Original integrated
+            /// This class is a linear combination of Original Changelings
             /// </summary>
             public class Linear : Combination
             {
@@ -304,6 +327,7 @@ namespace Assets.Scripts
                         new OriginalFraction(a,b)
                     };
                     this.constant = constant;
+                    a.Register(this);
                 }
 
                 /// <summary>
@@ -319,6 +343,7 @@ namespace Assets.Scripts
                     if (fraction != 1)
                         fractions.ForEach(of => of.value *= fraction);
                     this.constant = constant + lc.constant * fraction;
+                    lc.Register(this);
                 }
 
                 /// <summary>
@@ -328,6 +353,7 @@ namespace Assets.Scripts
                 public Linear(List<OriginalFraction> fractions)
                 {
                     this.fractions = new List<OriginalFraction>(fractions);
+                    Register(this);
                 }
 
                 /// <summary>
@@ -344,6 +370,7 @@ namespace Assets.Scripts
                     if (c1 != 1)
                         fractions.ForEach(of => of.value *= c1);
                     lc2.fractions.ForEach(ofb => AddOriginal(ofb.original, ofb.value));
+                    Register(this);
                 }
 
                 /// <summary>
@@ -356,7 +383,10 @@ namespace Assets.Scripts
                     if (fractions.Any(of => of.original == o))
                         fractions.Find(of => of.original == o).value += fraction;
                     else
+                    {
                         fractions.Add(new OriginalFraction(o, fraction));
+                        o.Register(this);
+                    }
                 }
 
                 /// <summary>
@@ -380,7 +410,7 @@ namespace Assets.Scripts
                 {
                     DateTime mostRecent = fractions.Max(f => f.original.m);
                     double cSum = constant; double dSum = 0;
-                    foreach(OriginalFraction fr in fractions)
+                    foreach (OriginalFraction fr in fractions)
                     {
                         cSum += fr.original.Value(mostRecent) * fr.value;
                         dSum += fr.original.d * fr.value;
@@ -391,45 +421,254 @@ namespace Assets.Scripts
 
                 public override void Modify(double c, double d, DateTime m)
                 {
-                    throw new NotImplementedException();
+                    throw new Exception("You can't modify combination changelings with base parameters. Try changing with a different changeling instead.");
+                }
+
+                public override void Modify(Changeling ch)
+                {
+                    if (ch is Original)
+                    {
+                        fractions = new List<OriginalFraction>();
+                        constant = 0;
+                        fractions.Add(new OriginalFraction(ch as Original, 1));
+                    } else if (ch is Combination.Linear)
+                    {
+                        fractions = new List<OriginalFraction>((ch as Linear).fractions);
+                        constant = (ch as Linear).constant;
+                    } else if (ch is Combination.NonLinear)
+                        throw new Exception("Linear becomes non-linear. Implement if necessary.");
+                    else
+                        throw new Exception("Not a valid sub class");
+                    Update();
                 }
 
                 /// <summary>
-                /// The combination of an original and a multiplier.
+                /// Registers the given combination to to all these combinations Originals.
                 /// </summary>
-                public class OriginalFraction
+                /// <param name="combination"></param>
+                override protected void Register(Combination combination)
                 {
-                    public readonly Original original;
-                    public double value;
-
-                    public OriginalFraction(Original original, double value)
-                    {
-                        this.original = original;
-                        this.value = value;
-                    }
-
-                    public OriginalFraction Copy()
-                    {
-                        return new OriginalFraction(original, value);
-                    }
+                    fractions.ForEach(fr => fr.original.Register(combination));
                 }
             }
 
+            /// <summary>
+            /// This class is a polynomial combination of Original Changelings
+            /// </summary>
             public class NonLinear : Combination
             {
-                public override double Value(DateTime m2)
+                // Contains the operations necessary to calculate the NL-combination
+                List<RPN_Token> reversePolishStack;
+
+                /// <summary>
+                /// Create the Changeling by typing it's fromula in reverse polish notation using either spaces or commas as seperators
+                /// Use other changelings by using "{i}" and adding that changeling to the parameters
+                /// Use the time by typing T
+                /// Example: "45.3 {1} T DIFF {2} MULT SUM"
+                /// Available operations are SUM, DIFF, MULT, DIV, POW
+                /// </summary>
+                public NonLinear(string reversePolishString, params Changeling[] parameters)
                 {
-                    throw new NotImplementedException();
+                    reversePolishStack = RPN_Token.CreateStack(reversePolishString, parameters);
                 }
+                
+                public override double Value(DateTime moment)
+                {
+                    return RPN_Token.EvaluateStack(reversePolishStack, moment);
+                }
+
+                TimeSpan[] evaluationMoments = new TimeSpan[10]{TimeSpan.FromSeconds(5),TimeSpan.FromMinutes(1),TimeSpan.FromMinutes(30),TimeSpan.FromHours(2),
+                                                                TimeSpan.FromHours(12),TimeSpan.FromDays(2),TimeSpan.FromDays(7),TimeSpan.FromDays(30),
+                                                                TimeSpan.FromDays(200), TimeSpan.FromDays(2000) };
 
                 internal override DateTime FindMomentAtValue(double trigger)
                 {
-                    throw new NotImplementedException();
+                    DateTime now = God.Time;
+                    bool startBelow = Value(now) < trigger;
+                    for (int i = 0; i < evaluationMoments.Length; i++)
+                    {
+                        bool currentBelow = Value(now + evaluationMoments[i]) < trigger;
+                        if (startBelow != currentBelow)
+                            if (i == 0)
+                                goto final;
+                            else
+                            {
+                                now += evaluationMoments[i - 1];
+                                i = -1;
+                            }
+                    }
+                    return DateTime.MinValue;
+                    final:
+                    double valueDiff = Value(now + evaluationMoments[0]) - Value(now);
+                    TimeSpan momentDiff = evaluationMoments[0];
+                    double fraction = (trigger - Value(now)) / valueDiff;
+                    return now + TimeSpan.FromSeconds(momentDiff.TotalSeconds * fraction);
                 }
 
                 public override void Modify(double c, double d, DateTime m)
                 {
-                    throw new NotImplementedException();
+                    throw new Exception("You can't modify combination changelings with base parameters. Try changing with a different changeling instead.");
+                }
+
+                public override void Modify(Changeling ch)
+                {
+                    if (ch is Original)
+                    {
+                        reversePolishStack = RPN_Token.CreateStack("{}", ch);
+                    } else if (ch is Linear)
+                    {
+                        reversePolishStack = RPN_Token.CreateStack("{}", ch);
+                    } else if (ch is NonLinear)
+                        reversePolishStack = new List<RPN_Token>((ch as NonLinear).reversePolishStack);
+                    else
+                        throw new Exception("Not a valid sub class");
+                    Update();
+                }
+
+                /// <summary>
+                /// Registers the combination to to all these combinations Originals.
+                /// </summary>
+                /// <param name="combination"></param>
+                override protected void Register(Combination combination)
+                {
+                    reversePolishStack.ForEach(token => { if (token.token_Type == RPN_Token.Token_Type.CHANGELING) token.changeling.Register(combination); });
+                }
+
+                struct RPN_Token
+                {
+                    public enum Token_Type { NUMBER, CHANGELING, TIME, OPERATION}
+                    public enum Operation { SUM, DIFF, MULT, DIV, POW}
+
+                    public Token_Type token_Type;
+                    public double number;
+                    public Changeling changeling;
+                    public Operation operation;
+
+                    /// <summary>
+                    /// Create the Changeling by typing it's fromula in reverse polish notation using either spaces or commas as seperators
+                    /// Use other changelings by using "{i}" and adding that changeling to the parameters
+                    /// Use the time by typing T
+                    /// Example: "45.3 {1} T DIFF {2} MULT SUM"
+                    /// Available operations are SUM, DIFF, MULT, DIV, POW
+                    /// </summary>
+                    /// <param name="literal"></param>
+                    /// <param name="parameters"></param>
+                    /// <returns></returns>
+                    static public List<RPN_Token> CreateStack(string literal, params Changeling[] parameters)
+                    {
+                        var list = new List<RPN_Token>();
+                        literal.ToUpper();
+                        string[] op_array = literal.Split(' ',',');
+                        double numberResult;
+                        Operation operationResult;
+                        for (int i = 0; i < op_array.Length; i++)
+                        {
+                            string token = op_array[i];
+                            if (token == "T")
+                                list.Add(new RPN_Token() { token_Type = Token_Type.TIME });
+                            else if (token[0] == '{')
+                            {
+                                if (token[token.Length - 1] == '}')
+                                {
+                                    if (token.Length == 2)
+                                        if (parameters.Length == 1)
+                                            list.Add(new RPN_Token() { token_Type = Token_Type.CHANGELING, changeling = parameters[0] });
+                                        else
+                                            throw new Exception("You used a numberless parameter, but there are not exactly 1 parameters. Token: " + token);
+                                    else
+                                    {
+                                        int index = int.Parse(token.Substring(1, token.Length - 2));
+                                        list.Add(new RPN_Token() { token_Type = Token_Type.CHANGELING, changeling = parameters[index] });
+                                    }
+                                } else throw new Exception("Bad token. Token: " + token);
+                            } else if (double.TryParse(token, out numberResult))
+                            {
+                                list.Add(new RPN_Token() { token_Type = Token_Type.NUMBER, number = numberResult });
+                            } else if (Enum.TryParse(token, out operationResult))
+                            {
+                                list.Add(new RPN_Token() { token_Type = Token_Type.OPERATION, operation = operationResult });
+                            } else
+                                throw new Exception("Invalid token. Token: " + token);
+                        }
+                        return list;
+                    }
+
+                    /// <summary>
+                    /// We evaluate backwards, as it is faster. See wikipedia on reverse polish notation
+                    /// </summary>
+                    /// <param name="list"></param>
+                    /// <returns></returns>
+                    static public double EvaluateStack(List<RPN_Token> list, DateTime moment)
+                    {
+                        Stack<RPN_Token> stack = new Stack<RPN_Token>();
+                        int length = list.Count;
+                        stack.Push(list[length-1]);
+                        bool lastIsNumber = false;
+                        for (int i = length-2; i >= 0; i--)
+                        {
+                            RPN_Token current = list[i];
+                            stack.Push(current);
+                            bool currentIsNumber = current.token_Type == Token_Type.CHANGELING || current.token_Type == Token_Type.NUMBER;
+                            if (currentIsNumber && lastIsNumber)
+                            {
+                                EvaluateSingleOperation(moment, stack);
+                            } else
+                            {
+                            }
+                            lastIsNumber = currentIsNumber;
+                        }
+                        while(stack.Count > 1)
+                        {
+                            EvaluateSingleOperation(moment, stack);
+                        }
+                        return stack.Pop().number;
+                    }
+
+                    private static void EvaluateSingleOperation(DateTime moment, Stack<RPN_Token> stack)
+                    {
+                        RPN_Token current = stack.Pop();
+                        double currentNum = current.token_Type == Token_Type.NUMBER ? current.number : current.changeling.Value(moment);
+                        RPN_Token last = stack.Pop();
+                        double lastNum = last.token_Type == Token_Type.NUMBER ? last.number : last.changeling.Value(moment);
+                        RPN_Token operation = stack.Pop();
+                        switch (operation.operation)
+                        {
+                        case Operation.SUM: stack.Push(new RPN_Token() { token_Type = Token_Type.NUMBER, number = currentNum + lastNum }); break;
+                        case Operation.DIFF: stack.Push(new RPN_Token() { token_Type = Token_Type.NUMBER, number = currentNum - lastNum }); break;
+                        case Operation.MULT: stack.Push(new RPN_Token() { token_Type = Token_Type.NUMBER, number = currentNum * lastNum }); break;
+                        case Operation.DIV: stack.Push(new RPN_Token() { token_Type = Token_Type.NUMBER, number = currentNum / lastNum }); break;
+                        case Operation.POW: stack.Push(new RPN_Token() { token_Type = Token_Type.NUMBER, number = Math.Pow(currentNum, lastNum) }); break;
+                        default: throw new Exception("Operation not implemented?");
+                        }
+                    }
+                }
+            }
+            
+            /// <summary>
+            /// Reprogram all subscriptions and subscriptions of dependancies in the event schedule.
+            /// </summary>
+            internal void Update()
+            {
+                subscriptions.ForEach(sub => sub.Reprogram(this));
+            }
+
+            /// <summary>
+            /// The combination of an original and a multiplier.
+            /// </summary>
+            public class OriginalFraction
+            {
+                public readonly Original original;
+                public double value;
+
+                public OriginalFraction(Original original, double value)
+                {
+                    this.original = original;
+                    this.value = value;
+                }
+
+                public OriginalFraction Copy()
+                {
+                    return new OriginalFraction(original, value);
                 }
             }
         }
