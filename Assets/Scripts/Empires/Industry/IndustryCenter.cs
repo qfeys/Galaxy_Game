@@ -23,10 +23,11 @@ namespace Assets.Scripts.Empires.Industry
         public List<Job> constructionQueue { get; private set; }
         public List<Job> productionQueue { get; private set; }
 
-        public double maxComponentProduction { get; private set; }  // TODO: We'll have to find this from somwhere else
-        public double activeCapacityComponentProduction { get; private set; }
-        public double maxElectronicsProduction { get; private set; }  // TODO: We'll have to find this from somwhere else
-        public double activeCapacityElectronicsProduction { get; private set; }
+        public Changeling constructionCapacity;
+        public Changeling componentProduction;
+        public Changeling electronicsProduction;
+        public double activeComponentProduction { get; private set; }
+        public double activeElectronicsProduction { get; private set; }
 
         public IndustryCenter(Population parent)
         {
@@ -36,24 +37,30 @@ namespace Assets.Scripts.Empires.Industry
             productionQueue = new List<Job>();
         }
 
-        public Changeling GetConstructionCapacity()
+        public void RecalculateConstructionCapacity()
         {
-            Changeling cap = Changeling.Create(0);
-            installations.Keys.ToList().ForEach(k =>
+            double fromBuildings = 0;
+            installations.Keys.ToList().ForEach(installation =>
             {
-                if (k.Modefiers.Any(m => m.name == Modifier.Name.add_construction_capacity))
-                    cap += k.Modefiers.Find(m => m.name == Modifier.Name.add_construction_capacity).value * installations[k];
+                if (installation.Effect.Any(m => m.name == Installation.InstallationEffect.Name.construction))
+                    fromBuildings += installation.Effect.Find(m => m.name == Installation.InstallationEffect.Name.construction).value * installations[installation];
             });
-            cap += parent.demographic.FreeIndustrialPopulation * .01;
+            Changeling fromFreePops = parent.demographic.FreeIndustrialPopulation * .01;
             // add pop modefiers
             // add sector modefiers
             // add empire modefiers
-            return cap;
+            constructionCapacity.Modify(fromFreePops + fromBuildings);
         }
 
+        /// <summary>
+        /// Start a new construction job
+        /// </summary>
+        /// <param name="instl"></param>
+        /// <param name="amount"></param>
+        /// <param name="capacity">The fraction of the entire construction cap that should work on this.</param>
         public void BuildInstallation(Installation instl, int amount, double capacity = 1)
         {
-            Job j = new Job(instl, amount, Changeling.Create(capacity));    // TODO: This is fishy
+            Job j = new Job(instl, amount, constructionCapacity * capacity);    // TODO: This is fishy
             constructionQueue.Add(j);
         }
 
@@ -63,34 +70,28 @@ namespace Assets.Scripts.Empires.Industry
             /// <summary>
             /// Keeps track of the amount of work that is still to be done
             /// </summary>
-            public Changeling work { get; private set; }
+            public Changeling WorkLeft { get; private set; }
             /// <summary>
-            /// Keeps track of the amount of resources that still need to be done
+            /// Keeps track of the amount of resources that still need to be consumed
             /// </summary>
-            public Stockpile.ResourceBill bill { get; private set; }
+            public Stockpile.ResourceBill Bill { get; private set; }
             /// <summary>
             /// The amount of objects that still have to build as part of this job
             /// </summary>
-            public int amount { get; private set; }
-
+            public int Amount { get; private set; }
+            /// <summary>
+            /// The capacity that is used for this job
+            /// </summary>
             public Changeling capacity;
 
-            public Simulation.Event.Conditional nextItemDone;
-
-            /// <summary>
-            /// The part of total capacity that is used for this job
-            /// </summary>
-            public double capacityFraction;
-
-            public Job(Installation instl, int amount, Changeling capacity, double capacityFraction = 1)
+            public Job(Installation instl, int amount, Changeling capacity)
             {
                 this.instl = instl;
-                this.amount = amount;
-                work = Changeling.Create(instl.costWork * amount, capacity, Simulation.God.Time);
-                bill = instl.costResources * amount;
+                this.Amount = amount;
+                WorkLeft = Changeling.Create(instl.costWork * amount, capacity, Simulation.God.Time);
+                Bill = instl.costResources * amount;
                 this.capacity = capacity;
-                this.capacityFraction = capacityFraction;
-                //nextItemDone = new Simulation.Event.Conditional();// TODO CONTINUE HERE !!!!!!!!!!!!!!
+
             }
         }
     }

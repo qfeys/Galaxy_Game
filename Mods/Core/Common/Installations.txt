@@ -13,8 +13,8 @@ installations = {
 			components = 30
 			electronics = 10
 		}
-		modifiers = {
-			add_industry_capacity = 10
+		effect = {
+			construction = 1
 			income = 10
 		}
 		prerequisites = {}
@@ -29,8 +29,8 @@ installations = {
 			components = 30
 			electronics = 10
 		}
-		modifiers = {
-			add_construction_capacity = 10
+		effect = {
+			construction = 10
 		}
 		prerequisites = {}
 	}
@@ -44,8 +44,8 @@ installations = {
 			components = 30
 			electronics = 10
 		}
-		modifiers = {
-			add_production_capacity = 10
+		effect = {
+			production = 10
 		}
 		prerequisites = {}
 	}
@@ -59,8 +59,8 @@ installations = {
 			components = 30
 			electronics = 10
 		}
-		modifiers = {
-			add_mining_capacity = 10
+		effect = {
+			mining = 10
 		}
 		prerequisites = {}
 	}
@@ -74,8 +74,8 @@ installations = {
 			components = 10
 			electronics = 40
 		}
-		modifiers = {
-			add_wealth = 10
+		effect = {
+			income = 10
 		}
 		prerequisites = {}
 	}

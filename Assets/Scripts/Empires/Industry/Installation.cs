@@ -16,17 +16,17 @@ namespace Assets.Scripts.Empires.Industry
         public Stockpile.ResourceBill costResources;
         public List<Technology.Technology.Prerequisite> Prerequisites { get; private set; }
 
-        public List<Modifier> Modefiers { get; private set; }
+        public List<InstallationEffect> Effect { get; private set; }
 
         public static List<Installation> installationList { get; private set; }
 
         public Installation(string name, double costWork,
-            Stockpile.ResourceBill costResources, List<Modifier> modifiers)
+            Stockpile.ResourceBill costResources, List<InstallationEffect> effects)
         {
             this.name = name;
             this.costWork = costWork;
             this.costResources = costResources;
-            this.Modefiers = modifiers;
+            this.Effect = effects;
         }
 
         Installation() { }
@@ -45,7 +45,7 @@ namespace Assets.Scripts.Empires.Industry
                 name = i.name,
                 costWork = i.GetNumber("cost_work"),
                 costResources = new Stockpile.ResourceBill(),
-                Modefiers = new List<Modifier>(),
+                Effect = new List<InstallationEffect>(),
                 Prerequisites = new List<Technology.Technology.Prerequisite>()
             };
             ModParser.Item rsrcs = i.GetItem("cost_resources");
@@ -53,10 +53,10 @@ namespace Assets.Scripts.Empires.Industry
             {
                 rsrcs.GetChilderen().ForEach(r => inst.costResources.Add(r.name, r.GetNumber()));
             }
-            ModParser.Item mods = i.GetItem("modifiers");
+            ModParser.Item mods = i.GetItem("effect");
             if (mods != null)
             {
-                mods.GetChilderen().ForEach(m => inst.Modefiers.Add(new Modifier(m.name, m.GetNumber())));
+                mods.GetChilderen().ForEach(m => inst.Effect.Add(new InstallationEffect(m.name, m.GetNumber())));
             }
             ModParser.Item prerqs = i.GetItem("prerequisites");
             if (prerqs != null)
@@ -114,5 +114,39 @@ namespace Assets.Scripts.Empires.Industry
                     pop.Empire.Academy.Unlocks.Any(ti => ti.parent == p.Tech)
                     );
         }
+
+        public class InstallationEffect
+        {
+            public readonly Name name;
+            public readonly double value;
+
+            public InstallationEffect(Name name, double value)
+            {
+                this.name = name;
+                this.value = value;
+            }
+
+            public InstallationEffect(string name, double value)
+            {
+                this.name = (Name)Enum.Parse(typeof(Name), name);
+                this.value = value;
+            }
+
+            public enum Name
+            {
+                construction,
+                production,
+                mining,
+                fuel_refining,
+                research,
+                income,
+                academy,
+                ground_training,
+                infrastructure,
+                tracking,
+                shipyard
+            }
+        }
+
     }
 }

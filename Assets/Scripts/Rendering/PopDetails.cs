@@ -111,7 +111,7 @@ namespace Assets.Scripts.Rendering
             constructionTabs.transform.anchoredPosition = new Vector2(0, -10);
 
             InfoTable constructionQueue = InfoTable.Create(go.transform, () => activePopulation.industryCenter.constructionQueue,
-                job => new List<TextRef>() { job.instl.name, job.amount, TextRef.Create(() => job.capacity.Value() * 100), job.instl.costWork, "NaN", "NaN" },
+                job => new List<TextRef>() { job.instl.name, job.Amount, TextRef.Create(() => job.capacity.Value() * 100), job.instl.costWork, "NaN", "NaN" },
                 700, new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "next item", "end of job" }, 12, null);
             constructionQueue.transform.anchorMin = new Vector2(0, 0.5f);
             constructionQueue.transform.anchorMax = new Vector2(0, 0.5f);
@@ -216,7 +216,7 @@ namespace Assets.Scripts.Rendering
                 list.Add(new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "end of job" });
                 foreach (Empires.Industry.IndustryCenter.Job job in activePopulation.industryCenter.productionQueue)
                 {
-                    list.Add(new List<TextRef>() { job.instl.name, job.amount, job.capacity.Value(), job.instl.costWork, "NaN" });
+                    list.Add(new List<TextRef>() { job.instl.name, job.Amount, job.capacity.Value(), job.instl.costWork, "NaN" });
                 }
                 return list;
             }, 700);
@@ -237,11 +237,11 @@ namespace Assets.Scripts.Rendering
                 TextBox title = new TextBox(rt, "component_production", 12, TextAnchor.UpperLeft);
                 TextBox cap = new TextBox(rt, "component_capacity", 12, TextAnchor.UpperLeft);
                 cap.transform.anchoredPosition = new Vector2(0, -30);
-                TextBox cap2 = new TextBox(rt, activePopulation.industryCenter.maxComponentProduction, 12, TextAnchor.UpperRight);
+                TextBox cap2 = new TextBox(rt, activePopulation.industryCenter.componentProduction, 12, TextAnchor.UpperRight);
                 cap2.transform.anchoredPosition = new Vector2(0, -30);
                 TextBox act = new TextBox(rt, "component_active_capacity", 12, TextAnchor.UpperLeft);
                 act.transform.anchoredPosition = new Vector2(0, -60);
-                TextBox act2 = new TextBox(rt, activePopulation.industryCenter.activeCapacityComponentProduction, 12, TextAnchor.UpperRight);
+                TextBox act2 = new TextBox(rt, activePopulation.industryCenter.activeComponentProduction, 12, TextAnchor.UpperRight);
                 act2.transform.anchoredPosition = new Vector2(0, -60);
             }
             GameObject electronicsPanel = new GameObject("Electronics", typeof(RectTransform));
@@ -256,11 +256,11 @@ namespace Assets.Scripts.Rendering
                 TextBox title = new TextBox(rt, "electronics_production", 12, TextAnchor.UpperRight);
                 TextBox cap = new TextBox(rt, "electronics_capacity", 12, TextAnchor.UpperRight);
                 cap.transform.anchoredPosition = new Vector2(0, -30);
-                TextBox cap2 = new TextBox(rt, activePopulation.industryCenter.maxElectronicsProduction, 12, TextAnchor.UpperLeft);
+                TextBox cap2 = new TextBox(rt, activePopulation.industryCenter.electronicsProduction, 12, TextAnchor.UpperLeft);
                 cap2.transform.anchoredPosition = new Vector2(0, -30);
                 TextBox act = new TextBox(rt, "electronics_active_capacity", 12, TextAnchor.UpperRight);
                 act.transform.anchoredPosition = new Vector2(0, -60);
-                TextBox act2 = new TextBox(rt, activePopulation.industryCenter.activeCapacityElectronicsProduction, 12, TextAnchor.UpperLeft);
+                TextBox act2 = new TextBox(rt, activePopulation.industryCenter.activeElectronicsProduction, 12, TextAnchor.UpperLeft);
                 act2.transform.anchoredPosition = new Vector2(0, -60);
             }
 
