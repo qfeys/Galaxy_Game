@@ -10,8 +10,10 @@ namespace Assets.Scripts
     /// <summary>
     /// A changeling is a double that changes over time and is the base of the entire event system.
     /// Its value can be evaluated for arbitary values in the future.
-    /// Functions can subscribe to certain values and will be creaate an event when this value triggers.
-    /// You should try to keep the value linear over time whenever possible (eg. a*x + b)
+    /// Functions can subscribe to certain values and will create an event when this value triggers.
+    /// You should try to keep the value linear over time whenever possible (eg. a*t + b).
+    /// If you use a Changeling as a field of a class, you should always make this field 'readonly',
+    /// otherwise you're gonna fuck up the subscriptionns.
     /// </summary>
     abstract public class Changeling
     {
@@ -69,12 +71,21 @@ namespace Assets.Scripts
         /// </summary>
         public static Changeling Create(string reversePolishString, params Changeling[] parameters)
         {
-            // Ticks to seconds is devide by 10 milion; one tick is 100 ns
             return new Combination.NonLinear(reversePolishString, parameters);
+        }
+
+        /// <summary>
+        /// Create a changeling that you know is gonna be complex, but that you don't know the exact formulla for yet.
+        /// </summary>
+        /// <returns></returns>
+        public static Changeling ReserveComplex()
+        {
+            return new Combination.NonLinear("0");
         }
 
         abstract public void Modify(double c, double d, DateTime m);
         abstract public void Modify(Changeling ch);
+        abstract public void Modify(string reversePolishString, params Changeling[] parameters);
 
         /// <summary>
         /// This is the value a the given moment
@@ -148,12 +159,30 @@ namespace Assets.Scripts
                 throw new Exception("WTF happened here?!?");
         }
 
-        internal void Subscribe(double trigger, Action callback, bool haltingEvent = false)
+        /// <summary>
+        /// Attach a callback to this changeling to be fired when its value passes the trigger
+        /// and returns the subscription object.
+        /// Only use this if you want a new subscription object. Otherwise, modify the existing one.
+        /// </summary>
+        /// <param name="trigger"></param>
+        /// <param name="callback"></param>
+        /// <param name="haltingEvent"></param>
+        internal Subscription Subscribe(double trigger, Action callback)
         {
-            subscriptions.Add(new Subscription(trigger, callback, haltingEvent));
+            Subscription sub = Subscription.Create(this, trigger, callback);
+            subscriptions.Add(sub);
+            return sub;
         }
 
+        /// <summary>
+        /// Reprogram all subscriptions and subscriptions of dependancies in the event schedule.
+        /// </summary>
+        abstract internal void Update();
+
         abstract protected void Register(Combination combination);
+        abstract protected void UnRegister(Combination combination);
+
+
 
         /// <summary>
         /// Returns the moment at which this Changeling will reach the trigger value
@@ -270,12 +299,17 @@ namespace Assets.Scripts
                 throw new Exception("You can't modify original changelings into a different changeling. Try changing the base parameters instead.");
             }
 
+            public override void Modify(string reversePolishString, params Changeling[] parameters)
+            {
+                throw new Exception("You can't modify original changelings into a complex one. Try either to create a new one or use 'ReserveComplex()' to create it in the first place.");
+            }
+
             /// <summary>
             /// Reprogram all subscriptions and subscriptions of dependancies in the event schedule.
             /// </summary>
-            internal void Update()
+            internal override void Update()
             {
-                subscriptions.ForEach(sub => sub.Reprogram(this));
+                subscriptions.ForEach(sub => sub.Reprogram());
                 dependancies.ForEach(dep => {
                     Combination comb;
                     bool stillAlive = dep.TryGetTarget(out comb);
@@ -303,7 +337,7 @@ namespace Assets.Scripts
             /// <param name="combination"></param>
             override protected void Register(Combination combination)
             {
-                if (dependancies.Any(wr => 
+                if (dependancies.Any(wr =>
                 {
                     Combination comb;
                     bool exist = wr.TryGetTarget(out comb);
@@ -311,6 +345,18 @@ namespace Assets.Scripts
                 }))
                     return;     // This combination is already registered
                 dependancies.Add(new WeakReference<Combination>(combination));
+            }
+
+            protected override void UnRegister(Combination combination)
+            {
+                dependancies.RemoveAll(wr =>
+                {
+                    Combination comb;
+                    bool exist = wr.TryGetTarget(out comb);
+                    if (exist == false || comb == combination)
+                        return true;
+                    return false;
+                });
             }
         }
 
@@ -345,6 +391,7 @@ namespace Assets.Scripts
                         new OriginalFraction(a,b)
                     };
                     this.constant = constant;
+                    subscriptions = new List<Subscription>();
                     a.Register(this);
                 }
 
@@ -361,6 +408,7 @@ namespace Assets.Scripts
                     if (fraction != 1)
                         fractions.ForEach(of => of.value *= fraction);
                     this.constant = constant + lc.constant * fraction;
+                    subscriptions = new List<Subscription>();
                     lc.Register(this);
                 }
 
@@ -371,6 +419,7 @@ namespace Assets.Scripts
                 public Linear(List<OriginalFraction> fractions)
                 {
                     this.fractions = new List<OriginalFraction>(fractions);
+                    subscriptions = new List<Subscription>();
                     Register(this);
                 }
 
@@ -388,6 +437,7 @@ namespace Assets.Scripts
                     if (c1 != 1)
                         fractions.ForEach(of => of.value *= c1);
                     lc2.fractions.ForEach(ofb => AddOriginal(ofb.original, ofb.value));
+                    subscriptions = new List<Subscription>();
                     Register(this);
                 }
 
@@ -444,6 +494,7 @@ namespace Assets.Scripts
 
                 public override void Modify(Changeling ch)
                 {
+                    UnRegister(this);
                     if (ch is Original)
                     {
                         fractions = new List<OriginalFraction>();
@@ -457,21 +508,36 @@ namespace Assets.Scripts
                         throw new Exception("Linear becomes non-linear. Implement if necessary.");
                     else
                         throw new Exception("Not a valid sub class");
+                    Register(this);
                     Update();
                 }
 
+                public override void Modify(string reversePolishString, params Changeling[] parameters)
+                {
+                    throw new Exception("You can't modify linear changelings into non-linear ones. Try either to create a new one or use 'ReserveComplex()' to create it in the first place.");
+                }
+
                 /// <summary>
-                /// Registers the given combination to to all these combinations Originals.
+                /// Registers the given combination to all these combinations Originals.
                 /// </summary>
                 /// <param name="combination"></param>
                 override protected void Register(Combination combination)
                 {
                     fractions.ForEach(fr => fr.original.Register(combination));
                 }
+
+                /// <summary>
+                /// UnRegisters the given combination from all these combinations Originals.
+                /// </summary>
+                /// <param name="combination"></param>
+                override protected void UnRegister(Combination combination)
+                {
+                    fractions.ForEach(fr => fr.original.UnRegister(combination));
+                }
             }
 
             /// <summary>
-            /// This class is a polynomial combination of Original Changelings
+            /// This class is a non-linear combination of Original Changelings
             /// </summary>
             public class NonLinear : Combination
             {
@@ -490,6 +556,7 @@ namespace Assets.Scripts
                     reversePolishStack = RPN_Token.CreateStack(reversePolishString, parameters);
                     if (parameters == null)
                         throw new Exception("params is null. RPS: " + reversePolishString);
+                    subscriptions = new List<Subscription>();
                     foreach (Changeling changeling in parameters)
                     {
                         if (changeling == null)
@@ -538,6 +605,7 @@ namespace Assets.Scripts
 
                 public override void Modify(Changeling ch)
                 {
+                    UnRegister(this);
                     if (ch is Original)
                     {
                         reversePolishStack = RPN_Token.CreateStack("{}", ch);
@@ -548,6 +616,15 @@ namespace Assets.Scripts
                         reversePolishStack = new List<RPN_Token>((ch as NonLinear).reversePolishStack);
                     else
                         throw new Exception("Not a valid sub class");
+                    Register(this);
+                    Update();
+                }
+
+                public override void Modify(string reversePolishString, params Changeling[] parameters)
+                {
+                    UnRegister(this);
+                    reversePolishStack = RPN_Token.CreateStack(reversePolishString, parameters);
+                    Register(this);
                     Update();
                 }
 
@@ -558,6 +635,11 @@ namespace Assets.Scripts
                 override protected void Register(Combination combination)
                 {
                     reversePolishStack.ForEach(token => { if (token.token_Type == RPN_Token.Token_Type.CHANGELING) token.changeling.Register(combination); });
+                }
+
+                protected override void UnRegister(Combination combination)
+                {
+                    reversePolishStack.ForEach(token => { if (token.token_Type == RPN_Token.Token_Type.CHANGELING) token.changeling.UnRegister(combination); });
                 }
 
                 struct RPN_Token
@@ -687,9 +769,9 @@ namespace Assets.Scripts
             /// <summary>
             /// Reprogram all subscriptions and subscriptions of dependancies in the event schedule.
             /// </summary>
-            internal void Update()
+            internal override void Update()
             {
-                subscriptions.ForEach(sub => sub.Reprogram(this));
+                subscriptions.ForEach(sub => sub.Reprogram());
             }
 
             /// <summary>
@@ -713,33 +795,39 @@ namespace Assets.Scripts
             }
         }
 
-        class Subscription
+        public class Subscription
         {
+            Changeling reference;
             double trigger;
             Action callback;
-            bool haltingEvent;
+            // bool haltingEvent; -> Change to event type or someting to determine the priority of the event.
             Event evnt;
 
-            public Subscription(double trigger, Action callback, bool haltingEvent)
+            private Subscription() { }
+
+            /// <summary>
+            /// Don't use this! If you want a subscription, call "Subscribe" on the changeling you want to subscribe to.
+            /// </summary>
+            public static Subscription Create(Changeling reference, double trigger, Action callback)
             {
-                this.trigger = trigger;
-                this.callback = callback;
-                this.haltingEvent = haltingEvent;
+                Subscription sub = new Subscription() { reference = reference, trigger = trigger, callback = callback };
+                sub.Reprogram();
+                return sub;
             }
 
-            public void Reprogram(Changeling changeling)
+            public void Reprogram()
             {
-                DateTime date = changeling.FindMomentAtValue(trigger);
+                DateTime date = reference.FindMomentAtValue(trigger);
                 bool isFuture = date.CompareTo(God.Time) > 0;
                 if(evnt == null && isFuture)
                 {
-                    evnt = new Event(date, callback, haltingEvent);
+                    evnt = new Event(date, callback);
                 }else if(evnt != null && isFuture)
                 {
                     if(evnt.moment.CompareTo(date) != 0)
                     {
                         evnt.Delete();
-                        evnt = new Event(date, callback, haltingEvent);
+                        evnt = new Event(date, callback);
                     }
                 }
                 if(evnt != null && !isFuture)
@@ -747,6 +835,24 @@ namespace Assets.Scripts
                     evnt.Delete();
                     evnt = null;
                 }
+            }
+
+            public void ChangeTrigger(double trigger)
+            {
+                this.trigger = trigger;
+                if (evnt != null)
+                {
+                    evnt.Delete();
+                    evnt = null;
+                }
+                Reprogram();
+            }
+
+            public void ChangeReference(Changeling reference)
+            {
+                this.reference.subscriptions.Remove(this);
+                this.reference = reference;
+                this.reference.subscriptions.Add(this);
             }
         }
     }
