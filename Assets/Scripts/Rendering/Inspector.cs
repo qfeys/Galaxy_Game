@@ -20,10 +20,7 @@ namespace Assets.Scripts.Rendering
             go.transform.SetParent(canvas.transform);
             RectTransform tr = (RectTransform)go.transform;
             tr.sizeDelta = new Vector2(400, 400);
-            tr.anchorMin = new Vector2(0, 0);
-            tr.anchorMax = new Vector2(0, 0);
-            tr.pivot = new Vector2(0, 0);
-            tr.anchoredPosition = new Vector2(0, 0);
+            UI_Window.BottomLeft(tr);
             Image im = go.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
@@ -32,10 +29,7 @@ namespace Assets.Scripts.Rendering
             close.transform.SetParent(go.transform);
             RectTransform trcl = (RectTransform)close.transform;
             trcl.sizeDelta = new Vector2(15, 15);
-            trcl.anchorMin = new Vector2(1, 1);
-            trcl.anchorMax = new Vector2(1, 1);
-            trcl.pivot = new Vector2(1, 1);
-            trcl.anchoredPosition = new Vector2(-10, -10);
+            UI_Window.TopRight(trcl, new Vector2(-10, -10));
             Image img = close.AddComponent<Image>();
             img.sprite = Data.Graphics.GetSprite("tab_image_low");
             img.raycastTarget = true;
@@ -134,10 +128,7 @@ namespace Assets.Scripts.Rendering
             buttonView.transform.SetParent(go.transform);
             RectTransform trcl = (RectTransform)buttonView.transform;
             trcl.sizeDelta = new Vector2(60, 30);
-            trcl.anchorMin = new Vector2(0, 1);
-            trcl.anchorMax = new Vector2(0, 1);
-            trcl.pivot = new Vector2(0, 1);
-            trcl.anchoredPosition = new Vector2(20, -60);
+            UI_Window.TopLeft(trcl, new Vector2(20, -60));
             Image img = buttonView.AddComponent<Image>();
             img.sprite = Data.Graphics.GetSprite("tab_image_low");
             img.raycastTarget = true;

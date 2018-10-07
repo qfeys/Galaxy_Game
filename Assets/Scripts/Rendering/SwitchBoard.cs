@@ -18,10 +18,7 @@ namespace Assets.Scripts.Rendering
             go.transform.SetParent(canvas.transform);
             RectTransform tr = (RectTransform)go.transform;
             tr.sizeDelta = new Vector2(200, 50);
-            tr.anchorMin = new Vector2(1, 0);
-            tr.anchorMax = new Vector2(1, 0);
-            tr.pivot = new Vector2(1, 0);
-            tr.anchoredPosition = new Vector2(0, 0);
+            UI_Window.BottomRight(tr);
             Image im = go.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
@@ -35,6 +32,7 @@ namespace Assets.Scripts.Rendering
             hzlg.childForceExpandWidth = false;
             AddButton("Reset View", "rst", () => DisplayManager.TheOne.ResetView());
             AddButton("change view", "sys", () => DisplayManager.TheOne.ToggleView());
+            AddButton("Event Log", "evnt", () => EventLogWindow.ToggleLog());
 
         }
 
@@ -44,9 +42,7 @@ namespace Assets.Scripts.Rendering
             butGo.transform.SetParent(go.transform);
             RectTransform tr = (RectTransform)butGo.transform;
             tr.sizeDelta = new Vector2(50, 50);
-            tr.anchorMin = new Vector2(1, 0);
-            tr.anchorMax = new Vector2(1, 0);
-            tr.pivot = new Vector2(1, 0);
+            UI_Window.BottomRight(tr);
             var lyel_brv = butGo.AddComponent<LayoutElement>();
             lyel_brv.preferredWidth = 50;
             Image img = butGo.AddComponent<Image>();

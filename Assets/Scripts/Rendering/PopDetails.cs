@@ -20,10 +20,7 @@ namespace Assets.Scripts.Rendering
             go.transform.SetParent(canvas.transform);
             RectTransform tr = (RectTransform)go.transform;
             tr.sizeDelta = new Vector2(1000, 600);
-            tr.anchorMin = new Vector2(0, 1);
-            tr.anchorMax = new Vector2(0, 1);
-            tr.pivot = new Vector2(0, 1);
-            tr.anchoredPosition = new Vector2(100, -100);
+            UI_Window.TopLeft(tr, new Vector2(100, -100));
             Image im = go.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
@@ -33,23 +30,7 @@ namespace Assets.Scripts.Rendering
             activePopulation = Population.NullPop;
 
             // close button
-            {
-                GameObject close = new GameObject("Close", typeof(RectTransform));
-                close.transform.SetParent(go.transform);
-                RectTransform trcl = (RectTransform)close.transform;
-                trcl.sizeDelta = new Vector2(15, 15);
-                trcl.anchorMin = new Vector2(1, 1);
-                trcl.anchorMax = new Vector2(1, 1);
-                trcl.pivot = new Vector2(1, 1);
-                trcl.anchoredPosition = new Vector2(-10, -10);
-                Image img = close.AddComponent<Image>();
-                img.sprite = Data.Graphics.GetSprite("tab_image_low");
-                img.raycastTarget = true;
-                img.type = Image.Type.Sliced;
-                img.fillCenter = true;
-                TextBox text = new TextBox(close.transform, TextRef.Create("X", false), 8, TextAnchor.MiddleCenter);
-                close.AddComponent<Button>().onClick.AddListener(() => { CloseDetails(); });
-            }
+            UI_Window.CreateCloseButton(go, CloseDetails);
 
             // Title
             {
@@ -57,10 +38,7 @@ namespace Assets.Scripts.Rendering
                 titleGo.transform.SetParent(go.transform);
                 RectTransform trTtl = (RectTransform)titleGo.transform;
                 trTtl.sizeDelta = new Vector2(0, 26);
-                trTtl.anchorMin = new Vector2(0, 1);
-                trTtl.anchorMax = new Vector2(1, 1);
-                trTtl.pivot = new Vector2(0.5f, 1);
-                trTtl.anchoredPosition = new Vector2(0, -10);
+                UI_Window.TopStretch(trTtl, new Vector2(0, -10));
                 TextBox text = new TextBox(trTtl, TextRef.Create(() => activePopulation.Name), 24, TextAnchor.UpperCenter);
             }
 
@@ -81,10 +59,7 @@ namespace Assets.Scripts.Rendering
                     new Tuple<TextRef, GameObject>(TextRef.Create("Research"), ResearchTab())
                 };
                 TabbedWindow tabs = new TabbedWindow(go.transform, new Vector2(700, 550), tabsList, 12, false);
-                tabs.transform.pivot = new Vector2(1, 1);
-                tabs.transform.anchorMin = new Vector2(1, 1);
-                tabs.transform.anchorMax = new Vector2(1, 1);
-                tabs.transform.anchoredPosition = new Vector2(-60, -40);
+                UI_Window.TopRight(tabs.transform, new Vector2(-60, -40));
             }
         }
 
@@ -105,13 +80,10 @@ namespace Assets.Scripts.Rendering
             };
 
             TabbedWindow constructionTabs = new TabbedWindow(go.transform, new Vector2(700, 250), tabs, 12, false);
-            constructionTabs.transform.anchorMin = new Vector2(0, 1);
-            constructionTabs.transform.anchorMax = new Vector2(0, 1);
-            constructionTabs.transform.pivot = new Vector2(0, 1);
-            constructionTabs.transform.anchoredPosition = new Vector2(0, -10);
+            UI_Window.TopLeft(constructionTabs.transform, new Vector2(0, -10));
 
             InfoTable constructionQueue = InfoTable.Create(go.transform, () => activePopulation.industryCenter.constructionQueue,
-                job => new List<TextRef>() { job.instl.name, job.Amount, TextRef.Create(() => job.capacity.Value() * 100), job.instl.costWork, "NaN", "NaN" },
+                job => new List<TextRef>() { job.instl.name, job.Amount, TextRef.Create(() => job.capacity * 100), job.instl.costWork, "NaN", "NaN" },
                 700, new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "next item", "end of job" }, 12, null);
             constructionQueue.transform.anchorMin = new Vector2(0, 0.5f);
             constructionQueue.transform.anchorMax = new Vector2(0, 0.5f);
@@ -123,10 +95,7 @@ namespace Assets.Scripts.Rendering
                 RectTransform tr = (RectTransform)constructionInterface.transform;
                 tr.SetParent(go.transform);
                 tr.sizeDelta = new Vector2(700, 50);
-                tr.anchorMin = new Vector2(0, 1);
-                tr.anchorMax = new Vector2(0, 1);
-                tr.pivot = new Vector2(0, 1);
-                tr.anchoredPosition = new Vector2(0, -230);
+                UI_Window.TopLeft(tr, new Vector2(0, -230));
                 TextBox tb1 = new TextBox(tr, "amount", 12, TextAnchor.MiddleLeft);
                 tb1.transform.anchoredPosition = new Vector2(100, 0);
                 TextBox.InputBox ib1 = new TextBox.InputBox(tr, "0", 12, 50, TextAnchor.MiddleRight, InputField.ContentType.IntegerNumber);
@@ -171,10 +140,7 @@ namespace Assets.Scripts.Rendering
                 null);
 
             installationsList.transform.sizeDelta = new Vector2(700, 250);
-            installationsList.transform.anchorMin = new Vector2(1, 1);
-            installationsList.transform.anchorMax = new Vector2(1, 1);
-            installationsList.transform.pivot = new Vector2(1, 1);
-            installationsList.transform.anchoredPosition = new Vector2(0, -10);
+            UI_Window.TopRight(installationsList.transform, new Vector2(0, -10));
 
             return go;
         }
@@ -205,10 +171,7 @@ namespace Assets.Scripts.Rendering
             };
 
             TabbedWindow constructionTabs = new TabbedWindow(go.transform, new Vector2(700, 250), tabs, 12, false);
-            constructionTabs.transform.anchorMin = new Vector2(0, 1);
-            constructionTabs.transform.anchorMax = new Vector2(0, 1);
-            constructionTabs.transform.pivot = new Vector2(0, 1);
-            constructionTabs.transform.anchoredPosition = new Vector2(0, -10);
+            UI_Window.TopLeft(constructionTabs.transform, new Vector2(0, -10));
 
             InfoTable productionQueue = InfoTable.Create(go.transform, () =>
             {
@@ -216,7 +179,7 @@ namespace Assets.Scripts.Rendering
                 list.Add(new List<TextRef>() { "", "amount remaining", "% of capacity", "cost per item", "end of job" });
                 foreach (Empires.Industry.IndustryCenter.Job job in activePopulation.industryCenter.productionQueue)
                 {
-                    list.Add(new List<TextRef>() { job.instl.name, job.Amount, job.capacity.Value(), job.instl.costWork, "NaN" });
+                    list.Add(new List<TextRef>() { job.instl.name, job.Amount, job.capacity, job.instl.costWork, "NaN" });
                 }
                 return list;
             }, 700);
@@ -230,10 +193,7 @@ namespace Assets.Scripts.Rendering
                 RectTransform rt = (RectTransform)componentsPanel.transform;
                 rt.SetParent(go.transform);
                 rt.sizeDelta = new Vector2(300, 150);
-                rt.anchorMin = new Vector2(0, 0);
-                rt.anchorMax = new Vector2(0, 0);
-                rt.pivot = new Vector2(0, 0);
-                rt.anchoredPosition = new Vector2(10, 10);
+                UI_Window.BottomLeft(rt, new Vector2(10, 10));
                 TextBox title = new TextBox(rt, "component_production", 12, TextAnchor.UpperLeft);
                 TextBox cap = new TextBox(rt, "component_capacity", 12, TextAnchor.UpperLeft);
                 cap.transform.anchoredPosition = new Vector2(0, -30);
@@ -249,10 +209,7 @@ namespace Assets.Scripts.Rendering
                 RectTransform rt = (RectTransform)electronicsPanel.transform;
                 rt.SetParent(go.transform);
                 rt.sizeDelta = new Vector2(300, 150);
-                rt.anchorMin = new Vector2(1, 0);
-                rt.anchorMax = new Vector2(1, 0);
-                rt.pivot = new Vector2(1, 0);
-                rt.anchoredPosition = new Vector2(-10, 10);
+                UI_Window.BottomRight(rt, new Vector2(-10, 10));
                 TextBox title = new TextBox(rt, "electronics_production", 12, TextAnchor.UpperRight);
                 TextBox cap = new TextBox(rt, "electronics_capacity", 12, TextAnchor.UpperRight);
                 cap.transform.anchoredPosition = new Vector2(0, -30);
@@ -304,7 +261,7 @@ namespace Assets.Scripts.Rendering
                 }
                 return list;
             }, 200);
-            Center(tablePops.transform, new Vector2(-100, -100));
+            UI_Window.TopCenter(tablePops.transform, new Vector2(-100, -100));
 
             return go;
         }
@@ -327,7 +284,7 @@ namespace Assets.Scripts.Rendering
                 }
                 return list;
             }, 200);
-            Center(tablePops.transform, new Vector2(-100, -100));
+            UI_Window.TopCenter(tablePops.transform, new Vector2(-100, -100));
 
             return go;
         }
@@ -368,19 +325,11 @@ namespace Assets.Scripts.Rendering
                 }
                 return list;
             }, 200);
-            Center(tableLabs.transform, new Vector2(-100, -100));
+            UI_Window.TopCenter(tableLabs.transform, new Vector2(-100, -100));
 
             return go;
         }
-
-        static void Center(RectTransform tr, Vector2? offset = null)
-        {
-            tr.anchorMin = new Vector2(0.5f, 1);
-            tr.anchorMax = new Vector2(0.5f, 1);
-            tr.pivot = new Vector2(0.5f, 1);
-            tr.anchoredPosition = offset ?? Vector2.zero;
-        }
-
+        
         private static void OpenDetails()
         {
             go.SetActive(true);

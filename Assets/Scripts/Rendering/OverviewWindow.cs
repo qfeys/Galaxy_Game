@@ -20,10 +20,7 @@ namespace Assets.Scripts.Rendering
                     new Tuple<TextRef, GameObject>(TextRef.Create("OW_populations"), PopulationsWindow()),
                     new Tuple<TextRef, GameObject>(TextRef.Create("OW_technology"), TechnologyWindow())
                 });
-            window.transform.pivot = new Vector2(0, 1);
-            window.transform.anchorMin = new Vector2(0, 1);
-            window.transform.anchorMax = new Vector2(0, 1);
-            window.transform.anchoredPosition = new Vector2(0, 0);
+            UI_Window.TopLeft(window.transform);
             Image im = window.gameobject.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
@@ -37,7 +34,7 @@ namespace Assets.Scripts.Rendering
                     new List<TextRef>(){TextRef.Create("population"),    TextRef.Create(()=>Simulation.God.PlayerEmpire.Population) },
                     new List<TextRef>(){TextRef.Create("Wealth"),        TextRef.Create(() => Simulation.God.PlayerEmpire.Wealth) }
                 }, 200, fontSize: 12, title: "Populations");
-            Center(table.transform, new Vector2(100, -100));
+            UI_Window.TopCenter(table.transform, new Vector2(100, -100));
             return go;
         }
 
@@ -58,7 +55,7 @@ namespace Assets.Scripts.Rendering
                     TextRef.Create("Wealth"),
                     TextRef.Create("Details")
                 }, 12, null);
-            Center(tablePops.transform, new Vector2(-100, -100));
+            UI_Window.TopCenter(tablePops.transform, new Vector2(-100, -100));
 
             return go;
         }
@@ -72,23 +69,15 @@ namespace Assets.Scripts.Rendering
                 () => Enum.GetValues(typeof(Empires.Technology.Technology.Sector)).Cast<Empires.Technology.Technology.Sector>().ToList(),
                 sector => new List<TextRef>() { sector.ToString(), 0 },
                 200, new List<TextRef>() { "tech_sector", "funding" }, 12, null);
-            Center(tableSectors.transform, new Vector2(-100, -100));
+            UI_Window.TopCenter(tableSectors.transform, new Vector2(-100, -100));
 
 
             InfoTable tableTechs = InfoTable.Create(go.transform, () => Simulation.God.PlayerEmpire.Academy.Unlocks,
                 tech => new List<TextRef>() { tech.Name, tech.Knowledge, tech.Understanding },
                 200, new List<TextRef>() { "", "knowledge", "understanding" }, 12, null);
-            Center(tableTechs.transform, new Vector2(100, -100));
+            UI_Window.TopCenter(tableTechs.transform, new Vector2(100, -100));
             return go;
         }
-
-        static void Center(RectTransform tr, Vector2? offset = null)
-        {
-            tr.anchorMin = new Vector2(0.5f, 1);
-            tr.anchorMax = new Vector2(0.5f, 1);
-            tr.pivot = new Vector2(0.5f, 1);
-            tr.anchoredPosition = offset ?? Vector2.zero;
-        }
-
+        
     }
 }

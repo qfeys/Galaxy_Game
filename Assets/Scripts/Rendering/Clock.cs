@@ -18,10 +18,7 @@ namespace Assets.Scripts.Rendering
             go.transform.SetParent(canvas.transform);
             RectTransform tr = (RectTransform)go.transform;
             tr.sizeDelta = new Vector2(230, 50);
-            tr.anchorMin = new Vector2(1, 1);
-            tr.anchorMax = new Vector2(1, 1);
-            tr.pivot = new Vector2(1, 1);
-            tr.anchoredPosition = new Vector2(0, 0);
+            UI_Window.TopRight(tr);
             Image im = go.AddComponent<Image>();
             im.sprite = Data.Graphics.GetSprite("overview_window_bg");
             im.type = Image.Type.Sliced;
@@ -38,9 +35,7 @@ namespace Assets.Scripts.Rendering
                 Step.transform.SetParent(go.transform);
                 RectTransform trst = (RectTransform)Step.transform;
                 trst.sizeDelta = new Vector2(30, 13);
-                trst.anchorMin = new Vector2(0, 0);
-                trst.anchorMax = new Vector2(0, 0);
-                trst.pivot = new Vector2(0, 0);
+                UI_Window.BottomLeft(trst);
                 float x = 195 - (i % (timeSteps.Count / 2) + 1) * 190 / (timeSteps.Count / 2);
                 float y = (i < timeSteps.Count / 2 ? 0 : 14) + 1;
                 trst.anchoredPosition = new Vector2(x, y);
@@ -59,10 +54,7 @@ namespace Assets.Scripts.Rendering
             pause.transform.SetParent(go.transform);
             RectTransform trps = (RectTransform)pause.transform;
             trps.sizeDelta = new Vector2(28, 24);
-            trps.anchorMin = new Vector2(1, 0);
-            trps.anchorMax = new Vector2(1, 0);
-            trps.pivot = new Vector2(1, 0);
-            trps.anchoredPosition = new Vector2(-5, 2);
+            UI_Window.BottomRight(trps, new Vector2(-5, 2));
             Image imP = pause.AddComponent<Image>();
             imP.sprite = Data.Graphics.GetSprite("tab_image_low");
             imP.raycastTarget = true;

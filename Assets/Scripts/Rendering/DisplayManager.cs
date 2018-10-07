@@ -37,6 +37,7 @@ namespace Assets.Scripts.Rendering
             Clock.Create(mainCanvas);
             SwitchBoard.Create(mainCanvas);
             PopDetails.Create(mainCanvas);
+            EventLogWindow.Create(mainCanvas);
             MouseOver.Create();
             SystemRenderer.Init();
             StarMap.Init();
