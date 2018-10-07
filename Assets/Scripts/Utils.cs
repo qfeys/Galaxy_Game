@@ -286,7 +286,8 @@ namespace Assets.Scripts
     public class SortedList<T> : ICollection<T>
     {
         private readonly List<T> collection = new List<T>();
-        // TODO: initializable:
+        private readonly IComparer<T> comparer;
+
         public SortedList()
         {
             comparer = Comparer<T>.Default;
@@ -295,8 +296,13 @@ namespace Assets.Scripts
         {
             this.comparer = comparer;
         }
+        private SortedList(IComparer<T> comparer, List<T> initial)
+        {
+            collection = initial;
+            this.comparer = comparer;
+            Resort();
+        }
 
-        private readonly IComparer<T> comparer;
 
         public void Add(T item)
         {
@@ -331,8 +337,22 @@ namespace Assets.Scripts
 
         public bool Contains(T item)
         {
-            // TODO: potential optimization
-            return collection.Contains(item);
+            int length = collection.Count;
+            if (length < 20) // Too small, prevent overhead
+                return collection.Contains(item);
+            int current = length / 2;
+            int last = 0;
+            while (last != current)
+            {
+                int comp = comparer.Compare(item, collection[current]);
+                int diff = Math.Abs(current - last);
+                last = current;
+                if (comp == 0)
+                    return true;
+                else
+                    current += comp * diff / 2;
+            }
+            return false;
         }
 
         public bool Remove(T item)
@@ -386,8 +406,65 @@ namespace Assets.Scripts
             collection.Sort(comparer);
         }
 
+        public T this[int key]
+        {
+            get
+            {
+                return collection[key];
+            }
+        }
+
         public int Count { get { return collection.Count; } }
         public bool IsReadOnly { get { return false; } }
+
+        internal void ForEach(Action<T> p)
+        {
+            for (int i = 0; i < collection.Count; i++)
+            {
+                p(collection[i]);
+            }
+        }
+
+        internal SortedList<U> ConvertAll<U>(Converter<T, U> p, IComparer<U> com, bool resort = false)
+        {
+            var r = new SortedList<U>(com, collection.ConvertAll<U>(p));
+            if (resort)
+                r.Resort();
+            return r;
+        }
+
+        internal void RemoveAll(Predicate<T> p)
+        {
+            collection.RemoveAll(p);
+        }
+
+        internal void RemoveList(List<T> list, bool iterateBackwards = false)
+        {
+            int l = collection.Count;
+            int amountLeft = list.Count;
+            if (amountLeft == 0) return;
+            for (int i = iterateBackwards ? l - 1 : 0; iterateBackwards ? i >= 0 : i < l; i += iterateBackwards ? -1 : +1)
+            {
+                if (list.Contains(collection[i]))
+                {
+                    collection.RemoveAt(i);
+                    i += iterateBackwards ? 0 : -1;
+                    amountLeft--;
+                    if (amountLeft <= 0)
+                        return;
+                }
+            }
+        }
+
+        internal static SortedList<T> FromList(IEnumerable<T> list, Comparer<T> comp)
+        {
+            SortedList<T> sl = new SortedList<T>(comp);
+            foreach (T item in list)
+            {
+                sl.Add(item);
+            }
+            return sl;
+        }
     }
 
     public class AstroTimeSpan
