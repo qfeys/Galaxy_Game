@@ -61,11 +61,12 @@ namespace Assets.Scripts
             // Ticks to seconds is devide by 10 milion; one tick is 100 ns
             return new Combination.NonLinear("T " + m.Ticks / 10e6 + " Diff {} mult " + c + " sum", d);
         }
-        
+
         /// <summary>
         /// Create the Changeling by typing it's fromula in reverse polish notation using either spaces or commas as seperators
         /// Use other changelings by using "{i}" and adding that changeling to the parameters
-        /// Use the time by typing "T", use current time by typing "NOW"
+        /// Use the time in days by typing "T", use current time by typing "NOW"
+        /// Use the time in seconds by typing "TS", use current time by typing "NOWS"
         /// Example: "45.3 {0} T DIFF {1} MULT SUM"
         /// Available operations are SUM, DIFF, MULT, DIV, POW
         /// </summary>
@@ -570,9 +571,9 @@ namespace Assets.Scripts
                     return RPN_Token.EvaluateStack(reversePolishStack, moment);
                 }
 
-                TimeSpan[] evaluationMoments = new TimeSpan[10]{TimeSpan.FromSeconds(5),TimeSpan.FromMinutes(1),TimeSpan.FromMinutes(30),TimeSpan.FromHours(2),
-                                                                TimeSpan.FromHours(12),TimeSpan.FromDays(2),TimeSpan.FromDays(7),TimeSpan.FromDays(30),
-                                                                TimeSpan.FromDays(200), TimeSpan.FromDays(2000) };
+                static TimeSpan[] evaluationMoments = new TimeSpan[10]{TimeSpan.FromSeconds(5),TimeSpan.FromMinutes(1),TimeSpan.FromMinutes(30),TimeSpan.FromHours(2),
+                                                                    TimeSpan.FromHours(12),TimeSpan.FromDays(2),TimeSpan.FromDays(7),TimeSpan.FromDays(30),
+                                                                    TimeSpan.FromDays(200), TimeSpan.FromDays(2000) };
 
                 internal override DateTime FindMomentAtValue(double trigger)
                 {
@@ -634,7 +635,11 @@ namespace Assets.Scripts
                 /// <param name="combination"></param>
                 override protected void Register(Combination combination)
                 {
-                    reversePolishStack.ForEach(token => { if (token.token_Type == RPN_Token.Token_Type.CHANGELING) token.changeling.Register(combination); });
+                    reversePolishStack.ForEach(token => 
+                    {
+                        if (token.token_Type == RPN_Token.Token_Type.CHANGELING)
+                            token.changeling.Register(combination);
+                    });
                 }
 
                 protected override void UnRegister(Combination combination)
@@ -642,20 +647,31 @@ namespace Assets.Scripts
                     reversePolishStack.ForEach(token => { if (token.token_Type == RPN_Token.Token_Type.CHANGELING) token.changeling.UnRegister(combination); });
                 }
 
+                public override string ToString()
+                {
+                    return string.Join(", ",reversePolishStack);
+                }
+
                 struct RPN_Token
                 {
                     public enum Token_Type { NUMBER, CHANGELING, TIME, OPERATION}
                     public enum Operation { SUM, DIFF, MULT, DIV, POW}
+                    public enum TimeMode { SEC, DAY}
 
                     public Token_Type token_Type;
                     public double number;
                     public Changeling changeling;
                     public Operation operation;
+                    public TimeMode timeMode;
+
+                    const double TICKS_PER_SECOND = 10e6;
+                    const double SECONDS_PER_DAY = 3600 * 24;
 
                     /// <summary>
                     /// Create the Changeling by typing it's fromula in reverse polish notation using either spaces or commas as seperators
                     /// Use other changelings by using "{i}" and adding that changeling to the parameters
-                    /// Use the time by typing "T", use current time by typing "NOW"
+                    /// Use the time in days by typing "T", use current time by typing "NOW"
+                    /// Use the time in seconds by typing "TS", use current time by typing "NOWS"
                     /// Example: "45.3 {0} T DIFF {1} MULT SUM"
                     /// Available operations are SUM, DIFF, MULT, DIV, POW
                     /// </summary>
@@ -673,9 +689,13 @@ namespace Assets.Scripts
                         {
                             string token = op_array[i];
                             if (token == "T")
-                                list.Add(new RPN_Token() { token_Type = Token_Type.TIME });
+                                list.Add(new RPN_Token() { token_Type = Token_Type.TIME, timeMode = TimeMode.DAY });
+                            else if (token == "TS")
+                                list.Add(new RPN_Token() { token_Type = Token_Type.TIME, timeMode = TimeMode.SEC });
                             else if (token == "NOW")
-                                list.Add(new RPN_Token() { token_Type = Token_Type.NUMBER, number = God.Time.Ticks / 10e6 });
+                                list.Add(new RPN_Token() { token_Type = Token_Type.NUMBER, number = God.Time.Ticks / (TICKS_PER_SECOND * SECONDS_PER_DAY) });
+                            else if (token == "NOWS")
+                                list.Add(new RPN_Token() { token_Type = Token_Type.NUMBER, number = God.Time.Ticks / TICKS_PER_SECOND });
                             else if (token[0] == '{')
                             {
                                 if (token[token.Length - 1] == '}')
@@ -721,7 +741,9 @@ namespace Assets.Scripts
                             bool currentIsNumber = current.token_Type != Token_Type.OPERATION;
                             if (currentIsNumber && lastIsNumber)
                             {
-                                EvaluateSingleOperation(moment, stack);
+                                do
+                                    EvaluateSingleOperation(moment, stack);
+                                while (stack.Count > 2 && stack.ElementAt(1).token_Type != Token_Type.OPERATION);
                             }
                             lastIsNumber = currentIsNumber;
                         }
@@ -735,11 +757,13 @@ namespace Assets.Scripts
                     private static void EvaluateSingleOperation(DateTime moment, Stack<RPN_Token> stack)
                     {
                         RPN_Token current = stack.Pop();
-                        double currentNum = current.token_Type == Token_Type.NUMBER ? current.number : 
-                            current.token_Type == Token_Type.CHANGELING ? current.changeling.Value(moment) : God.Time.Ticks / 10e6;
+                        double currentNum = current.token_Type == Token_Type.NUMBER ? current.number :
+                            current.token_Type == Token_Type.CHANGELING ? current.changeling.Value(moment) :
+                            current.timeMode == TimeMode.SEC ? God.Time.Ticks / TICKS_PER_SECOND : God.Time.Ticks / (TICKS_PER_SECOND * SECONDS_PER_DAY);
                         RPN_Token last = stack.Pop();
                         double lastNum = last.token_Type == Token_Type.NUMBER ? last.number :
-                            last.token_Type == Token_Type.CHANGELING ? last.changeling.Value(moment) : God.Time.Ticks / 10e6;
+                            last.token_Type == Token_Type.CHANGELING ? last.changeling.Value(moment) :
+                            last.timeMode == TimeMode.SEC ? God.Time.Ticks / TICKS_PER_SECOND : God.Time.Ticks / (TICKS_PER_SECOND * SECONDS_PER_DAY);
                         RPN_Token operation = stack.Pop();
                         switch (operation.operation)
                         {
@@ -757,7 +781,7 @@ namespace Assets.Scripts
                         switch (token_Type)
                         {
                         case Token_Type.NUMBER: return number.ToString("0.0");
-                        case Token_Type.TIME: return "T";
+                        case Token_Type.TIME: return timeMode == TimeMode.DAY ? "T" : "Ts";
                         case Token_Type.OPERATION: return operation.ToString();
                         case Token_Type.CHANGELING: return "{"+changeling.Value()+"}";
                         default: throw new Exception("Bad Token");
@@ -819,21 +843,27 @@ namespace Assets.Scripts
             {
                 DateTime date = reference.FindMomentAtValue(trigger);
                 bool isFuture = date.CompareTo(God.Time) > 0;
-                if(evnt == null && isFuture)
+                if (isFuture)
                 {
-                    evnt = new Event(date, callback);
-                }else if(evnt != null && isFuture)
+                    if (evnt == null)
+                    {
+                        evnt = new Event(date, callback);
+                    } else if (evnt != null)
+                    {
+                        if (evnt.moment.CompareTo(date) != 0)
+                        {
+                            evnt.Delete();
+                            evnt = new Event(date, callback);
+                        }
+                    }
+                } else
                 {
-                    if(evnt.moment.CompareTo(date) != 0)
+                    UnityEngine.Debug.Log("Event in the past at moment: " + date + ". ref: " + reference.ToString());
+                    if (evnt != null)
                     {
                         evnt.Delete();
-                        evnt = new Event(date, callback);
+                        evnt = null;
                     }
-                }
-                if(evnt != null && !isFuture)
-                {
-                    evnt.Delete();
-                    evnt = null;
                 }
             }
 

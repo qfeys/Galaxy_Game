@@ -5,7 +5,7 @@
 installations = {
 
 	general_industry = {
-		cost_work = 120
+		cost_work = 1200
 		cost_resources = {
 			steel = 60
 			nonFerrous = 30
@@ -21,7 +21,7 @@ installations = {
 	}
 
 	construction_factory = {
-		cost_work = 120
+		cost_work = 1200
 		cost_resources = {
 			steel = 60
 			nonFerrous = 30
@@ -36,7 +36,7 @@ installations = {
 	}
 
 	module_factory = {
-		cost_work = 120
+		cost_work = 1200
 		cost_resources = {
 			steel = 60
 			nonFerrous = 30
@@ -51,7 +51,7 @@ installations = {
 	}
 
 	mining_equipment = {
-		cost_work = 120
+		cost_work = 1200
 		cost_resources = {
 			steel = 60
 			nonFerrous = 30
@@ -66,7 +66,7 @@ installations = {
 	}
 
 	trade_center = {
-		cost_work = 120
+		cost_work = 1200
 		cost_resources = {
 			steel = 20
 			nonFerrous = 40

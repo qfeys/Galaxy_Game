@@ -26,11 +26,13 @@ namespace Assets.Scripts.Empires.Demographics
             poverty = 0.1;
             inequality = 0.4;
             happiness = 0;
-            // 1e9 * (1 + {0}) ^ ((T-t) / (3600*24*356))
-            // 1e9 (1 {0} SUM)(T t diff num div) POW MULT
+            // 1e9 * (1 + {0}) ^ ((T-t) / 365)
+            // 1e9 (1 {0} SUM)(T t diff 365 div) POW MULT
             YearlyGrowth = Changeling.Create(0.04);
-            Count = Changeling.Create("1e9 1 {0} SUM T now diff " + (3600 * 24 * 256) + " div POW MULT", YearlyGrowth);
+            Count = Changeling.Create("1e9 1 {0} SUM T now diff 365 div POW MULT", YearlyGrowth);
             FreeIndustrialPopulation = Count * 0.01;
+            UnityEngine.Debug.Log("Population: " + Count.Value());
+            UnityEngine.Debug.Log("Free industrial population: " + FreeIndustrialPopulation);
         }
     }
 }

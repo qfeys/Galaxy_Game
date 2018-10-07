@@ -37,12 +37,17 @@ namespace Assets.Scripts.Empires.Industry
         {
             this.parent = parent;
             stockpile = new Stockpile();
+            installations = new Dictionary<Installation, int>();
             constructionQueue = new List<Job>();
             productionQueue = new List<Job>();
             workDoneOnCurrentConstruction = Changeling.ReserveComplex();
             nextConstructionEvent = workDoneOnCurrentConstruction.Subscribe(double.MinValue, ConstructionCompleted);
             workDoneOnCurrentProduction = Changeling.ReserveComplex();
             nextProductionEvent = workDoneOnCurrentProduction.Subscribe(double.MinValue, ProductionCompleted);
+            constructionCapacity = Changeling.ReserveComplex();
+            componentProduction = Changeling.ReserveComplex();
+            electronicsProduction = Changeling.ReserveComplex();
+            RecalculateConstructionCapacity();
         }
 
         public void RecalculateConstructionCapacity()
@@ -70,6 +75,10 @@ namespace Assets.Scripts.Empires.Industry
         {
             Job j = new Job(instl, amount, capacity);
             constructionQueue.Add(j);
+            if(constructionQueue.Count == 1)
+            {
+                workDoneOnCurrentConstruction.Modify("T now diff {} mult", constructionCapacity);
+            }
             RecalculateNextConstructionEvent();
         }
 

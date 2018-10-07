@@ -11,17 +11,23 @@ namespace Assets.Scripts.Simulation
         static SortedList<Event> events =
             new SortedList<Event>(Comparer<Event>.Create((x, y) => x.moment.CompareTo(y.moment)));
 
+        public static List<Event> EventList { get { return new List<Event>(events); } }
+
         public static DateTime NextEvent
         {
             get
             {
                 if (events.Count != 0) return events.PeekFirst().moment;
-                else return DateTime.MaxValue;
+                else {
+                    events.Add(new Event(God.Time + TimeSpan.FromDays(1000), () => { }));
+                    return events.PeekFirst().moment;
+                }
             }
         }
 
         public static void Add(Event evnt)
         {
+            UnityEngine.Debug.Log("Event Added");
             events.Add(evnt);
         }
 
